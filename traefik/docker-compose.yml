@@ -17,7 +17,7 @@ services:
       - --api.dashboard=true
       - --api.debug=true
       # - --api.insecure=true
-      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesResolvers.leresolver.acme.dnsChallenge.provider=cloudflare
       - --certificatesresolvers.leresolver.acme.dnschallenge=true
       - "--certificatesresolvers.leresolver.acme.email=${CF_API_EMAIL}"
@@ -35,17 +35,17 @@ services:
       - web
     labels:
       - "traefik.enable=true"
+      - "traefik.http.middlewares.auth.basicauth.users=${USERS}"
+      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.secured.chain.middlewares=redirectscheme,auth"
       - "traefik.http.routers.api.entrypoints=web,websecure"
+      - "traefik.http.routers.api.middlewares=secured"
       - "traefik.http.routers.api.rule=Host(`monitor.${DOMAIN}`)"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.tls.certresolver=leresolver"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.services.api.loadbalancer.server.port=8080"
-      - "traefik.http.routers.api.middlewares=redirectscheme@docker"
-      - "traefik.http.routers.api.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=${USERS}"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
 
 networks:
   web:
