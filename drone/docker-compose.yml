@@ -24,14 +24,12 @@ services:
       - "traefik.docker.network=web"
       - "traefik.enable=true"
       - "traefik.http.routers.drone.entrypoints=web,websecure"
+      - "traefik.http.routers.drone.middlewares=redirect_scheme,secured_headers"
       - "traefik.http.routers.drone.rule=Host(`drone.${DOMAIN}`)"
       - "traefik.http.routers.drone.service=drone@docker"
       - "traefik.http.routers.drone.tls.certresolver=leresolver"
       - "traefik.http.routers.drone.tls=true"
       - "traefik.http.services.drone.loadbalancer.server.port=80"
-      - "traefik.http.routers.drone.middlewares=redirectscheme@docker"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
 networks:
   web:
     external: true

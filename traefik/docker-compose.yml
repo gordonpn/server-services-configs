@@ -28,23 +28,35 @@ services:
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=web
       - --providers.docker=true
+      - --providers.file.filename=/traefik_conf.yaml
     volumes:
       - ./letsencrypt:/letsencrypt
+      - ./traefik_conf.yaml:/traefik_conf.yaml
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - web
     labels:
       - "traefik.enable=true"
+      - "traefik.http.middlewares.auth.basicauth.removeheader=true"
       - "traefik.http.middlewares.auth.basicauth.users=${USERS}"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.permanent=true"
-      - "traefik.http.middlewares.redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.secured.chain.middlewares=redirectscheme,auth"
+      - "traefik.http.middlewares.redirect_scheme.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.redirect_scheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.secured_headers.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.secured_headers.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.secured_headers.headers.forcestsheader=true"
+      - "traefik.http.middlewares.secured_headers.headers.sslredirect=true"
+      - "traefik.http.middlewares.secured_headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.secured_headers.headers.stspreload=true"
+      - "traefik.http.middlewares.secured_headers.headers.stsseconds=315360000"
       - "traefik.http.routers.api.entrypoints=web,websecure"
-      - "traefik.http.routers.api.middlewares=secured"
+      - "traefik.http.routers.api.middlewares=redirect_scheme,auth,secured_headers"
       - "traefik.http.routers.api.rule=Host(`monitor.${DOMAIN}`)"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.tls.certresolver=leresolver"
       - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.http_catchall.entrypoints=web"
+      - "traefik.http.routers.http_catchall.middlewares=redirect_scheme,secured_headers"
+      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
       - "traefik.http.services.api.loadbalancer.server.port=8080"
 
 networks:
