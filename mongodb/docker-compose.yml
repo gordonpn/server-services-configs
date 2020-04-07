@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    volumes:
+      - dev-mongodb-data:/data/db
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    env_file:
+      - .env
+
+volumes:
+  dev-mongodb-data:
+    external:
+      name: dev-mongodb-data
