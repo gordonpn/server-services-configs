@@ -7,7 +7,7 @@ services:
     container_name: traefik
     ports:
       - "80:80"
-      - 8080
+      # - 8080
       - "443:443"
     environment:
       - CF_API_EMAIL

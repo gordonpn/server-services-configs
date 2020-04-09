@@ -14,9 +14,6 @@ services:
       - TZ=America/Montreal
     volumes:
       - /var/lib/drone:/data
-    # ports:
-      # - 1080:80
-      # - 1043:443
     restart: always
     networks:
       - web
