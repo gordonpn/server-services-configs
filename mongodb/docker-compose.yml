@@ -4,7 +4,7 @@ services:
     image: mongo:latest
     container_name: mongo
     volumes:
-      - dev-mongodb-data:/data/db
+      - dev-mongodb-library:/data/db
     restart: unless-stopped
     ports:
       - 27017:27017
@@ -16,10 +16,20 @@ services:
       - mongo
     ports:
       - 8081:8081
-    env_file:
-      - .env
+    environment: 
+      - TZ
+      - ME_CONFIG_BASICAUTH_PASSWORD
+      - ME_CONFIG_BASICAUTH_USERNAME
+      - ME_CONFIG_MONGODB_AUTH_DATABASE
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD
+      - ME_CONFIG_MONGODB_AUTH_USERNAME
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN
+      - ME_CONFIG_MONGODB_PORT
+      - ME_CONFIG_MONGODB_SERVER
+      - MONGO_INITDB_ROOT_PASSWORD
+      - MONGO_INITDB_ROOT_USERNAME
 
 volumes:
-  dev-mongodb-data:
+  dev-mongodb-library:
     external:
-      name: dev-mongodb-data
+      name: dev-mongodb-library

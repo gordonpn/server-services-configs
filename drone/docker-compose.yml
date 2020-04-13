@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 services:
   drone:
     image: drone/drone:1
@@ -11,7 +11,7 @@ services:
       - DRONE_SERVER_PROTO
       - DRONE_USER_FILTER
       - DRONE_USER_CREATE
-      - TZ=America/Montreal
+      - TZ
     volumes:
       - /var/lib/drone:/data
     restart: always

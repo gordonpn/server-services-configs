@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 services:
   traefik:
@@ -12,7 +12,7 @@ services:
     environment:
       - CF_API_EMAIL
       - CF_API_KEY
-      - TZ=America/Montreal
+      - TZ
     command:
       - --api.dashboard=true
       - --api.debug=true

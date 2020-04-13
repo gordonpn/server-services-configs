@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 services:
   whoami:
     image: containous/whoami
@@ -9,7 +9,7 @@ services:
       - "traefik.docker.network=web"
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.entrypoints=web,websecure"
-      - "traefik.http.routers.whoami.rule=Host(`dev-whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       # - "traefik.http.routers.whoami.service=drone@docker"
       - "traefik.http.routers.whoami.tls.certresolver=leresolver"
       - "traefik.http.routers.whoami.tls=true"

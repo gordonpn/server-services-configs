@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   portainer:
+    container_name: portainer
     image: portainer/portainer
     command: -H unix:///var/run/docker.sock
     restart: unless-stopped
@@ -14,7 +15,7 @@ services:
     networks:
       - web
     environment: 
-      - TZ=America/Montreal
+      - TZ
     labels:
       - "traefik.docker.network=web"
       - "traefik.enable=true"

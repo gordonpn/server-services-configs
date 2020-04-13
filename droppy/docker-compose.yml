@@ -2,8 +2,7 @@ version: '3.7'
 services:
   droppy:
     image: silverwind/droppy
-    # ports:
-    #   - '127.0.0.1:8989:8989'
+    container_name: droppy
     volumes:
       - droppy-appdata:/config
       - ${DROPPY_FOLDER}:/files
@@ -11,7 +10,7 @@ services:
     environment: 
       - UID=1000
       - GID=1000
-      - TZ=America/Montreal
+      - TZ
     networks:
       - web
     labels:
