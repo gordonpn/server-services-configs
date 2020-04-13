@@ -1,29 +1,11 @@
 This reposity contains configuration (docker-compose.yml files) to set up the services I run on my home server:
 
-- Drone CI and runners 
-
-    CI/CD
-
-- Droppy 
-
-    File storage
-
-- MongoDB and Mongo-express 
-
-    Debugging
-
-- Portainer 
-
-    Visually see Docker containers, etc
-
-- Slack-docker
-
-    Notifications
-
-- Traefik
-
-    Reverse proxy
-
-- Whoami
-
-    Debugging
+| Service                   | Purpose                                                   |
+|---------------------------|-----------------------------------------------------------|
+| Drone CI and runners      | CI/CD                                                     |
+| Droppy                    | File storage                                              |
+| MongoDB and Mongo-express | Visual debugging                                          |
+| Portainer                 | Fun to look at docker from the web                        |
+| Slack-docker              | Notifications to my Slack workspace about docker activity |
+| Traefik                   | Reverse proxy                                             |
+| Whoami                    | Reverse proxy debugging                                   |
