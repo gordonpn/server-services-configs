@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  resilio-sync:
+    container_name: resilio-sync
+    user: 1000:1000
+    ports:
+      - 8888:8888
+      - 55555
+    volumes:
+      - ${SYNC_FOLDER}:/mnt/sync
+    restart: unless-stopped
+    environment: 
+      - UID=1000
+      - GID=1000
+      - TZ
+    image: resilio/sync

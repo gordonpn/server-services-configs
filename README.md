@@ -9,3 +9,4 @@ This reposity contains configuration (docker-compose.yml files) to set up the se
 | Slack-docker              | Notifications to my Slack workspace about docker activity |
 | Traefik                   | Reverse proxy                                             |
 | Whoami                    | Reverse proxy debugging                                   |
+| Resilio Sync              | Real time peer to peer syncing                            |
