@@ -7,31 +7,17 @@ services:
     container_name: traefik
     ports:
       - "80:80"
-      # - 8080
       - "443:443"
     environment:
       - CF_API_EMAIL
       - CF_API_KEY
       - TZ
-    command:
-      - --api.dashboard=true
-      - --api.debug=true
-      # - --api.insecure=true
-      # - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
-      - --certificatesResolvers.leresolver.acme.dnsChallenge.provider=cloudflare
-      - --certificatesresolvers.leresolver.acme.dnschallenge=true
-      - "--certificatesresolvers.leresolver.acme.email=${CF_API_EMAIL}"
-      - --certificatesresolvers.leresolver.acme.storage=/letsencrypt/acme.json
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --log.level=DEBUG
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.network=web
-      - --providers.docker=true
-      - --providers.file.filename=/traefik_conf.yaml
     volumes:
       - ./letsencrypt:/letsencrypt
-      - ./traefik_conf.yaml:/traefik_conf.yaml
+      - ./traefik.log:/traefik.log
+      - ./access.log:/access.log
+      - ./traefik.yaml:/traefik.yaml
+      - ./dynamic_conf:/dynamic_conf
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - web
@@ -48,15 +34,9 @@ services:
       - "traefik.http.middlewares.secured_headers.headers.stsincludesubdomains=true"
       - "traefik.http.middlewares.secured_headers.headers.stspreload=true"
       - "traefik.http.middlewares.secured_headers.headers.stsseconds=315360000"
-      - "traefik.http.routers.api.entrypoints=web,websecure"
-      - "traefik.http.routers.api.middlewares=redirect_scheme,auth,secured_headers"
-      - "traefik.http.routers.api.rule=Host(`monitor.${DOMAIN}`)"
-      - "traefik.http.routers.api.service=api@internal"
-      - "traefik.http.routers.api.tls.certresolver=leresolver"
-      - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.http_catchall.entrypoints=web"
       - "traefik.http.routers.http_catchall.middlewares=redirect_scheme,secured_headers"
-      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.services.api.loadbalancer.server.port=8080"
 
 networks:

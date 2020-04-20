@@ -1,0 +1,33 @@
+http:
+  routers:
+    api:
+      entryPoints:
+        - web
+        - websecure
+      middlewares:
+        - redirect_scheme
+        - secured_headers
+        - auth@docker
+        - rate_limit
+      service: "api@internal"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`monitor.gordon-pn.com`)"
+  middlewares:
+    rate_limit:
+      rateLimit:
+        average: 100
+        burst: 50
+    secured_headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        sslRedirect: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 315360000
+    redirect_scheme:
+      redirectScheme:
+        permanent: true
+        scheme: "https"
