@@ -23,8 +23,6 @@ services:
       - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.middlewares.auth.basicauth.removeheader=true"
-      - "traefik.http.middlewares.auth.basicauth.users=${USERS}"
       - "traefik.http.middlewares.redirect_scheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.redirect_scheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.secured_headers.headers.browserxssfilter=true"
@@ -38,6 +36,29 @@ services:
       - "traefik.http.routers.http_catchall.middlewares=redirect_scheme,secured_headers"
       - "traefik.http.routers.http_catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.services.api.loadbalancer.server.port=8080"
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:latest
+    restart: always
+    networks:
+      - web
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - CLIENT_ID
+      - CLIENT_SECRET
+      - SECRET
+      - COOKIE_DOMAIN=$DOMAIN
+      - INSECURE_COOKIE=false
+      - AUTH_HOST=oauth.$DOMAIN
+      - URL_PATH=/_oauth
+      - WHITELIST=$CF_API_EMAIL
+      - LOG_LEVEL=info
+      - LOG_FORMAT=text
+      - LIFETIME=2592000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.oauth.loadbalancer.server.port=4181"
 
 networks:
   web:

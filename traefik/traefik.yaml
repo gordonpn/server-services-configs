@@ -4,7 +4,7 @@ entryPoints:
   websecure:
     address: ":443"
     forwardedHeaders:
-      trustedIPs:
+      trustedIPs: # cloudflare IPs
         - "173.245.48.0/20"
         - "103.21.244.0/22"
         - "103.22.200.0/22"

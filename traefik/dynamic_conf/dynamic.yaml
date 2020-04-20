@@ -2,22 +2,37 @@ http:
   routers:
     api:
       entryPoints:
-        - web
         - websecure
       middlewares:
         - redirect_scheme
         - secured_headers
-        - auth@docker
+        - oauth
         - rate_limit
       service: "api@internal"
       tls:
         certResolver: "leresolver"
       rule: "Host(`monitor.gordon-pn.com`)"
+    oauth:
+      entryPoints:
+        - websecure
+      middlewares:
+        - rate_limit
+        - secured_headers
+        - oauth
+      service: "oauth@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`oauth.gordon-pn.com`)"
   middlewares:
     rate_limit:
       rateLimit:
         average: 100
         burst: 50
+    oauth:
+      forwardAuth:
+        address: "http://oauth:4181"
+        trustForwardHeader: true
+        authResponseHeaders: ["X-Forwarded-User"]
     secured_headers:
       headers:
         browserXssFilter: true
@@ -27,6 +42,9 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         stsSeconds: 315360000
+        referrerPolicy: "same-origin" 
+        hostsProxyHeaders: ["X-Forwarded-Host"]
+        accessControlMaxAge: 100
     redirect_scheme:
       redirectScheme:
         permanent: true
