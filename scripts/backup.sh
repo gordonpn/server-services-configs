@@ -5,12 +5,12 @@ curl --retry 3 https://hc-ping.com/"$HC_UUID"/start
 echo
 
 backup_folders=(
-	"/home"
-	"/var/spool/mail"
-	"/etc"
-	"/root"
 	"/boot"
-	"/opt"
+	"/etc"
+	"/home"
+	"/var/spool/cron/crontabs"
+	"/var/spool/mail"
+	"/root"
 )
 
 dest="$BACKUP_DIR"
