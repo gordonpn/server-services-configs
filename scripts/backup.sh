@@ -41,4 +41,9 @@ date
 ls -lh "$dest"
 
 echo
-[ $status -eq 0 ] && curl --retry 3 https://hc-ping.com/"$HC_UUID" || curl --retry 3 https://hc-ping.com/"$HC_UUID"/fail
+if [ $status -eq 0 ]
+then
+	curl --retry 3 https://hc-ping.com/"$HC_UUID"
+else
+	curl --retry 3 https://hc-ping.com/"$HC_UUID"/fail
+fi
