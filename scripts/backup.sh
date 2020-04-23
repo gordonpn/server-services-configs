@@ -2,20 +2,37 @@
 set -o allexport; source .env; set +o allexport
 
 curl --retry 3 https://hc-ping.com/"$HC_UUID"/start
+echo
 
-backup_files="/home /var/spool/mail /etc /root /boot /opt"
+backup_folders=(
+	"/home"
+	"/var/spool/mail"
+	"/etc"
+	"/root"
+	"/boot"
+	"/opt"
+)
 
 dest="$BACKUP_DIR"
 
 day=$(date +%A)
 hostname=$(hostname -s)
-archive_file="$hostname-$day.tgz"
+archive_file="$hostname-$day.tar"
 
-echo "Backing up $backup_files to $dest/$archive_file"
-date
-echo
+for folder in "${backup_folders[@]}"
+do
+	if [ ! -f "$dest"/"$archive_file" ]; then
+		tar cf "$dest"/"$archive_file" "$folder"
+		status=$?
+	fi
 
-tar czf "$dest"/"$archive_file" "$backup_files" || curl --retry 3 https://hc-ping.com/"$HC_UUID"/fail
+	echo "Backing up $folder to $dest/$archive_file"
+	date
+	echo
+
+	tar rf "$dest"/"$archive_file" "$folder"
+	status=$?
+done
 
 echo
 echo "Backup finished"
@@ -23,4 +40,5 @@ date
 
 ls -lh "$dest"
 
-curl --retry 3 https://hc-ping.com/"$HC_UUID"
+echo
+[ $status -eq 0 ] && curl --retry 3 https://hc-ping.com/"$HC_UUID" || curl --retry 3 https://hc-ping.com/"$HC_UUID"/fail
