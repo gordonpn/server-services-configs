@@ -23,6 +23,18 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
+    dozzle:
+      entryPoints:
+        - websecure
+      middlewares:
+        - oauth
+        - rate_limit
+        - redirect_scheme
+        - secured_headers
+      service: "dozzle-dozzle@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`dozzle.gordon-pn.com`)"
   middlewares:
     rate_limit:
       rateLimit:

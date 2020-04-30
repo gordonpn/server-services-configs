@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    restart: always
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    expose:
+      - 8080
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+networks:
+  web:
+    external: true

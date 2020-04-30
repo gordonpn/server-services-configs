@@ -4,7 +4,7 @@ services:
     image: mongo:latest
     container_name: mongo
     volumes:
-      - dev-mongodb-library:/data/db
+      - dev-mongodb-slackbot:/data/db
     restart: unless-stopped
     ports:
       - 27017:27017
@@ -30,6 +30,6 @@ services:
       - MONGO_INITDB_ROOT_USERNAME
 
 volumes:
-  dev-mongodb-library:
+  dev-mongodb-slackbot:
     external:
-      name: dev-mongodb-library
+      name: dev-mongodb-slackbot

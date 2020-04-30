@@ -10,3 +10,4 @@ This reposity contains configuration (docker-compose.yml files) to set up the se
 | Traefik                   | Reverse proxy                                             |
 | Whoami                    | Reverse proxy debugging                                   |
 | Resilio Sync              | Real time peer to peer syncing                            |
+| Dozzle                    | Real-time Docker container log viewer                     |
