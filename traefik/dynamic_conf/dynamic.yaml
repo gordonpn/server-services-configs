@@ -35,6 +35,17 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`dozzle.gordon-pn.com`)"
+    personal-site:
+      entryPoints:
+        - websecure
+      middlewares:
+        - rate_limit
+        - redirect_scheme
+        - secured_headers
+      service: "personal-site-personal-site@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`gordon-pn.com`)"
   middlewares:
     rate_limit:
       rateLimit:
