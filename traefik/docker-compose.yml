@@ -14,8 +14,8 @@ services:
       - TZ
     volumes:
       - ./letsencrypt:/letsencrypt
-      - ./traefik.log:/traefik.log
-      - ./access.log:/access.log
+      #- ./traefik.log:/traefik.log
+      #- ./access.log:/access.log
       - ./traefik.yaml:/traefik.yaml
       - ./dynamic_conf:/dynamic_conf
       - /var/run/docker.sock:/var/run/docker.sock
