@@ -1,5 +1,13 @@
 http:
   routers:
+    http_catch_all:
+      entryPoints:
+        - web
+      middlewares:
+        - redirect_scheme
+        - secured_headers
+      service: "noop@internal"
+      rule: "HostRegexp(`{host:.+}`)"
     api:
       entryPoints:
         - websecure
@@ -19,7 +27,7 @@ http:
         - rate_limit
         - secured_headers
         - oauth
-      service: "oauth@docker"
+      service: "oauth-traefik@docker" 
       tls:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
@@ -35,6 +43,26 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`dozzle.gordon-pn.com`)"
+    droppy:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+        - redirect_scheme
+      service: "droppy-droppy@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`droppy.gordon-pn.com`)"
+    drone:
+      entryPoints: 
+        - websecure
+      middlewares:
+        - redirect_scheme
+        - secured_headers
+      service: "drone-drone@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`drone.gordon-pn.com`)"
     personal-site:
       entryPoints:
         - websecure
