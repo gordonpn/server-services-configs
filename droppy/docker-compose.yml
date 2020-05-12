@@ -3,7 +3,6 @@ services:
   droppy:
     image: silverwind/droppy
     container_name: droppy
-    user: 1000:1000
     volumes:
       - droppy-appdata:/config
       - ${DROPPY_FOLDER}:/files
