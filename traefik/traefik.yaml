@@ -37,10 +37,10 @@ tls:
 
     mintls13:
       minVersion: VersionTLS13
-log:
-  filePath: "/traefik.log"
-  format: json
-  level: DEBUG
+# log:
+#   filePath: "/traefik.log"
+#   format: json
+#   level: DEBUG
 providers:
   file:
     directory: "/dynamic_conf"
@@ -58,7 +58,7 @@ certificatesResolvers:
 api:
   debug: true
   dashboard: true
-accessLog:
-  filePath: "/access.log"
-  format: json
-  bufferingSize: 100
+# accessLog:
+#   filePath: "/access.log"
+#   format: json
+#   bufferingSize: 100
