@@ -37,10 +37,7 @@ tls:
 
     mintls13:
       minVersion: VersionTLS13
-# log:
-#   filePath: "/traefik.log"
-#   format: json
-#   level: DEBUG
+
 providers:
   file:
     directory: "/dynamic_conf"
@@ -48,6 +45,7 @@ providers:
   docker:
     exposedByDefault: false
     network: web
+
 certificatesResolvers:
   leresolver:
     acme:
@@ -55,9 +53,10 @@ certificatesResolvers:
         provider: cloudflare
       email: contact@gordon-pn.com
       storage: "/letsencrypt/acme.json"
+
 api:
-  debug: true
   dashboard: true
+
 # accessLog:
 #   filePath: "/access.log"
 #   format: json

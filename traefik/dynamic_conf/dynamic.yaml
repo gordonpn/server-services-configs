@@ -1,5 +1,7 @@
 http:
+
   routers:
+
     http_catch_all:
       entryPoints:
         - web
@@ -8,6 +10,7 @@ http:
         - secured_headers
       service: "noop@internal"
       rule: "HostRegexp(`{host:.+}`)"
+
     api:
       entryPoints:
         - websecure
@@ -20,6 +23,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`monitor.gordon-pn.com`)"
+
     oauth:
       entryPoints:
         - websecure
@@ -31,6 +35,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
+
     dozzle:
       entryPoints:
         - websecure
@@ -43,6 +48,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`dozzle.gordon-pn.com`)"
+
     droppy:
       entryPoints:
         - websecure
@@ -53,6 +59,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`droppy.gordon-pn.com`)"
+      
     drone:
       entryPoints: 
         - websecure
@@ -63,6 +70,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`drone.gordon-pn.com`)"
+
     personal-site:
       entryPoints:
         - websecure
@@ -74,16 +82,28 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`gordon-pn.com`)"
+
   middlewares:
+
+    local_only:
+      ipWhiteList:
+        sourceRange:
+          - "192.168.1.0/24"
+          - "127.0.0.1/32"
+        ipStrategy:
+          depth: 4
+
     rate_limit:
       rateLimit:
         average: 100
         burst: 50
+
     oauth:
       forwardAuth:
         address: "http://oauth:4181"
         trustForwardHeader: true
         authResponseHeaders: ["X-Forwarded-User"]
+
     secured_headers:
       headers:
         browserXssFilter: true
@@ -96,6 +116,7 @@ http:
         referrerPolicy: "same-origin" 
         hostsProxyHeaders: ["X-Forwarded-Host"]
         accessControlMaxAge: 100
+
     redirect_scheme:
       redirectScheme:
         permanent: true
