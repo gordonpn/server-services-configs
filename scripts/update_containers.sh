@@ -18,8 +18,8 @@ container_dirs=(
 for dir in "${container_dirs[@]}"
 do
 	cd "$base_path"/"$dir" || break
-	docker-compose pull
-	docker-compose up --remove-orphans --detach
+	/usr/local/bin/docker-compose pull
+	/usr/local/bin/docker-compose up --remove-orphans --detach
 done
 
 curl --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"
