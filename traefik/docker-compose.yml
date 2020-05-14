@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   traefik:
     image: traefik:2.2

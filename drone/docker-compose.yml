@@ -20,7 +20,6 @@ services:
     networks:
       - web
     labels:
-      - "traefik.docker.network=web"
       - "traefik.enable=true"
   drone-runner:
     container_name: drone-runner
@@ -36,6 +35,7 @@ services:
     ports:
       - 3000:3000
     restart: always
+    
 networks:
   web:
     external: true

@@ -16,12 +16,13 @@ services:
     networks:
       - web
     labels:
-      - "traefik.docker.network=web"
       - "traefik.enable=true"
+
 volumes: 
   droppy-appdata:
     external: 
       name: droppy-appdata
+
 networks:
   web:
     external: true

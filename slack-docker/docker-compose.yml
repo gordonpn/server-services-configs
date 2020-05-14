@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   slack-docker:
     container_name: slack-docker

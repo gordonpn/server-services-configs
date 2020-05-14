@@ -85,14 +85,6 @@ http:
 
   middlewares:
 
-    local_only:
-      ipWhiteList:
-        sourceRange:
-          - "192.168.1.0/24"
-          - "127.0.0.1/32"
-        ipStrategy:
-          depth: 4
-
     rate_limit:
       rateLimit:
         average: 100

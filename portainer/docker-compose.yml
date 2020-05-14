@@ -1,5 +1,4 @@
 version: '3.7'
-
 services:
   portainer:
     container_name: portainer
@@ -31,6 +30,7 @@ volumes:
   portainer_data:
     external: 
       name: portainer_data
+      
 networks:
   web:
     external: true
