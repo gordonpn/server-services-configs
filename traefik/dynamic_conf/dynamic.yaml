@@ -83,6 +83,18 @@ http:
         certResolver: "leresolver"
       rule: "Host(`gordon-pn.com`)"
 
+    speedtest-site:
+      entryPoints:
+        - websecure
+      middlewares:
+        - rate_limit
+        - redirect_scheme
+        - secured_headers
+      service: "speedtest-client-speedtest@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`speed.gordon-pn.com`)"
+
   middlewares:
 
     rate_limit:
