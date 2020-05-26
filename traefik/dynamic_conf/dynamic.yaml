@@ -95,6 +95,18 @@ http:
         certResolver: "leresolver"
       rule: "Host(`speed.gordon-pn.com`)"
 
+    conventions-site:
+      entryPoints:
+        - websecure
+      middlewares:
+        - rate_limit
+        - redirect_scheme
+        - secured_headers
+      service: "conventions-site-conventions-site@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`conventions.gordon-pn.com`)"
+
   middlewares:
 
     rate_limit:
