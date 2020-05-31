@@ -31,7 +31,7 @@ http:
         - rate_limit
         - secured_headers
         - oauth
-      service: "oauth-traefik@docker" 
+      service: "oauth@docker" 
       tls:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
@@ -44,7 +44,7 @@ http:
         - rate_limit
         - redirect_scheme
         - secured_headers
-      service: "dozzle-dozzle@docker"
+      service: "dozzle@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`dozzle.gordon-pn.com`)"
@@ -55,7 +55,7 @@ http:
       middlewares:
         - secured_headers
         - redirect_scheme
-      service: "droppy-droppy@docker"
+      service: "droppy@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`droppy.gordon-pn.com`)"
@@ -66,7 +66,7 @@ http:
       middlewares:
         - redirect_scheme
         - secured_headers
-      service: "drone-drone@docker"
+      service: "drone@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`drone.gordon-pn.com`)"
@@ -78,7 +78,7 @@ http:
         - rate_limit
         - redirect_scheme
         - secured_headers
-      service: "personal-site-personal-site@docker"
+      service: "personal-site@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`gordon-pn.com`)"
@@ -90,7 +90,7 @@ http:
         - rate_limit
         - redirect_scheme
         - secured_headers
-      service: "speedtest-client-speedtest@docker"
+      service: "speedtest@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`speed.gordon-pn.com`)"
@@ -102,7 +102,7 @@ http:
         - rate_limit
         - redirect_scheme
         - secured_headers
-      service: "conventions-site-conventions-site@docker"
+      service: "conventions-guide@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`conventions.gordon-pn.com`)"

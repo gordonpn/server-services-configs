@@ -45,6 +45,9 @@ providers:
   docker:
     exposedByDefault: false
     network: web
+    endpoint: "unix:///var/run/docker.sock"
+    swarmMode: true
+    constraints: Label(`traefik.constraint-label`, `traefik-public`)
 
 certificatesResolvers:
   leresolver:

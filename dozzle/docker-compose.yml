@@ -5,14 +5,40 @@ services:
     image: amir20/dozzle:latest
     restart: always
     networks:
-      - web
+      - traefik-public
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
       - 8080
     labels:
       - "traefik.enable=true"
+    environment:
+      - TZ=America/Montreal
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.main-node == true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
       
 networks:
-  web:
+  traefik-public:
     external: true
+    driver: overlay
+    attachable: true

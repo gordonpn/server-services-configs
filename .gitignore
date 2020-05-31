@@ -2,3 +2,4 @@
 **/letsencrypt
 *.env
 *.log
+*docker-compose.processed.yml
