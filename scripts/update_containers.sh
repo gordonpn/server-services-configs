@@ -13,6 +13,7 @@ container_dirs=(
 	"resilio-sync"
 	"slack-docker"
 	"traefik"
+  "swarmpit"
 )
 
 for dir in "${container_dirs[@]}"

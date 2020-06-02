@@ -15,7 +15,6 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - redirect_scheme
         - secured_headers
         - oauth
         - rate_limit
@@ -42,7 +41,6 @@ http:
       middlewares:
         - oauth
         - rate_limit
-        - redirect_scheme
         - secured_headers
       service: "dozzle@docker"
       tls:
@@ -54,17 +52,25 @@ http:
         - websecure
       middlewares:
         - secured_headers
-        - redirect_scheme
       service: "droppy@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`droppy.gordon-pn.com`)"
       
+    swarmpit:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+      service: "swarmpit@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`swarmpit.gordon-pn.com`)"
+
     drone:
       entryPoints: 
         - websecure
       middlewares:
-        - redirect_scheme
         - secured_headers
       service: "drone@docker"
       tls:
@@ -75,8 +81,6 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - rate_limit
-        - redirect_scheme
         - secured_headers
       service: "personal-site@docker"
       tls:
@@ -87,8 +91,6 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - rate_limit
-        - redirect_scheme
         - secured_headers
       service: "speedtest@docker"
       tls:
@@ -99,8 +101,6 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - rate_limit
-        - redirect_scheme
         - secured_headers
       service: "conventions-guide@docker"
       tls:
