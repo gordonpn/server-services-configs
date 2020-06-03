@@ -15,9 +15,9 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - secured_headers
         - oauth
         - rate_limit
+        - secured_headers
       service: "api@internal"
       tls:
         certResolver: "leresolver"
@@ -27,9 +27,9 @@ http:
       entryPoints:
         - websecure
       middlewares:
+        - oauth
         - rate_limit
         - secured_headers
-        - oauth
       service: "oauth@docker" 
       tls:
         certResolver: "leresolver"
@@ -40,7 +40,6 @@ http:
         - websecure
       middlewares:
         - oauth
-        - rate_limit
         - secured_headers
       service: "dozzle@docker"
       tls:
@@ -122,16 +121,19 @@ http:
 
     secured_headers:
       headers:
+        accessControlMaxAge: 100
         browserXssFilter: true
+        contentSecurityPolicy: "default-src https: 'unsafe-inline' 'unsafe-eval'"
         contentTypeNosniff: true
+        featurePolicy: "accelerometer 'none'; camera 'none'; microphone 'none';"
         forceSTSHeader: true
+        frameDeny: true
+        hostsProxyHeaders: ["X-Forwarded-Host"]
+        referrerPolicy: "no-referrer-when-downgrade"
         sslRedirect: true
         stsIncludeSubdomains: true
         stsPreload: true
         stsSeconds: 315360000
-        referrerPolicy: "same-origin" 
-        hostsProxyHeaders: ["X-Forwarded-Host"]
-        accessControlMaxAge: 100
 
     redirect_scheme:
       redirectScheme:
