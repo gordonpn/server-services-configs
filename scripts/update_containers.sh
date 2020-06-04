@@ -7,13 +7,11 @@ echo
 
 base_path="/home/gordonpn/workspace/container"
 container_dirs=(
-	"dozzle"
 	"drone"
 	"droppy"
 	"resilio-sync"
-	"slack-docker"
 	"traefik"
-  "swarmpit"
+	"swarmpit"
 )
 
 for dir in "${container_dirs[@]}"
