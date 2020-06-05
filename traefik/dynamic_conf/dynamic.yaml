@@ -35,16 +35,15 @@ http:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
 
-    dozzle:
+    portainer:
       entryPoints:
         - websecure
       middlewares:
-        - oauth
         - secured_headers
-      service: "dozzle@docker"
+      service: "portainer@docker"
       tls:
         certResolver: "leresolver"
-      rule: "Host(`dozzle.gordon-pn.com`)"
+      rule: "Host(`portainer.gordon-pn.com`)"
 
     droppy:
       entryPoints:
