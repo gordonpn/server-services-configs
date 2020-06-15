@@ -35,16 +35,6 @@ http:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
 
-    portainer:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "portainer@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`portainer.gordon-pn.com`)"
-
     droppy:
       entryPoints:
         - websecure
@@ -95,6 +85,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`speed.gordon-pn.com`)"
 
+    hotdeals-site:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+      service: "deals@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`deals.gordon-pn.com`)"
+
     conventions-site:
       entryPoints:
         - websecure
@@ -122,9 +122,9 @@ http:
       headers:
         accessControlMaxAge: 100
         browserXssFilter: true
-        contentSecurityPolicy: "default-src https: 'unsafe-inline' 'unsafe-eval'"
+        # contentSecurityPolicy: "default-src https: 'unsafe-inline' 'unsafe-eval'"
         contentTypeNosniff: true
-        featurePolicy: "accelerometer 'none'; camera 'none'; microphone 'none';"
+        featurePolicy: "accelerometer 'none'; camera 'none'; microphone 'none'; geolocation 'none'; midi 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none';"
         forceSTSHeader: true
         frameDeny: true
         hostsProxyHeaders: ["X-Forwarded-Host"]
