@@ -38,3 +38,15 @@ Update redeploy (update) containers.
 ### `ddns-start`
 
 Modified version of @alphabt's project [asuswrt-merlin-ddns-cloudflare](https://github.com/alphabt/asuswrt-merlin-ddns-cloudflare) to suit my usage.
+
+More reference: <https://gist.github.com/dd-han/09853f07efdf67f0f4af3f7531ac7abf>
+
+### `start_pfsense.sh`
+
+Starts the headless virtualbox.
+
+Was used previously when I was running pfSense in a virtualbox as the router.
+
+### `get_dhcp.sh`
+
+Assures the enp2s0 interface has a local IP.
