@@ -30,7 +30,7 @@ http:
         - oauth
         - rate_limit
         - secured_headers
-      service: "oauth@docker" 
+      service: "oauth@docker"
       tls:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
@@ -44,7 +44,7 @@ http:
       tls:
         certResolver: "leresolver"
       rule: "Host(`droppy.gordon-pn.com`)"
-      
+
     swarmpit:
       entryPoints:
         - websecure
@@ -56,7 +56,7 @@ http:
       rule: "Host(`swarmpit.gordon-pn.com`)"
 
     drone:
-      entryPoints: 
+      entryPoints:
         - websecure
       middlewares:
         - secured_headers
@@ -73,7 +73,7 @@ http:
       service: "personal-site@docker"
       tls:
         certResolver: "leresolver"
-      rule: "Host(`gordon-pn.com`)"
+      rule: "Host(`gordon-pn.com`) || Host(`www.gordon-pn.com`)"
 
     speedtest-site:
       entryPoints:
