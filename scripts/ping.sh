@@ -1,4 +1,7 @@
 #!/bin/bash
+set -o allexport; source /home/gordonpn/workspace/container/scripts/.env; set +o allexport
+
+curl --retry 3 https://hc-ping.com/"$PING_HC_UUID"/start; echo
 
 unameOut="$(uname -s)"
 case "${unameOut}" in
@@ -21,6 +24,7 @@ ips=(
 	8.8.4.4
 	1.1.1.1
 	192.168.1.65
+	192.168.1.146
 )
 len=${#ips[@]}
 threshold=$((2*2*len))
@@ -87,3 +91,5 @@ fi
 
 ping_and_log
 clean_log
+
+curl --retry 3 https://hc-ping.com/"$PING_HC_UUID"; echo

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# set -x
 set -o allexport; source /home/gordonpn/workspace/container/scripts/.env; set +o allexport
 
 curl --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start

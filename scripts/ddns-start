@@ -8,20 +8,18 @@ ZONE_ID=""
 RECORD_NAME="gordon-pn.com"
 # TTL in seconds (1=auto)
 RECORD_TTL="1"
-# Set to true if you want to also update IPv6
-UPDATE_IPv6=false
 
 get_dns_record_ids() {
-  local record_name=$1
-  local type=$2
-  local api_token=$3
-  local zone_id=$4
+  record_name=$1
+  type=$2
+  api_token=$3
+  zone_id=$4
 
   RESPONSE="$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?type=${type}&name=${record_name}" \
     -H "Authorization: Bearer ${api_token}" \
     -H "Content-Type:application/json")"
 
-  echo $RESPONSE | python -c "
+  echo "$RESPONSE" | python -c "
 import sys, json
 
 data = json.load(sys.stdin)
@@ -30,13 +28,13 @@ for record in data['result']:
 }
 
 update_dns_record() {
-  local record_name=$1
-  local record_id=$2
-  local type=$3
-  local ip=$4
-  local record_ttl=$5
-  local api_token=$6
-  local zone_id=$7
+  record_name=$1
+  record_id=$2
+  type=$3
+  ip=$4
+  record_ttl=$5
+  api_token=$6
+  zone_id=$7
 
   curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" \
     -H "Authorization: Bearer ${api_token}" \
@@ -48,11 +46,11 @@ RESULT=true
 
 # Update IPv4
 IPv4=$(curl http://ipecho.net/plain)
-A_RECORD_IDS=$(get_dns_record_ids $RECORD_NAME A $API_TOKEN $ZONE_ID)
+A_RECORD_IDS=$(get_dns_record_ids $RECORD_NAME A "$API_TOKEN" "$ZONE_ID")
 
 for A_RECORD_ID in $A_RECORD_IDS; do
-  RESPONSE="$(update_dns_record $RECORD_NAME $A_RECORD_ID A $IPv4 $RECORD_TTL $API_TOKEN $ZONE_ID)"
-  echo $RESPONSE | grep '"success":\ *true' >/dev/null
+  RESPONSE="$(update_dns_record $RECORD_NAME "$A_RECORD_ID" A "$IPv4" $RECORD_TTL "$API_TOKEN" "$ZONE_ID")"
+  echo "$RESPONSE" | grep '"success":\ *true' >/dev/null
 
   if [ $? -eq 0 ]; then
     logger "Updated A record for ${RECORD_NAME} to ${IPv4}"
@@ -62,25 +60,7 @@ for A_RECORD_ID in $A_RECORD_IDS; do
   fi
 done
 
-if [ "$UPDATE_IPv6" == true ]; then
-  # Update IPv6
-  IPv6=$(ip -6 addr list scope global $device | grep -v " fd" | sed -n 's/.*inet6 \([0-9a-f:]\+\).*/\1/p' | head -n 1)
-  AAAA_RECORD_IDS=$(get_dns_record_ids $RECORD_NAME AAAA $API_TOKEN $ZONE_ID)
-
-  for AAAA_RECORD_ID in $AAAA_RECORD_IDS; do
-    RESPONSE="$(update_dns_record $RECORD_NAME $AAAA_RECORD_ID AAAA $IPv6 $RECORD_TTL $API_TOKEN $ZONE_ID)"
-    echo $RESPONSE | grep '"success":\ *true' >/dev/null
-
-    if [ $? -eq 0 ]; then
-      logger "Updated AAAA record for ${RECORD_NAME} to ${IPv6}"
-    else
-      logger "Unable to update AAAA record for ${RECORD_NAME}"
-      RESULT=false
-    fi
-  done
-fi
-
-if [ "$RESULT" == true ]; then
+if [ "$RESULT" = true ]; then
   /sbin/ddns_custom_updated 1
 else
   /sbin/ddns_custom_updated 0
