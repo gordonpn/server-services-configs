@@ -35,6 +35,12 @@ Make backups of important directories into tarballs.
 
 Update redeploy (update) containers.
 
+### `force_rebalance.sh`
+
+Simply force a rebalance of the Swarm on all the services.
+
+Should not be run too often and only manually when necessary.
+
 ### `ddns-start`
 
 Modified version of @alphabt's project [asuswrt-merlin-ddns-cloudflare](https://github.com/alphabt/asuswrt-merlin-ddns-cloudflare) to suit my usage.

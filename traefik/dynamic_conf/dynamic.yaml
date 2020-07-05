@@ -85,6 +85,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`speed.gordon-pn.com`)"
 
+    meta-search:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+      service: "meta-search@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`search.gordon-pn.com`)"
+
     hotdeals-site:
       entryPoints:
         - websecure
