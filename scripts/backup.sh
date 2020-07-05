@@ -4,6 +4,19 @@ set -o allexport; source /home/gordonpn/workspace/container/scripts/.env; set +o
 curl --retry 3 https://hc-ping.com/"$HC_UUID"/start
 echo
 
+logfile="/home/gordonpn/logs/backup.log"
+
+clean_log() {
+	local lines
+	lines=$(wc -l <${logfile})
+	if ((lines >= 80)); then
+		lines_to_remove=$((lines - 80 + 1))
+		tail -n +"${lines_to_remove}" "$logfile" > "$logfile.tmp" && mv "$logfile.tmp" "$logfile"
+	else
+		echo "Log file not long enough yet, not trimming."
+	fi
+}
+
 backup_folders=(
 	"/boot"
 	"/etc"
@@ -41,6 +54,9 @@ date
 ls -lh "$dest"
 
 echo
+
+clean_log
+
 if [ $status -eq 0 ]
 then
 	curl --retry 3 https://hc-ping.com/"$HC_UUID"
