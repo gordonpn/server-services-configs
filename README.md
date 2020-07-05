@@ -37,9 +37,9 @@ Update redeploy (update) containers.
 
 ### `force_rebalance.sh`
 
-Simply force a rebalance of the Swarm on all the services.
+Simply force a rebalance of the Swarm on all the services. Can be automated, will rebalance only if the numbers of tasks running on each server is skewed.
 
-Should not be run too often and only manually when necessary.
+Should not be run too often and only when necessary.
 
 ### `ddns-start`
 
