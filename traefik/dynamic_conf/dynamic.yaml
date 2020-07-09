@@ -45,15 +45,15 @@ http:
         certResolver: "leresolver"
       rule: "Host(`droppy.gordon-pn.com`)"
 
-    swarmpit:
+    portainer:
       entryPoints:
         - websecure
       middlewares:
         - secured_headers
-      service: "swarmpit@docker"
+      service: "portainer@docker"
       tls:
         certResolver: "leresolver"
-      rule: "Host(`swarmpit.gordon-pn.com`)"
+      rule: "Host(`portainer.gordon-pn.com`)"
 
     drone:
       entryPoints:

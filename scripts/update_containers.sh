@@ -21,9 +21,9 @@ base_path="/home/gordonpn/workspace/container"
 container_dirs=(
 	"drone"
 	"droppy"
+	"portainer"
 	"resilio-sync"
 	"traefik"
-	"swarmpit"
 )
 
 for dir in "${container_dirs[@]}"
