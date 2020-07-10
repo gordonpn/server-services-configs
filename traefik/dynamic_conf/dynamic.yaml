@@ -85,6 +85,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`speed.gordon-pn.com`)"
 
+    github-stats:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+      service: "github-stats@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`stats.gordon-pn.com`)"
+
     meta-search:
       entryPoints:
         - websecure
