@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o allexport; source /home/gordonpn/workspace/container/scripts/.env; set +o allexport
+set -o allexport; source /home/gordonpn/workspace/server-services-configs/scripts/.env; set +o allexport
 
 curl --retry 3 https://hc-ping.com/"$PING_HC_UUID"/start; echo
 
