@@ -26,6 +26,8 @@ mapfile -t server_tasks < <( /usr/bin/docker node ps --filter desired-state=runn
 
 pi_availability=$(/usr/bin/docker node inspect gordonpn-pi --format "{{ .Spec.Availability }}")
 server_availability=$(/usr/bin/docker node inspect gordonpn-server --format "{{ .Spec.Availability }}")
+pi_state=$(/usr/bin/docker node inspect gordonpn-pi --format "{{ .Status.State }}")
+server_state=$(/usr/bin/docker node inspect gordonpn-server --format "{{ .Status.State }}")
 
 num_server_tasks=${#server_tasks[@]}
 num_pi_tasks=${#pi_tasks[@]}
@@ -37,7 +39,7 @@ printf '%d tasks running on the server\n' "$num_server_tasks"
 printf '%d tasks running on the pi\n' "$num_pi_tasks"
 printf 'difference of tasks: %d\n' "$difference"
 
-if [ "$pi_availability" == "active" ] && [ "$server_availability" == "active" ]; then
+if [ "$pi_availability" == "active" ] && [ "$server_availability" == "active" ] && [ "$pi_state" == "ready" ] && [ "$server_state" == "ready" ]; then
 	if [ "$difference" -gt $(( total_tasks / 2 )) ]; then
 		printf 'rotating certificates...\n'
 		/usr/bin/docker swarm ca --rotate --quiet
