@@ -45,7 +45,7 @@ ping_and_log() {
 shutdown_machine() {
 	echo "Too many ping failures detected, shutting down..."
 	if [[ "$machine" == "Linux" ]]; then
-		/usr/sbin/shutdown
+		/usr/sbin/shutdown --poweroff 10
 	fi
 	exit
 }
