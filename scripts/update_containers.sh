@@ -20,7 +20,7 @@ clean_log() {
 base_path="/home/gordonpn/workspace/container"
 container_dirs=(
 	"drone"
-	"droppy"
+	"filebrowser"
 	"portainer"
 	"resilio-sync"
 	"traefik"

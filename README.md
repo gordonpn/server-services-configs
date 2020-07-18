@@ -16,7 +16,7 @@ I currently use the following services on my home server.
 | Service              | Purpose                                                   |
 |----------------------|-----------------------------------------------------------|
 | Drone CI and runners | CI/CD                                                     |
-| Droppy               | File storage                                              |
+| Filebrowser          | File storage                                              |
 | Resilio Sync         | Real-time peer to peer syncing                            |
 | Swarmpit             | Monitor resources                                         |
 | Traefik              | Reverse proxy                                             |

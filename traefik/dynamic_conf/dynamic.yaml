@@ -35,15 +35,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
 
-    droppy:
+    filebrowser:
       entryPoints:
         - websecure
       middlewares:
+        - oauth
         - secured_headers
-      service: "droppy@docker"
+      service: "filebrowser@docker"
       tls:
         certResolver: "leresolver"
-      rule: "Host(`droppy.gordon-pn.com`)"
+      rule: "Host(`filebrowser.gordon-pn.com`)"
 
     portainer:
       entryPoints:

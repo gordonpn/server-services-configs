@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    volumes:
+      - ${FILEBROWSER_FOLDER}:/srv
+      - ./filebrowser.db:/database.db
+    expose:
+      - '80'
+    restart: unless-stopped
+    environment:
+      - TZ:America/Montreal
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.main-node == true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
+
+networks:
+  traefik-public:
+    external: true
+    driver: overlay
