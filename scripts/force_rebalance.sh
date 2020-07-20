@@ -34,6 +34,7 @@ num_pi_tasks=${#pi_tasks[@]}
 total_tasks=$(( num_server_tasks + num_pi_tasks ))
 difference=$(abs "$num_server_tasks" - "$num_pi_tasks")
 
+printf '%s\n' "$(date)"
 printf 'total tasks running: %d\n' "$total_tasks"
 printf '%d tasks running on the server\n' "$num_server_tasks"
 printf '%d tasks running on the pi\n' "$num_pi_tasks"
