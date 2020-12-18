@@ -86,6 +86,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`stats.gordon-pn.com`)"
 
+    shopify:
+      entryPoints:
+        - websecure
+      middlewares:
+        - secured_headers
+      service: "shopify@docker"
+      tls:
+        certResolver: "leresolver"
+      rule: "Host(`shopify.gordon-pn.com`)"
+
     meta-search:
       entryPoints:
         - websecure
