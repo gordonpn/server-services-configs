@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cru a ddns_update "0 * * * * /jffs/scripts/ddns-start"
+
 # Your API Token
 API_TOKEN=""
 # Your zone id, hex16 string
