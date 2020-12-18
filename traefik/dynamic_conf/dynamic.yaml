@@ -46,16 +46,6 @@ http:
         certResolver: "leresolver"
       rule: "Host(`filebrowser.gordon-pn.com`)"
 
-    portainer:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "portainer@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`portainer.gordon-pn.com`)"
-
     drone:
       entryPoints:
         - websecure

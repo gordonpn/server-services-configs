@@ -21,7 +21,6 @@ base_path="/home/gordonpn/workspace/container"
 container_dirs=(
 	"drone"
 	"filebrowser"
-	"portainer"
 	"resilio-sync"
 	"traefik"
 )
