@@ -47,7 +47,9 @@ ping_and_log() {
 
 shutdown_machine() {
   echo "Too many ping failures detected, shutting down..."
+  curl -X POST -H 'Content-type: application/json' --data '{"text":"Raspberry Pi shutting down"}' SLACK_WEBHOOK_URL
   if [[ "$machine" == "Linux" ]]; then
+    delete_log
     /usr/sbin/shutdown --poweroff 10
   fi
   exit
