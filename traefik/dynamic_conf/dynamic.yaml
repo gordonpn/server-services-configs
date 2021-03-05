@@ -1,7 +1,5 @@
 http:
-
   routers:
-
     http_catch_all:
       entryPoints:
         - web
@@ -46,16 +44,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`filebrowser.gordon-pn.com`)"
 
-    rss-feed-staging:
-      entryPoints:
-        - websecure
-      middlewares:
-        - oauth
-        - secured_headers
-      service: "rss-feed-staging@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`rss-staging.gordon-pn.com`)"
+    # rss-feed-staging:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - oauth
+    #     - secured_headers
+    #   service: "rss-feed-staging@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`rss-staging.gordon-pn.com`)"
 
     rss-feed:
       entryPoints:
@@ -107,26 +105,6 @@ http:
         certResolver: "leresolver"
       rule: "Host(`stats.gordon-pn.com`)"
 
-    shopify:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "shopify@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`shopify.gordon-pn.com`)"
-
-    meta-search:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "meta-search@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`search.gordon-pn.com`)"
-
     hotdeals-site:
       entryPoints:
         - websecure
@@ -148,7 +126,6 @@ http:
       rule: "Host(`conventions.gordon-pn.com`)"
 
   middlewares:
-
     rate_limit:
       rateLimit:
         average: 100
