@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -o allexport
-source /home/gordonpn/workspace/container/scripts/.env
+source /home/gordonpn/workspace/server-services-configs/scripts/.env
 set +o allexport
 
 curl -vs --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
@@ -19,7 +19,7 @@ clean_log() {
   fi
 }
 
-base_path="/home/gordonpn/workspace/container"
+base_path="/home/gordonpn/workspace/server-services-configs"
 container_dirs=(
 	"drone"
 	"filebrowser"
