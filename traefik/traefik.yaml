@@ -4,7 +4,7 @@ entryPoints:
   websecure:
     address: ":443"
     forwardedHeaders:
-      trustedIPs: # cloudflare IPs
+      trustedIPs: # Cloudflare IPs
         - "173.245.48.0/20"
         - "103.21.244.0/22"
         - "103.22.200.0/22"
@@ -16,9 +16,11 @@ entryPoints:
         - "197.234.240.0/22"
         - "198.41.128.0/17"
         - "162.158.0.0/15"
-        - "104.16.0.0/12"
         - "172.64.0.0/13"
         - "131.0.72.0/22"
+        - "104.16.0.0/13"
+        - "104.24.0.0/14"
+
 tls:
   options:
     default:
@@ -59,7 +61,6 @@ certificatesResolvers:
 
 api:
   dashboard: true
-
 # accessLog:
 #   filePath: "/access.log"
 #   format: json
