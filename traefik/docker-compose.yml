@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   traefik:
-    image: traefik:2.2
+    image: traefik:2.4
     restart: always
     container_name: traefik
     ports:
@@ -11,7 +11,7 @@ services:
       - target: 443
         published: 443
         mode: host
-    expose: 
+    expose:
       - 8080
     environment:
       - TZ=America/Montreal
