@@ -11,7 +11,6 @@ services:
       - DRONE_SERVER_PROTO
       - DRONE_USER_FILTER
       - DRONE_USER_CREATE
-      - TZ=America/Montreal
     volumes:
       - /var/lib/drone:/data
     restart: always
@@ -53,7 +52,6 @@ services:
       - DRONE_RPC_SECRET
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=${HOSTNAME}
-      - TZ=America/Montreal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:

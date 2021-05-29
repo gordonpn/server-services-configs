@@ -10,10 +10,9 @@ services:
     volumes:
       - ${SYNC_FOLDER}:/mnt/sync
     restart: unless-stopped
-    environment: 
+    environment:
       - UID=1000
       - GID=1000
-      - TZ=America/Montreal
     deploy:
       replicas: 1
       update_config:
