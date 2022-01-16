@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   drone:
-    image: drone/drone:1
+    image: drone/drone:2
     container_name: drone
     environment:
       - DRONE_GITHUB_CLIENT_ID
@@ -11,6 +11,8 @@ services:
       - DRONE_SERVER_PROTO
       - DRONE_USER_FILTER
       - DRONE_USER_CREATE
+      - DRONE_STARLARK_ENABLE=true
+      - DRONE_JSONNET_ENABLED=true
     volumes:
       - /var/lib/drone:/data
     restart: always
