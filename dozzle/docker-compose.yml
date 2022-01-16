@@ -12,6 +12,8 @@ services:
       - 8080
     labels:
       - "traefik.enable=true"
+    environment:
+      - TZ=America/Montreal
     deploy:
       replicas: 1
       update_config:
@@ -34,7 +36,7 @@ services:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
         - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
-
+      
 networks:
   traefik-public:
     external: true

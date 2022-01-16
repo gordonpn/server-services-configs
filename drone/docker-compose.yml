@@ -13,6 +13,7 @@ services:
       - DRONE_USER_CREATE
       - DRONE_STARLARK_ENABLE=true
       - DRONE_JSONNET_ENABLED=true
+      - TZ=America/Montreal
     volumes:
       - /var/lib/drone:/data
     restart: always
@@ -54,6 +55,7 @@ services:
       - DRONE_RPC_SECRET
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=${HOSTNAME}
+      - TZ=America/Montreal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:

@@ -9,9 +9,10 @@ services:
     restart: unless-stopped
     expose:
       - 8989
-    environment:
+    environment: 
       - UID=1000
       - GID=1000
+      - TZ=America/Montreal
     networks:
       - traefik-public
     labels:
@@ -39,9 +40,9 @@ services:
         - "traefik.constraint-label=traefik-public"
         - "traefik.http.services.droppy.loadbalancer.server.port=8989"
 
-volumes:
+volumes: 
   droppy-appdata:
-    external:
+    external: 
       name: droppy-appdata
 
 networks:
