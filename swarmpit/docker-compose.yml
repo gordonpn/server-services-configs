@@ -6,7 +6,7 @@ services:
     environment:
       - SWARMPIT_DB=http://couchdb:5984
       - SWARMPIT_INFLUXDB=http://influxdb:8086
-      - TZ=America/Montreal
+      - TZ=America/Toronto
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
@@ -38,7 +38,7 @@ services:
     networks:
       - swarmpit-network
     environment:
-      - TZ=America/Montreal
+      - TZ=America/Toronto
     deploy:
       resources:
         limits:
@@ -58,7 +58,7 @@ services:
     networks:
       - swarmpit-network
     environment:
-      - TZ=America/Montreal
+      - TZ=America/Toronto
     deploy:
       resources:
         limits:
@@ -75,7 +75,7 @@ services:
     image: swarmpit/agent:latest
     environment:
       - DOCKER_API_VERSION=1.35
-      - TZ=America/Montreal
+      - TZ=America/Toronto
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:

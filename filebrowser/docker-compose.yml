@@ -10,7 +10,7 @@ services:
       - '80'
     restart: unless-stopped
     environment:
-      - TZ:America/Montreal
+      - TZ:America/Toronto
     networks:
       - traefik-public
     deploy:

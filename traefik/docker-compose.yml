@@ -14,7 +14,7 @@ services:
     expose:
       - 8080
     environment:
-      - TZ=America/Montreal
+      - TZ=America/Toronto
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     volumes:
@@ -72,7 +72,7 @@ services:
       - LOG_LEVEL=info
       - LOG_FORMAT=text
       - LIFETIME=2592000
-      - TZ=America/Montreal
+      - TZ=America/Toronto
     labels:
       - "traefik.enable=true"
       - "traefik.constraint-label=traefik-public"
