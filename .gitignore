@@ -1,7 +1,7 @@
-
 **/letsencrypt
 *.env
 *.log
 *docker-compose.processed.yml
 filebrowser.db
 venv/
+cloud-init/generated/
