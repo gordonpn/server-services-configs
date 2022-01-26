@@ -13,9 +13,8 @@ services:
       - DRONE_USER_CREATE
       - DRONE_STARLARK_ENABLE=true
       - DRONE_JSONNET_ENABLED=true
-      - TZ=America/Toronto
     volumes:
-      - /var/lib/drone:/data
+      - /mnt/glusterfs/drone:/data
     restart: always
     expose:
       - 80
@@ -40,7 +39,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
@@ -53,9 +52,8 @@ services:
       - DRONE_RPC_PROTO
       - DRONE_RPC_HOST
       - DRONE_RPC_SECRET
-      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_CAPACITY=4
       - DRONE_RUNNER_NAME=${HOSTNAME}
-      - TZ=America/Toronto
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:

@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   traefik:
-    image: traefik:2.4
+    image: traefik:2.6
     restart: always
     container_name: traefik
     ports:
@@ -14,11 +14,10 @@ services:
     expose:
       - 8080
     environment:
-      - TZ=America/Toronto
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_API_KEY=${CF_API_KEY}
+      - CF_API_EMAIL
+      - CF_API_KEY
     volumes:
-      - ./letsencrypt:/letsencrypt
+      - /mnt/glusterfs/traefik/letsencrypt:/letsencrypt
       #- ./traefik.log:/traefik.log
       #- ./access.log:/access.log
       - ./traefik.yaml:/traefik.yaml
@@ -45,7 +44,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
@@ -64,15 +63,14 @@ services:
       - CLIENT_ID
       - CLIENT_SECRET
       - SECRET
-      - COOKIE_DOMAIN=$DOMAIN
+      - COOKIE_DOMAIN=${DOMAIN}
       - INSECURE_COOKIE=false
-      - AUTH_HOST=oauth.$DOMAIN
+      - AUTH_HOST=oauth.${DOMAIN}
       - URL_PATH=/_oauth
-      - WHITELIST=$CF_API_EMAIL
+      - WHITELIST=${CF_API_EMAIL}
       - LOG_LEVEL=info
       - LOG_FORMAT=text
       - LIFETIME=2592000
-      - TZ=America/Toronto
     labels:
       - "traefik.enable=true"
       - "traefik.constraint-label=traefik-public"
@@ -93,7 +91,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"

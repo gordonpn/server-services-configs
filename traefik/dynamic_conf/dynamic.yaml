@@ -19,7 +19,7 @@ http:
       service: "api@internal"
       tls:
         certResolver: "leresolver"
-      rule: "Host(`monitor.gordon-pn.com`)"
+      rule: "Host(`traefik.gordon-pn.com`)"
 
     oauth:
       entryPoints:
