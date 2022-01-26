@@ -7,9 +7,9 @@ set +o allexport
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 source "$script_dir"/trim_logs.sh
 
-BASE_DIR="/Users/gordonpn/workspace/server-services-configs/"
+BASE_DIR="/home/gordonpn/workspace/server-services-configs"
 
-curl -vs --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
+curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
 echo
 
 services=(
@@ -27,10 +27,11 @@ for service in "${services[@]}"; do
 
   cd "$BASE_DIR"/"$service"/ || break
   /usr/local/bin/docker-compose -f docker-compose.yml config >docker-compose.processed.yml
+  echo -e "version: \"3.8\"\n$(cat docker-compose.processed.yml)" >docker-compose.processed.yml
   /usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
 done
 
-curl -vs --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"
+curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"
 echo
 
 trim_logs "/media/drive/logs/deploy.log"

@@ -51,7 +51,7 @@ services:
 
   oauth:
     container_name: oauth
-    image: thomseddon/traefik-forward-auth:latest
+    image: npawelek/traefik-forward-auth:latest
     restart: always
     expose:
       - 4181

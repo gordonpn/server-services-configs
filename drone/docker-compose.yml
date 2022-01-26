@@ -52,8 +52,6 @@ services:
       - DRONE_RPC_PROTO
       - DRONE_RPC_HOST
       - DRONE_RPC_SECRET
-      - DRONE_RUNNER_CAPACITY=4
-      - DRONE_RUNNER_NAME=${HOSTNAME}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
