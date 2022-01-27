@@ -13,12 +13,12 @@ curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
 echo
 
 services=(
-  # "adguard"
+  "adguard"
   # "concourse"
   "drone"
   # "filebrowser"
   # "jenkins"
-  # "syncthing"
+  "syncthing"
   "traefik"
 )
 

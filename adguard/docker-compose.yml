@@ -3,8 +3,8 @@ services:
   adguard:
     image: adguard/adguardhome
     volumes:
-      - adguard_work:/opt/adguardhome/work
-      - adguard_conf:/opt/adguardhome/conf
+      - /mnt/glusterfs/adguardhome/work:/opt/adguardhome/work
+      - /mnt/glusterfs/adguardhome/conf:/opt/adguardhome/conf
     networks:
       - traefik-public
     ports:
@@ -37,14 +37,11 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
+          - node.labels.persistence == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
-
-volumes:
-  adguard_work:
-  adguard_conf:
 
 networks:
   traefik-public:

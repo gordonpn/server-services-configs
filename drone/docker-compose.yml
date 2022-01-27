@@ -40,6 +40,7 @@ services:
       placement:
         constraints:
           - node.labels.master == true
+          - node.labels.persistence == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
