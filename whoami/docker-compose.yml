@@ -17,7 +17,7 @@ services:
       replicas: 2
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
@@ -30,7 +30,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.master
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"

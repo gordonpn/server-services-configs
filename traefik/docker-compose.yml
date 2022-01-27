@@ -31,7 +31,7 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
@@ -79,7 +79,7 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:

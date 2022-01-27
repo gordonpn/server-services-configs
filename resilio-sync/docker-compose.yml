@@ -3,7 +3,7 @@ services:
   resilio-sync:
     container_name: resilio-sync
     image: resilio/sync
-    user: 1000:1000
+    user: 1001:1001
     ports:
       - 8888:8888
       - 55555
@@ -11,14 +11,13 @@ services:
       - ${SYNC_FOLDER}:/mnt/sync
     restart: unless-stopped
     environment:
-      - UID=1000
-      - GID=1000
-      - TZ=America/Toronto
+      - UID=1001
+      - GID=1001
     deploy:
       replicas: 1
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
@@ -31,4 +30,4 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true

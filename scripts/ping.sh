@@ -3,7 +3,7 @@ set -o allexport
 source /home/gordonpn/workspace/server-services-configs/scripts/.env
 set +o allexport
 
-curl -vs --retry 3 https://hc-ping.com/"$PING_HC_UUID"/start
+curl -s --retry 3 https://hc-ping.com/"$PING_HC_UUID"/start
 echo
 
 unameOut="$(uname -s)"
@@ -101,5 +101,5 @@ fi
 ping_and_log
 clean_log
 
-curl -vs --retry 3 https://hc-ping.com/"$PING_HC_UUID"
+curl -s --retry 3 https://hc-ping.com/"$PING_HC_UUID"
 echo

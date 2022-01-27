@@ -15,10 +15,10 @@ I currently use the following services on my home server.
 
 | Service              | Purpose                        |
 | -------------------- | ------------------------------ |
+| Adguard              | DNS server with ad-blocking    |
 | Drone CI and runners | CI/CD                          |
 | Filebrowser          | File storage                   |
-| Resilio Sync         | Real-time peer to peer syncing |
-| Swarmpit             | Monitor resources              |
+| Syncthing            | Real-time peer to peer syncing |
 | Traefik              | Reverse proxy                  |
 
 ## Scripts
@@ -44,16 +44,6 @@ Modified version of @alphabt's project [asuswrt-merlin-ddns-cloudflare](https://
 More reference: <https://gist.github.com/dd-han/09853f07efdf67f0f4af3f7531ac7abf>
 
 This runs on an ASUS router to update the dynamic IP address with a Cloudflare A record.
-
-### `start_pfsense.sh`
-
-Starts the headless virtualbox.
-
-Was used previously when I was running pfSense in a virtualbox as the router.
-
-### `get_dhcp.sh`
-
-Assures the enp2s0 interface has a local IP.
 
 ## Setting up a new Raspberry Pi node
 
@@ -186,7 +176,8 @@ cat << EOF | sudo tee -a /etc/docker/daemon.json
   "experimental": true,
   "features": {
     "buildkit": true
-  }
+  },
+  "iptables": false
 }
 EOF
 ```
@@ -341,4 +332,17 @@ Set cron tasks
 @reboot sleep 600 && /usr/bin/docker swarm ca --rotate --quiet
 0 */2 * * * /home/gordonpn/workspace/server-services-configs/scripts/force_rebalance.sh >> /home/gordonpn/logs/force_rebalance.log 2>&1
 0 */6 * * * /home/gordonpn/workspace/temporary/shoppies_api_key.sh
+```
+
+If you are using a reverse proxy somewhere then you need to allow port 80 and 443
+
+```sh
+sudo ufw allow http
+sudo ufw allow https
+```
+
+If you want to allow your personal computer to connect to any of the ports
+
+```sh
+sudo ufw allow from 192.168.50.214
 ```

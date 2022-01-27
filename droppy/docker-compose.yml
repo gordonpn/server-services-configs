@@ -10,9 +10,8 @@ services:
     expose:
       - 8989
     environment:
-      - UID=1000
-      - GID=1000
-      - TZ=America/Toronto
+      - UID=1001
+      - GID=1001
     networks:
       - traefik-public
     labels:
@@ -21,7 +20,7 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
@@ -34,7 +33,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"

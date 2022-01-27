@@ -6,7 +6,7 @@ set +o allexport
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 source "$script_dir"/trim_logs.sh
 
-curl -vs --retry 3 https://hc-ping.com/"$HC_UUID"/start
+curl -s --retry 3 https://hc-ping.com/"$HC_UUID"/start
 echo
 
 backup_folders=(
@@ -49,7 +49,7 @@ echo
 trim_logs "/media/drive/logs/backup.log"
 
 if [ $status -eq 0 ]; then
-  curl -vs --retry 3 https://hc-ping.com/"$HC_UUID"
+  curl -s --retry 3 https://hc-ping.com/"$HC_UUID"
 else
-  curl -vs --retry 3 https://hc-ping.com/"$HC_UUID"/fail
+  curl -s --retry 3 https://hc-ping.com/"$HC_UUID"/fail
 fi

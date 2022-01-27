@@ -3,7 +3,7 @@ set -o allexport
 source /home/gordonpn/workspace/server-services-configs/scripts/.env
 set +o allexport
 
-curl -vs --retry 3 https://hc-ping.com/"$REBALANCE_HC_UUID"/start
+curl -s --retry 3 https://hc-ping.com/"$REBALANCE_HC_UUID"/start
 echo
 
 logfile="/home/gordonpn/logs/force_rebalance.log"
@@ -69,6 +69,6 @@ fi
 
 clean_log
 
-curl -vs --retry 3 https://hc-ping.com/"$REBALANCE_HC_UUID"
+curl -s --retry 3 https://hc-ping.com/"$REBALANCE_HC_UUID"
 echo
 printf 'done\n'

@@ -30,7 +30,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.constraint-label=traefik-public"
         - "traefik.docker.network=traefik-public"

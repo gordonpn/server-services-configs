@@ -4,8 +4,8 @@ services:
     image: filebrowser/filebrowser
     container_name: filebrowser
     volumes:
-      - ${FILEBROWSER_FOLDER}:/srv
-      - ./filebrowser.db:/database.db
+      - /media/drive/filebrowser/srv:/srv
+      - /media/drive/filebrowser/filebrowser.db:/database.db
     expose:
       - '80'
     restart: unless-stopped
@@ -17,7 +17,7 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: start-first
+        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
@@ -30,7 +30,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.nas == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"

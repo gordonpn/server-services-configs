@@ -6,7 +6,6 @@ services:
     environment:
       - SWARMPIT_DB=http://couchdb:5984
       - SWARMPIT_INFLUXDB=http://influxdb:8086
-      - TZ=America/Toronto
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
@@ -24,7 +23,7 @@ services:
           memory: 512M
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
       labels:
         - "traefik.enable=true"
         - "traefik.constraint-label=traefik-public"
@@ -37,8 +36,6 @@ services:
       - swarmpit-couchdb:/opt/couchdb/data
     networks:
       - swarmpit-network
-    environment:
-      - TZ=America/Toronto
     deploy:
       resources:
         limits:
@@ -49,7 +46,7 @@ services:
           memory: 128M
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
 
   influxdb:
     image: influxdb:1.7
@@ -57,8 +54,6 @@ services:
       - swarmpit-influxdb:/var/lib/influxdb
     networks:
       - swarmpit-network
-    environment:
-      - TZ=America/Toronto
     deploy:
       resources:
         limits:
@@ -69,13 +64,12 @@ services:
           memory: 128M
       placement:
         constraints:
-          - node.labels.main-node == true
+          - node.labels.master == true
 
   agent:
     image: swarmpit/agent:latest
     environment:
       - DOCKER_API_VERSION=1.35
-      - TZ=America/Toronto
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
