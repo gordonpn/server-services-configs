@@ -13,6 +13,10 @@ services:
       - DRONE_USER_CREATE
       - DRONE_STARLARK_ENABLE=true
       - DRONE_JSONNET_ENABLED=true
+      - DRONE_LOGS_COLOR=true
+      - DRONE_LOGS_PRETTY=true
+      - DRONE_LOGS_TEXT=true
+      - DRONE_LOGS_TRACE=true
     volumes:
       - /mnt/glusterfs/drone:/data
     restart: always
@@ -39,7 +43,6 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.labels.master == true
           - node.labels.persistence == true
       labels:
         - "traefik.enable=true"
@@ -53,6 +56,8 @@ services:
       - DRONE_RPC_PROTO
       - DRONE_RPC_HOST
       - DRONE_RPC_SECRET
+      - DRONE_TRACE=true
+      - DRONE_DEBUG=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
