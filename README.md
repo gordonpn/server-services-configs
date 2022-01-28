@@ -306,7 +306,7 @@ Mount the GlusterFS volume on each node
 
 ```sh
 sudo umount /mnt
-echo 'localhost:/gfsvol /mnt/glusterfs glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0' | sudo tee /etc/fstab
+echo 'localhost:/gfsvol /mnt/glusterfs glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0' | sudo tee -a /etc/fstab
 sudo mkdir /mnt/glusterfs
 sudo mount.glusterfs localhost:/gfsvol /mnt/glusterfs
 sudo chown -R gordonpn:gordonpn /mnt
