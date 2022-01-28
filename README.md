@@ -176,8 +176,7 @@ cat << EOF | sudo tee -a /etc/docker/daemon.json
   "experimental": true,
   "features": {
     "buildkit": true
-  },
-  "iptables": false
+  }
 }
 EOF
 ```
