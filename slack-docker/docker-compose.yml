@@ -12,16 +12,11 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
         parallelism: 0
-        order: stop-first
       restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
         window: 120s
       placement:
         constraints:

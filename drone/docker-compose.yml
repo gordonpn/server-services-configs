@@ -30,16 +30,11 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
         parallelism: 0
-        order: stop-first
       restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
         window: 120s
       placement:
         constraints:
@@ -67,16 +62,11 @@ services:
       mode: global
       update_config:
         parallelism: 1
-        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
         parallelism: 0
-        order: stop-first
       restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
         window: 120s
 
   drone-runner-manager:
@@ -94,23 +84,15 @@ services:
     expose:
       - "3000"
     restart: always
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     deploy:
       replicas: 1
       update_config:
         parallelism: 1
-        order: stop-first
         failure_action: rollback
         delay: 10s
       rollback_config:
         parallelism: 0
-        order: stop-first
       restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
         window: 120s
       placement:
         constraints:
