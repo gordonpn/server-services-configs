@@ -20,10 +20,11 @@ services=(
   # "jenkins"
   "syncthing"
   "traefik"
+  "transmission-openvpn"
 )
 
 for service in "${services[@]}"; do
-  echo "Deploying $service"
+  printf "\nDeploying %s\n" "$(service)"
 
   cd "$BASE_DIR"/"$service"/ || break
   /usr/local/bin/docker-compose -f docker-compose.yml config >docker-compose.processed.yml

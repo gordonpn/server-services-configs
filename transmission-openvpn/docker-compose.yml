@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  transmission-openvpn:
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - '/mnt/glusterfs/openvpn:/etc/openvpn/custom'
+      - '/mnt/glusterfs/syncthing/transmission:/data'
+    environment:
+      - OPENVPN_PROVIDER=custom
+      - OPENVPN_CONFIG=ca-tr
+      - OPENVPN_USERNAME
+      - OPENVPN_PASSWORD
+      - OPENVPN_OPTS='--inactive 3600 --ping 10 --ping-exit 60'
+      - LOCAL_NETWORK=192.168.50.0/24
+      - PGID=1001
+      - PUID=1001
+      - TRANSMISSION_WEB_UI=combustion
+    ports:
+      - '9091:9091'
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+    image: haugene/transmission-openvpn
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.master == true
+          - node.labels.persistence == true
