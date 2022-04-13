@@ -14,6 +14,10 @@ services:
       - /media/drive/plex/config:/config
       - /media/drive/plex/data/movies:/movies
       - /media/drive/plex/data/tv:/tv
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
     deploy:
       replicas: 1
       update_config:
@@ -28,3 +32,18 @@ services:
         constraints:
           - node.labels.persistence == true
           - node.labels.name == rpi3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.services.plex.loadbalancer.server.port=32400"
+        - "traefik.http.routers.plex.entrypoints=websecure"
+        - "traefik.http.routers.plex.middlewares=secured_headers"
+        - "traefik.http.routers.plex.service=plex@docker"
+        - "traefik.http.routers.plex.tls=true"
+        - "traefik.http.routers.plex.tls.certresolver=leresolver"
+        - "traefik.http.routers.plex.rule=Host(`plex.gordon-pn.com`)"
+
+networks:
+  traefik-public:
+    external: true
+    driver: overlay
