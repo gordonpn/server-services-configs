@@ -2,18 +2,17 @@ version: '3.8'
 services:
   plex:
     container_name: plex
-    image: plexinc/pms-docker
+    image: lscr.io/linuxserver/plex
     restart: unless-stopped
     environment:
-      - ALLOWED_NETWORKS=192.168.50.0/24
-      - PLEX_GID==1001
-      - PLEX_UID==1001
+      - PUID=1001
+      - PGID=1001
     network_mode: host
     ports:
       - 32400:32400
     volumes:
       - /mnt/glusterfs/plex/config:/config
-      - /mnt/glusterfs/plex/data:/data
+      - /mnt/glusterfs/plex/data:/movies
     deploy:
       replicas: 1
       update_config:
