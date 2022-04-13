@@ -11,9 +11,9 @@ services:
     ports:
       - 32400:32400
     volumes:
-      - /mnt/glusterfs/plex/config:/config
-      - /mnt/glusterfs/plex/data/movies:/movies
-      - /mnt/glusterfs/plex/data/tv:/tv
+      - /media/drive/plex/config:/config
+      - /media/drive/plex/data/movies:/movies
+      - /media/drive/plex/data/tv:/tv
     deploy:
       replicas: 1
       update_config:
