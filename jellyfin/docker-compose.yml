@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - JELLYFIN_PublishedServerUrl=192.168.50.9
+    network_mode: host
+    volumes:
+      - /media/drive/jellyfin/config:/config
+      - /media/drive/jellyfin/data/tvshows:/data/tvshows
+      - /media/drive/jellyfin/data/movies:/data/movies
+    ports:
+      - 8096:8096
+      - 7359:7359/udp
+      - 1900:1900/udp
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.persistence == true
+          - node.labels.name == rpi3
