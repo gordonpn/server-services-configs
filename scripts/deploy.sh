@@ -21,6 +21,7 @@ services=(
   "syncthing"
   "traefik"
   "transmission-openvpn"
+  "jellyfin"
 )
 
 for service in "${services[@]}"; do

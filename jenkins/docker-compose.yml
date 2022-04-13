@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  jenkins:
+    container_name: jenkins
+    image: jenkins/jenkins:lts-jdk11
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - /mnt/glusterfs/jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
+      placement:
+        constraints:
+          - node.labels.persistence == true
+
+networks:
+  traefik-public:
+    external: true
+    driver: overlay

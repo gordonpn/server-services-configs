@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  ytdl:
+    container_name: ytdl
+    image: tzahi12345/youtubedl-material:nightly
+    environment:
+      ALLOW_CONFIG_MUTATIONS: 'true'
+      UID: 1001
+      GID: 1001
+    restart: unless-stopped
+    volumes:
+      - /mnt/glusterfs/ytdl/appdata:/app/appdata
+      - /mnt/glusterfs/ytdl/audio:/app/audio
+      - /mnt/glusterfs/ytdl/video:/app/video
+      - /mnt/glusterfs/ytdl/subscriptions:/app/subscriptions
+      - /mnt/glusterfs/ytdl/users:/app/users
+    expose:
+      - "17442"
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.persistence == true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.services.ytdl.loadbalancer.server.port=17442"
+        - "traefik.http.routers.ytdl.entrypoints=websecure"
+        - "traefik.http.routers.ytdl.middlewares=oauth@file, secured_headers@file"
+        - "traefik.http.routers.ytdl.service=ytdl@docker"
+        - "traefik.http.routers.ytdl.tls=true"
+        - "traefik.http.routers.ytdl.tls.certresolver=leresolver"
+        - "traefik.http.routers.ytdl.rule=Host(`ytdl.gordon-pn.com`)"
+
+networks:
+  traefik-public:
+    external: true
+    driver: overlay
