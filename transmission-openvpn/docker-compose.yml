@@ -8,8 +8,6 @@ services:
       - NET_ADMIN
     volumes:
       - /mnt/glusterfs/openvpn:/etc/openvpn/custom
-      - /media/drive/plex/data/movies:/data/movies
-      - /media/drive/plex/data/tv:/data/tv
       - /mnt/glusterfs/syncthing/transmission:/data/completed
     environment:
       - LOCAL_NETWORK=192.168.50.0/24
