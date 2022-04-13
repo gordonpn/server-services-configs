@@ -12,7 +12,8 @@ services:
       - 32400:32400
     volumes:
       - /mnt/glusterfs/plex/config:/config
-      - /mnt/glusterfs/plex/data:/movies
+      - /mnt/glusterfs/plex/data/movies:/movies
+      - /mnt/glusterfs/plex/data/tv:/tv
     deploy:
       replicas: 1
       update_config:
