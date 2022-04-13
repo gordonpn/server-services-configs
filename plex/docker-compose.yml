@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    environment:
+      - ALLOWED_NETWORKS=192.168.50.0/24
+      - PLEX_GID==1001
+      - PLEX_UID==1001
+    network_mode: host
+    ports:
+      - 32400:32400
+    volumes:
+      - /mnt/glusterfs/plex/config:/config
+      - /mnt/glusterfs/plex/data:/data
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.persistence == true
+          - node.labels.name == rpi3

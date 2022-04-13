@@ -39,3 +39,4 @@ services:
       placement:
         constraints:
           - node.labels.persistence == true
+          - node.labels.name == rpi3
