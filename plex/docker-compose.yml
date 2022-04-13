@@ -37,7 +37,7 @@ services:
         - "traefik.constraint-label=traefik-public"
         - "traefik.http.services.plex.loadbalancer.server.port=32400"
         - "traefik.http.routers.plex.entrypoints=websecure"
-        - "traefik.http.routers.plex.middlewares=secured_headers"
+        - "traefik.http.routers.plex.middlewares=secured_headers@file"
         - "traefik.http.routers.plex.service=plex@docker"
         - "traefik.http.routers.plex.tls=true"
         - "traefik.http.routers.plex.tls.certresolver=leresolver"
