@@ -33,16 +33,16 @@ http:
         certResolver: "leresolver"
       rule: "Host(`oauth.gordon-pn.com`)"
 
-    filebrowser:
-      entryPoints:
-        - websecure
-      middlewares:
-        - oauth
-        - secured_headers
-      service: "filebrowser@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`filebrowser.gordon-pn.com`)"
+    # filebrowser:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - oauth
+    #     - secured_headers
+    #   service: "filebrowser@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`filebrowser.gordon-pn.com`)"
 
     # rss-feed-staging:
     #   entryPoints:
@@ -55,15 +55,15 @@ http:
     #     certResolver: "leresolver"
     #   rule: "Host(`rss-staging.gordon-pn.com`)"
 
-    rss-feed:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "rss-feed@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`rss.gordon-pn.com`)"
+    # rss-feed:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - secured_headers
+    #   service: "rss-feed@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`rss.gordon-pn.com`)"
 
     drone:
       entryPoints:
@@ -85,45 +85,45 @@ http:
         certResolver: "leresolver"
       rule: "Host(`gordon-pn.com`) || Host(`www.gordon-pn.com`)"
 
-    speedtest-site:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "speedtest@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`speed.gordon-pn.com`)"
+    # speedtest-site:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - secured_headers
+    #   service: "speedtest@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`speed.gordon-pn.com`)"
 
-    github-stats:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "github-stats@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`stats.gordon-pn.com`)"
+    # github-stats:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - secured_headers
+    #   service: "github-stats@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`stats.gordon-pn.com`)"
 
-    hotdeals-site:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "deals@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`deals.gordon-pn.com`)"
+    # hotdeals-site:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - secured_headers
+    #   service: "deals@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`deals.gordon-pn.com`)"
 
-    conventions-site:
-      entryPoints:
-        - websecure
-      middlewares:
-        - secured_headers
-      service: "conventions-guide@docker"
-      tls:
-        certResolver: "leresolver"
-      rule: "Host(`conventions.gordon-pn.com`)"
+    # conventions-site:
+    #   entryPoints:
+    #     - websecure
+    #   middlewares:
+    #     - secured_headers
+    #   service: "conventions-guide@docker"
+    #   tls:
+    #     certResolver: "leresolver"
+    #   rule: "Host(`conventions.gordon-pn.com`)"
 
   middlewares:
     rate_limit:

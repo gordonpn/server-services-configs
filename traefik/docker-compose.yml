@@ -63,7 +63,7 @@ services:
       - INSECURE_COOKIE=false
       - AUTH_HOST=oauth.${DOMAIN}
       - URL_PATH=/_oauth
-      - WHITELIST=${CF_API_EMAIL}
+      - WHITELIST=${CF_API_EMAIL},${DAD_EMAIL}
       - LOG_LEVEL=info
       - LOG_FORMAT=text
       - LIFETIME=2592000
