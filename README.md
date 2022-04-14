@@ -161,6 +161,10 @@ Install Docker
 
 `sudo usermod -aG docker $USER && newgrp docker`
 
+Move Docker storage location elsewhere
+
+`sudo rsync -aP /var/lib/docker/ /media/drive/docker`
+
 `sudo systemctl enable docker.service && sudo systemctl enable containerd.service`
 
 Enable experimental features and log rotation:
@@ -176,10 +180,15 @@ cat << EOF | sudo tee -a /etc/docker/daemon.json
   "experimental": true,
   "features": {
     "buildkit": true
-  }
+  },
+  "data-root": "/media/drive/docker"
 }
 EOF
 ```
+
+Remove old Docker data storage directory
+
+`sudo rm -rf /var/lib/docker`
 
 Enable ports for Docker Swarm
 
@@ -309,17 +318,6 @@ echo 'localhost:/gfsvol /mnt/glusterfs glusterfs defaults,_netdev,backupvolfile-
 sudo mkdir /mnt/glusterfs
 sudo mount.glusterfs localhost:/gfsvol /mnt/glusterfs
 sudo chown -R gordonpn:gordonpn /mnt
-```
-
-Move Docker storage directory off of the SD card
-
-```sh
-sudo systemctl stop docker && \
-sudo rm -rf /var/lib/docker && \
-sudo mkdir /var/lib/docker && \
-sudo mkdir /media/drive/docker && \
-sudo mount --rbind /media/drive/docker /var/lib/docker && \
-sudo systemctl start docker
 ```
 
 Set cron tasks
