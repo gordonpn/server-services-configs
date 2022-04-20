@@ -1,0 +1,53 @@
+networks:
+  traefik-public:
+    driver: overlay
+    external: true
+services:
+  vault:
+    cap_add:
+      - IPC_LOCK
+    command: vault server -config=/vault/config/config.json
+    container_name: vault
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.constraint-label=traefik-public
+        - traefik.http.services.vault.loadbalancer.server.port=8200
+        - traefik.http.routers.vault.entrypoints=websecure
+        - traefik.http.routers.vault.middlewares=oauth@file, secured_headers@file
+        - traefik.http.routers.vault.service=vault@docker
+        - traefik.http.routers.vault.tls=true
+        - traefik.http.routers.vault.tls.certresolver=leresolver
+        - traefik.http.routers.vault.rule=Host(`vault.gordon-pn.com`)
+      placement:
+        constraints:
+          - node.labels.persistence == true
+      replicas: 1
+      restart_policy:
+        window: 120s
+      rollback_config:
+        parallelism: 0
+      update_config:
+        delay: 10s
+        failure_action: rollback
+        parallelism: 1
+    environment:
+      - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_API_ADDR=http://0.0.0.0:8200
+      - VAULT_ADDRESS=http://0.0.0.0:8200
+    expose:
+      - '8200'
+    image: vault:latest
+    labels:
+      - traefik.enable=true
+    networks:
+      - traefik-public
+    ports:
+      - '8200:8200'
+    restart: unless-stopped
+    volumes:
+      - /mnt/glusterfs/vault/config:/vault/config
+      - /mnt/glusterfs/vault/policies:/vault/policies
+      - /mnt/glusterfs/vault/data:/vault/data
+      - /mnt/glusterfs/vault/file:/vault/file
+version: '3.8'
