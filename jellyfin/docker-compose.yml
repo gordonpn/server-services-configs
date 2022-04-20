@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin
+    image: jellyfin/jellyfin
     container_name: jellyfin
     environment:
       - PUID=1001
@@ -30,4 +30,3 @@ services:
       placement:
         constraints:
           - node.labels.persistence == true
-          - node.labels.name == rpi3
