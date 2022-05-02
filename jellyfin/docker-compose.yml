@@ -3,7 +3,6 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin
     container_name: jellyfin
-    user: 1001:1001
     environment:
       - PUID=1001
       - PGID=1001
