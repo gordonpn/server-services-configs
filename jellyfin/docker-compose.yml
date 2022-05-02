@@ -1,11 +1,13 @@
 version: '3.8'
 services:
   jellyfin:
-    image: jellyfin/jellyfin
+    image: lscr.io/linuxserver/jellyfin
     container_name: jellyfin
     user: 1001:1001
     environment:
-      - JELLYFIN_PublishedServerUrl=192.168.50.9
+      - PUID=1001
+      - PGID=1001
+      - JELLYFIN_PublishedServerUrl=192.168.50.223
     network_mode: host
     volumes:
       - /media/drive/jellyfin/config:/config
@@ -30,3 +32,4 @@ services:
         constraints:
           - node.labels.persistence == true
           - node.labels.amd == true
+          - node.labels.name == dev
