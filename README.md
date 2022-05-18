@@ -47,11 +47,15 @@ This runs on an ASUS router to update the dynamic IP address with a Cloudflare A
 
 ## Setting up a new Raspberry Pi node
 
+Download [Raspberry Pi OS Lite 64-bit](https://www.raspberrypi.com/software/operating-systems/).
+
+Use the Raspberry Pi Imager and configure ssh and a user.
+
 After flashing the image, create a file named `ssh` in `/boot` or `/system-boot`
 
 Edit `cmdline.txt` and append `ipv6.disable=1`
 
-Configure available settings: `sudo raspi-config`
+Configure locale settings: `sudo raspi-config`
 
 Run upgrades: `sudo apt update && sudo apt full-upgrade -y`
 
@@ -155,6 +159,29 @@ Install unattended-upgrades
 
 `sudo apt-get update && sudo apt-get install -y unattended-upgrades && sudo dpkg-reconfigure --priority=low unattended-upgrades`
 
+Set up external drive
+
+```sh
+lsblk -f
+sudo fdisk /dev/sda
+sudo mkfs.ext4 /dev/sda1
+sudo mkdir -p /media/drive
+sudo mount -t auto /dev/sda1 /media/drive
+sudo blkid /dev/sda1
+sudo vi /etc/fstab
+```
+
+Add to bottom
+
+`echo "UUID=$(sudo lsblk -f | grep sda1 | awk '{print $4}') /media/drive ext4 defaults,auto,users,rw,nofail,noatime 0 0" | sudo tee -a /etc/fstab`
+
+Add at the bottom of `/etc/rc.local`
+
+```sh
+sleep 20
+sudo mount -a
+```
+
 Install Docker
 
 `curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh`
@@ -186,6 +213,10 @@ cat << EOF | sudo tee -a /etc/docker/daemon.json
 EOF
 ```
 
+Verify that the new directory is being used to store images after running `docker run hello-world`
+
+`docker inspect $(docker images | grep hello-world | awk '{print $3}') | grep WorkDir`
+
 Remove old Docker data storage directory
 
 `sudo rm -rf /var/lib/docker`
@@ -206,12 +237,12 @@ Or join
 
 Add label to the node
 
-`docker node update --label-add master rpi0`
+`docker node update --label-add name=rpi0 rpi0`
 
 Install Docker Compose
 
 ```sh
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-aarch64" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-aarch64" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
@@ -256,29 +287,6 @@ sudo systemctl start glusterd
 sudo systemctl status glusterd
 ```
 
-Set up external drive
-
-```sh
-lsblk -f
-sudo fdisk /dev/sda
-sudo mkfs.ext4 /dev/sda1
-sudo mkdir -p /media/drive
-sudo mount -t auto /dev/sda1 /media/drive
-sudo blkid /dev/sda1
-sudo vi /etc/fstab
-```
-
-Add to bottom
-
-`echo "UUID=a613a12d-8abb-4d86-9ea8-fc6a44f548c8 /media/drive ext4 defaults,auto,users,rw,nofail,noatime 0 0" | sudo tee -a /etc/fstab`
-
-Add at the bottom of `/etc/rc.local`
-
-```sh
-sleep 20
-sudo mount -a
-```
-
 Open ports for GlusterFS
 
 ```sh
@@ -286,19 +294,19 @@ sudo ufw allow from 192.168.50.0/24 proto tcp to any port 24007
 sudo ufw allow from 192.168.50.0/24 proto tcp to any port 49152
 ```
 
-View other ports needed by GlusterFS
+View peer status: `sudo gluster peer status`
 
-```sh
-echo "Open ports for Gluster volumes"
-PORTS=`service glusterd status | grep "listen-port" | sed 's/.*\.listen-port=//'|sort -u`
-echo "$PORTS"
-```
+View volume status: `sudo gluster vol status`
+
+Probe the new node from an existing node: `sudo gluster peer probe 192.168.50.254`
+
+Add a new brick on the new node form an existing node: `sudo gluster volume add-brick gfsvol 192.168.50.254:/media/drive/glusterfs/docker`
 
 Create GlusterFS volume
 
 ```sh
-sudo mkdir -p /media/drive/glusterfs
-sudo chown -R gordonpn:gordonpn /media
+sudo mkdir -p /media/drive/glusterfs/docker
+sudo chown -R gordonpn:gordonpn /media/glusterfs
 sudo gluster volume create gfsvol \
   192.168.50.82:/media/drive/glusterfs/docker \
   192.168.50.31:/media/drive/glusterfs/docker \
@@ -307,7 +315,7 @@ sudo gluster volume create gfsvol \
 sudo gluster volume start gfsvol
 sudo gluster v status
 sudo gluster volume info
-docker node update --label-add persistence rpi1
+docker node update --label-add persistence=true rpi1
 ```
 
 Mount the GlusterFS volume on each node
@@ -320,7 +328,7 @@ sudo mount.glusterfs localhost:/gfsvol /mnt/glusterfs
 sudo chown -R gordonpn:gordonpn /mnt
 ```
 
-Set cron tasks
+Set cron tasks (here are some examples)
 
 ```
 @reboot /home/gordonpn/workspace/server-services-configs/scripts/get_dhcp.sh
