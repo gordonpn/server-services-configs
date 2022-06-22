@@ -1,0 +1,50 @@
+---
+kind: pipeline
+name: notification Build starting
+steps:
+- failure: ignore
+  image: plugins/slack
+  name: notification
+  settings:
+    channel: drone-ci
+    template: |
+      Build starting
+      {{ uppercasefirst build.event }} on branch {{ build.branch }} from repo {{repo.name}}
+      <{{ build.link }}|Visit build #{{build.number}} page ➡️>
+    webhook:
+      from_secret: SLACK_WEBHOOK_URL
+type: docker
+---
+kind: pipeline
+name: terraform
+steps:
+- commands:
+  - cd ./terraform
+  - terraform -v
+  - terraform init
+  - terraform validate
+  - terraform apply -auto-approve
+  environment:
+    CLOUDFLARE_API_TOKEN:
+      from_secret: CLOUDFLARE_API_TOKEN
+    CLOUDFLARE_EMAIL:
+      from_secret: CLOUDFLARE_EMAIL
+  image: hashicorp/terraform
+  name: terraform apply
+type: docker
+---
+kind: pipeline
+name: notification Build finished
+steps:
+- failure: ignore
+  image: plugins/slack
+  name: notification
+  settings:
+    channel: drone-ci
+    template: |
+      Build finished
+      {{ uppercasefirst build.event }} on branch {{ build.branch }} from repo {{repo.name}}
+      <{{ build.link }}|Visit build #{{build.number}} page ➡️>
+    webhook:
+      from_secret: SLACK_WEBHOOK_URL
+type: docker
