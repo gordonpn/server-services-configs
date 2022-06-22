@@ -40,10 +40,10 @@ local terraform = {
       },
       commands: [
         'cd ./terraform',
-        'ls',
+        'ls -lah',
         'terraform -v',
         'rm -rf ./.terraform',
-        'ls',
+        'ls -lah',
         'terraform init',
         'chmod -R a+x ./.terraform',
         'terraform plan',
