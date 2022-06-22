@@ -5,3 +5,5 @@
 filebrowser.db
 venv/
 cloud-init/generated/
+.terraform/
+terraform.tfstate*
