@@ -13,24 +13,25 @@ curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
 echo
 
 services=(
-  "adguard"
-  # "concourse"
-  "drone"
-  # "filebrowser"
-  # "jenkins"
-  "syncthing"
-  "traefik"
-  "transmission-openvpn"
-  "jellyfin"
+	"swarmpit"
+	"adguard"
+	"drone"
+	"jellyfin"
+	"syncthing"
+	"traefik"
+	"transmission-openvpn"
+	# "concourse"
+	# "filebrowser"
+	# "jenkins"
 )
 
 for service in "${services[@]}"; do
-  printf "\nDeploying %s\n" "$(service)"
+	printf "\nDeploying %s\n" "$service"
 
-  cd "$BASE_DIR"/"$service"/ || break
-  /usr/local/bin/docker-compose -f docker-compose.yml config >docker-compose.processed.yml
-  echo -e "version: \"3.8\"\n$(cat docker-compose.processed.yml)" >docker-compose.processed.yml
-  /usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
+	cd "$BASE_DIR"/"$service"/ || break
+	/usr/local/bin/docker-compose -f docker-compose.yml config >docker-compose.processed.yml
+	echo -e "version: \"3.8\"\n$(cat docker-compose.processed.yml)" >docker-compose.processed.yml
+	/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
 done
 
 curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"

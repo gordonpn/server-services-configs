@@ -336,7 +336,7 @@ Set cron tasks (here are some examples)
 0 5 * * * /home/gordonpn/workspace/server-services-configs/scripts/update_containers.sh >> /home/gordonpn/logs/container_update.log 2>&1
 @reboot sleep 600 && /usr/bin/docker swarm ca --rotate --quiet
 0 */2 * * * /home/gordonpn/workspace/server-services-configs/scripts/force_rebalance.sh >> /home/gordonpn/logs/force_rebalance.log 2>&1
-0 */6 * * * /home/gordonpn/workspace/temporary/shoppies_api_key.sh
+0 2 * * * cd /home/gordonpn/workspace/dotfiles && /usr/bin/git pull origin master
 ```
 
 If you are using a reverse proxy somewhere then you need to allow port 80 and 443
