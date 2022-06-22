@@ -35,6 +35,7 @@ steps:
       from_secret: CLOUDFLARE_EMAIL
   image: hashicorp/terraform
   name: terraform apply
+  user: root
 type: docker
 ---
 kind: pipeline

@@ -30,6 +30,7 @@ local terraform = {
     {
       name: 'terraform apply',
       image: 'hashicorp/terraform',
+      user: 'root',
       environment: {
         CLOUDFLARE_EMAIL: {
           from_secret: 'CLOUDFLARE_EMAIL',
