@@ -42,6 +42,7 @@ local terraform = {
         'cd ./terraform',
         'terraform -v',
         'terraform init',
+        'chmod -R a+x ./.terraform',
         'terraform plan',
         'terraform apply -auto-approve',
       ],
