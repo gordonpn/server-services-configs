@@ -22,7 +22,7 @@ steps:
   - cd ./terraform
   - terraform -v
   - terraform init
-  - terraform validate
+  - terraform plan
   - terraform apply -auto-approve
   environment:
     CLOUDFLARE_API_TOKEN:
