@@ -21,9 +21,10 @@ variable "domain" {
 }
 
 resource "cloudflare_record" "swarmpit" {
-  zone_id = var.zone_id
-  name    = "swarmpit"
-  value   = var.domain
-  type    = "CNAME"
-  proxied = true
+  zone_id         = var.zone_id
+  name            = "swarmpit"
+  value           = var.domain
+  type            = "CNAME"
+  proxied         = true
+  allow_overwrite = true
 }

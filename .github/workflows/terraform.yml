@@ -1,6 +1,7 @@
 name: Terraform
 
-on: [push]
+on:
+  - push
 
 defaults:
   run:
@@ -19,7 +20,6 @@ jobs:
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
-        continue-on-error: true
 
       - name: Terraform Init
         id: init
@@ -32,3 +32,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -no-color
