@@ -19,11 +19,11 @@ kind: pipeline
 name: terraform
 steps:
 - commands:
-  - apt-get update && apt-get install curl
+  - apt-get update && apt-get install -y curl
   - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
   - apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com
     $(lsb_release -cs) main"
-  - apt-get update && apt-get install terraform
+  - apt-get update && apt-get install -y terraform
   - cd ./terraform
   - terraform -v
   - terraform init
