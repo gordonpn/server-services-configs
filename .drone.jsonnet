@@ -28,9 +28,8 @@ local terraform = {
   type: 'docker',
   steps: [
     {
-      name: 'terraform apply',
-      image: 'hashicorp/terraform',
-      user: 'root',
+      name: 'terraform',
+      image: 'ubuntu',
       environment: {
         CLOUDFLARE_EMAIL: {
           from_secret: 'CLOUDFLARE_EMAIL',
@@ -40,13 +39,13 @@ local terraform = {
         },
       },
       commands: [
+        'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -',
+        'sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"',
+        'sudo apt-get update && sudo apt-get install terraform',
         'cd ./terraform',
-        'ls -lah',
         'terraform -v',
-        'rm -rf ./.terraform',
-        'ls -lah',
         'terraform init',
-        'chmod -R a+x ./.terraform',
+        'terraform validate',
         'terraform plan',
         'terraform apply -auto-approve',
       ],
