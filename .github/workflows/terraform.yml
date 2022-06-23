@@ -19,11 +19,11 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt -check -no-color
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -no-color
 
       - name: Terraform Validate
         id: validate
