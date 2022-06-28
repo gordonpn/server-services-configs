@@ -28,3 +28,12 @@ resource "cloudflare_record" "swarmpit" {
   proxied         = true
   allow_overwrite = true
 }
+
+resource "cloudflare_record" "jenkins" {
+  zone_id         = var.zone_id
+  name            = "jenkins"
+  value           = var.domain
+  type            = "CNAME"
+  proxied         = true
+  allow_overwrite = true
+}

@@ -13,16 +13,15 @@ curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
 echo
 
 services=(
-	"swarmpit"
 	"adguard"
 	"drone"
 	"jellyfin"
+	"jenkins"
+	"swarmpit"
 	"syncthing"
 	"traefik"
 	"transmission-openvpn"
-	# "concourse"
 	# "filebrowser"
-	# "jenkins"
 )
 
 for service in "${services[@]}"; do
