@@ -92,4 +92,3 @@ networks:
   traefik-public:
     external: true
     driver: overlay
-    attachable: true
