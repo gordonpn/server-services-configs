@@ -30,7 +30,7 @@ services:
         - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
         - "traefik.docker.network=traefik-public"
         - "traefik.http.routers.jenkins.entrypoints=websecure"
-        - "traefik.http.routers.jenkins.middlewares=oauth@file, secured_headers@file"
+        - "traefik.http.routers.jenkins.middlewares=secured_headers@file"
         - "traefik.http.routers.jenkins.service=jenkins@docker"
         - "traefik.http.routers.jenkins.tls=true"
         - "traefik.http.routers.jenkins.tls.certresolver=leresolver"
