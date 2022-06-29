@@ -40,8 +40,8 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - apk update && apk --no-cache add curl && curl --version
-      - /bin/sh /drone/src/scripts/deploy.sh
+      - apk update && apk --no-cache add bash curl && curl --version && bash --version
+      - /bin/bash /drone/src/scripts/deploy.sh
 volumes:
   - name: dockersock
     host:

@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 # the following is not posix compatible, but the next is
-# scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-# shellcheck disable=SC1007
-scripts_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+# scripts_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 if [ "$INSIDE_DOCKER" != "true" ]; then
 	set -o allexport
