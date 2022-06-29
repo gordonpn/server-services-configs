@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o allexport
-source /home/gordonpn/workspace/server-services-configs/scripts/.env
+source /home/gordonpn/workspace/server-services-configs/scripts/.env || exit 0
 set +o allexport
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)

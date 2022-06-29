@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo 'Running deployment script..'
                 sh 'pwd'
+                sh 'ls /home/gordonpn/workspace'
                 sh './scripts/deploy.sh'
             }
         }
