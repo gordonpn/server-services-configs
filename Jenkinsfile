@@ -15,7 +15,7 @@ pipeline {
       CLIENT_ID = credentials('CLIENT_ID')
       CLIENT_SECRET = credentials('CLIENT_SECRET')
       SECRET = credentials('SECRET')
-      INSIDE_DOCKER = 'true'
+      JENKINS_CI = 'true'
     }
     stages {
         stage('Deploy') {

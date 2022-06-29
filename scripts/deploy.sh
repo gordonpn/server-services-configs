@@ -33,8 +33,10 @@ services=(
 for service in "${services[@]}"; do
 	printf "\n=========== START: %s =========== SERVICE: %s\n" "$(date +%F_%T)" "$service"
 	cd "$scripts_dir"/../"$service"/ || break
-	if [ "$INSIDE_DOCKER" == "true" ]; then
+	if [ "$JENKINS_CI" == "true" ]; then
 		docker compose convert >|docker-compose.processed.yml
+	elif [ "$DRONE_CI" == "true" ]; then
+		docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
 	else
 		/usr/local/bin/docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
 	fi

@@ -7,7 +7,7 @@ trigger:
 
 steps:
   - name: deploy prod
-    image: docker:20.10.15
+    image: docker:20.10.12
     environment:
       UPDATE_HC_UUID:
         from_secret: UPDATE_HC_UUID
@@ -35,12 +35,12 @@ steps:
         from_secret: CLIENT_SECRET
       SECRET:
         from_secret: SECRET
-      INSIDE_DOCKER: true
+      DRONE_CI: true
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - apk update && apk --no-cache add bash curl && curl --version && bash --version
+      - apk update && apk --no-cache add bash curl docker-compose && curl --version && bash --version && docker-compose version
       - /bin/bash /drone/src/scripts/deploy.sh
 volumes:
   - name: dockersock
