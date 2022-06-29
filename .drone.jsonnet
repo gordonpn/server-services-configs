@@ -1,19 +1,11 @@
 local push_trigger = {
-  trigger: {
-    event: [
-      'push',
-    ],
-  },
+  trigger: { event: ['push'] },
 };
 
 local cron_trigger = {
   trigger: {
-    event: [
-      'cron',
-    ],
-    cron: [
-      'daily',
-    ],
+    event: ['cron'],
+    cron: ['daily'],
   },
 };
 
