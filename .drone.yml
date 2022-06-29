@@ -6,7 +6,6 @@ steps:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&
     bash --version && docker-compose version
   - /bin/bash /drone/src/scripts/deploy.sh
-  - exit 1
   environment:
     CF_API_EMAIL:
       from_secret: CF_API_EMAIL
@@ -74,7 +73,6 @@ steps:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&
     bash --version && docker-compose version
   - /bin/bash /drone/src/scripts/deploy.sh
-  - exit 1
   environment:
     CF_API_EMAIL:
       from_secret: CF_API_EMAIL

@@ -60,7 +60,6 @@ local deploy(name) = {
       commands: [
         'apk update && apk --no-cache add bash curl docker-compose && curl --version && bash --version && docker-compose version',
         '/bin/bash /drone/src/scripts/deploy.sh',
-        'exit 1',
       ],
     },
     failure_notification,
