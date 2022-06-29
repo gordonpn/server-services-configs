@@ -59,9 +59,9 @@ services:
       - CLIENT_ID
       - CLIENT_SECRET
       - SECRET
-      - COOKIE_DOMAIN=${DOMAIN}
+      - COOKIE_DOMAIN=gordon-pn.com
       - INSECURE_COOKIE=false
-      - AUTH_HOST=oauth.${DOMAIN}
+      - AUTH_HOST=oauth.gordon-pn.com
       - URL_PATH=/_oauth
       - WHITELIST=${CF_API_EMAIL},${DAD_EMAIL}
       - LOG_LEVEL=info

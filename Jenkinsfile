@@ -1,6 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+      UPDATE_HC_UUID = credentials('UPDATE_HC_UUID')
+      OPENVPN_PASSWORD = credentials('OPENVPN_PASSWORD')
+      OPENVPN_USERNAME = credentials('OPENVPN_USERNAME')
+      DRONE_GITHUB_CLIENT_ID = credentials('DRONE_GITHUB_CLIENT_ID')
+      DRONE_GITHUB_CLIENT_SECRET = credentials('DRONE_GITHUB_CLIENT_SECRET')
+      DRONE_RPC_SECRET = credentials('DRONE_RPC_SECRET')
+      DRONE_USER_FILTER = credentials('DRONE_USER_FILTER')
+      DRONE_USER_CREATE = credentials('DRONE_USER_CREATE')
+      CF_API_EMAIL = credentials('CF_API_EMAIL')
+      CF_API_KEY = credentials('CF_API_KEY')
+      CLIENT_ID = credentials('CLIENT_ID')
+      CLIENT_SECRET = credentials('CLIENT_SECRET')
+      SECRET = credentials('SECRET')
+    }
     stages {
         stage('Deploy') {
             steps {
@@ -16,8 +31,7 @@ pipeline {
                     echo "docker found; skipping installation"
                   fi
                   '''
-                sh 'docker compose --help'
-                // sh './scripts/deploy.sh'
+                sh './scripts/deploy.sh'
             }
         }
     }

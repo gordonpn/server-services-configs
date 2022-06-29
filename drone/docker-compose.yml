@@ -7,8 +7,8 @@ services:
       - DRONE_GITHUB_CLIENT_ID
       - DRONE_GITHUB_CLIENT_SECRET
       - DRONE_RPC_SECRET
-      - DRONE_SERVER_HOST
-      - DRONE_SERVER_PROTO
+      - DRONE_SERVER_HOST=drone.gordon-pn.com
+      - DRONE_SERVER_PROTO=https
       - DRONE_USER_FILTER
       - DRONE_USER_CREATE
       - DRONE_STARLARK_ENABLE=true
@@ -48,8 +48,8 @@ services:
     container_name: drone-runner
     image: drone/drone-runner-docker:1
     environment:
-      - DRONE_RPC_PROTO
-      - DRONE_RPC_HOST
+      - DRONE_RPC_PROTO=https
+      - DRONE_RPC_HOST=drone.gordon-pn.com
       - DRONE_RPC_SECRET
       - DRONE_TRACE=true
       - DRONE_DEBUG=true

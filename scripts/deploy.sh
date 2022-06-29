@@ -7,6 +7,8 @@ if [ "$INSIDE_DOCKER" != "true" ]; then
 	source "$scripts_dir"/.env || exit 0
 	set +o allexport
 	source "$scripts_dir"/trim_logs.sh
+else
+	echo 'Running inside a Docker container'
 fi
 
 curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
