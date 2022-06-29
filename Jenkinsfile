@@ -31,6 +31,7 @@ pipeline {
                     echo "docker found; skipping installation"
                   fi
                   '''
+                sh 'docker -v'
                 sh './scripts/deploy.sh'
             }
         }
