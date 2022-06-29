@@ -6,7 +6,7 @@ pipeline {
             steps {
                 echo 'Running deployment script..'
                 sh 'pwd'
-                sh 'hostnamectl'
+                sh 'hostname'
                 sh 'whoami'
                 sh './scripts/deploy.sh'
             }
