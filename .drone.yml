@@ -3,8 +3,8 @@ type: docker
 name: deploy
 
 trigger:
-  include:
-    event:
+  event:
+    include:
       - cron
       - push
   cron:
