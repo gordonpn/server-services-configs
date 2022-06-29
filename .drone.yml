@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: deploy push
+name: deploy cron
 steps:
 - commands:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&
@@ -51,7 +51,7 @@ volumes:
   name: dockersock
 ---
 kind: pipeline
-name: deploy cron
+name: deploy push
 steps:
 - commands:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&

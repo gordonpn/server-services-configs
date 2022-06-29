@@ -56,6 +56,6 @@ local deploy(name) = {
 };
 
 [
-  cron_trigger + deploy('push'),
-  push_trigger + deploy('cron'),
+  cron_trigger + deploy('cron'),
+  push_trigger + deploy('push'),
 ]
