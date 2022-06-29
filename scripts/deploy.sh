@@ -35,7 +35,11 @@ for service in "${services[@]}"; do
 		/usr/local/bin/docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
 	fi
 	echo -e "version: \"3.9\"\n$(cat docker-compose.processed.yml)" >|docker-compose.processed.yml
-	/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
+	if [ "$INSIDE_DOCKER" == "true" ]; then
+		docker stack deploy -c docker-compose.processed.yml "$service"
+	else
+		/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
+	fi
 	printf "\n=========== END : %s ==========================\n" "$(date +%F_%T)"
 done
 
