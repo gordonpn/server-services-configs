@@ -3,11 +3,13 @@ type: docker
 name: deploy
 
 trigger:
-  event:
-    - cron
-    - push
+  include:
+    event:
+      - cron
+      - push
   cron:
-    - daily
+    include:
+      - daily
 
 steps:
   - name: deploy prod
