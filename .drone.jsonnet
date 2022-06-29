@@ -17,10 +17,10 @@ local cron_trigger = {
   },
 };
 
-local deploy = {
+local deploy(name) = {
   kind: 'pipeline',
   type: 'docker',
-  name: 'deploy',
+  name: 'deploy %(name)s' % name,
   steps: [{
     name: 'deploy prod',
     image: 'docker:20.10.12',
@@ -56,6 +56,6 @@ local deploy = {
 };
 
 [
-  cron_trigger + deploy,
-  push_trigger + deploy,
+  cron_trigger + deploy('push'),
+  push_trigger + deploy('cron'),
 ]
