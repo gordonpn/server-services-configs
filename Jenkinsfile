@@ -5,9 +5,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Running deployment script..'
-                sh 'pwd'
-                sh 'hostname'
-                sh 'whoami'
+                sh 'export INSIDE_DOCKER=true'
+                sh 'command -v docker'
+                sh 'command -v docker compose'
                 sh './scripts/deploy.sh'
             }
         }
