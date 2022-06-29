@@ -40,17 +40,17 @@ for service in "${services[@]}"; do
 	printf "\n=========== START: %s =========== SERVICE: %s\n" "$(date +%F_%T)" "$service"
 	cd "$scripts_dir"/../"$service"/ || break
 	if [ "$JENKINS_CI" == "true" ]; then
-		docker compose convert >|docker-compose.processed.yml
+		docker compose convert >|docker-compose.processed.yml || exit 1
 	elif [ "$DRONE_CI" == "true" ]; then
-		docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
+		docker-compose -f docker-compose.yml config >|docker-compose.processed.yml || exit 1
 	else
-		/usr/local/bin/docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
+		/usr/local/bin/docker-compose -f docker-compose.yml config >|docker-compose.processed.yml || exit 1
 	fi
 	echo -e "version: \"3.9\"\n$(cat docker-compose.processed.yml)" >|docker-compose.processed.yml
 	if [ "$inside_docker" == "true" ]; then
-		docker stack deploy -c docker-compose.processed.yml "$service"
+		docker stack deploy -c docker-compose.processed.yml "$service" || exit 1
 	else
-		/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
+		/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service" || exit 1
 	fi
 	printf "\n=========== END : %s ==========================\n" "$(date +%F_%T)"
 done
