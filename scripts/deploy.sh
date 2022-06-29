@@ -4,15 +4,21 @@
 scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 # scripts_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-if [ "$INSIDE_DOCKER" != "true" ]; then
+if [ "$JENKINS_CI" = "true" ] || [ "$DRONE_CI" = "true" ]; then
+	inside_docker="true"
+else
+	inside_docker="false"
+fi
+
+if [ "$inside_docker" == "true" ]; then
+	echo 'Running inside a Docker container'
+else
 	set -o allexport
 	# shellcheck disable=SC1091
 	source "$scripts_dir"/.env || exit 1
 	set +o allexport
 	# shellcheck disable=SC1091
 	source "$scripts_dir"/trim_logs.sh
-else
-	echo 'Running inside a Docker container'
 fi
 
 curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"/start
@@ -41,7 +47,7 @@ for service in "${services[@]}"; do
 		/usr/local/bin/docker-compose -f docker-compose.yml config >|docker-compose.processed.yml
 	fi
 	echo -e "version: \"3.9\"\n$(cat docker-compose.processed.yml)" >|docker-compose.processed.yml
-	if [ "$INSIDE_DOCKER" == "true" ]; then
+	if [ "$inside_docker" == "true" ]; then
 		docker stack deploy -c docker-compose.processed.yml "$service"
 	else
 		/usr/bin/docker stack deploy -c docker-compose.processed.yml "$service"
@@ -52,6 +58,6 @@ done
 curl -s --retry 3 https://hc-ping.com/"$UPDATE_HC_UUID"
 echo
 
-if [ "$INSIDE_DOCKER" != "true" ]; then
+if [ "$inside_docker" == "false" ]; then
 	trim_logs "/media/drive/logs/deploy.log"
 fi
