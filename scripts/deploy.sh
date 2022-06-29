@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
-scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+# the following is not posix compatible, but the next is
+# scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+# shellcheck disable=SC1007
+scripts_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 if [ "$INSIDE_DOCKER" != "true" ]; then
 	set -o allexport
+	# shellcheck disable=SC1091
 	source "$scripts_dir"/.env || exit 1
 	set +o allexport
+	# shellcheck disable=SC1091
 	source "$scripts_dir"/trim_logs.sh
 else
 	echo 'Running inside a Docker container'
