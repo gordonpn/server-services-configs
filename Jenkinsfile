@@ -12,8 +12,7 @@ pipeline {
                     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
                   fi
                   '''
-                sh 'command -v docker && docker -v'
-                sh 'command -v docker-compose && docker-compose -v'
+                sh 'docker compose --help'
                 // sh './scripts/deploy.sh'
             }
         }
