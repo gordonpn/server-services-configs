@@ -7,7 +7,7 @@ trigger:
 
 steps:
   - name: deploy prod
-    image: docker:20.10.12
+    image: docker:20.10.15
     environment:
       UPDATE_HC_UUID:
         from_secret: UPDATE_HC_UUID
