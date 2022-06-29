@@ -13,7 +13,7 @@ pipeline {
                   fi
                   '''
                 sh 'command -v docker && docker -v'
-                sh 'command -v docker compose'
+                sh 'command -v docker-compose && docker-compose -v'
                 // sh './scripts/deploy.sh'
             }
         }
