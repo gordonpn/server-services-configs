@@ -6,6 +6,7 @@ steps:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&
     bash --version && docker-compose version
   - /bin/bash /drone/src/scripts/deploy.sh
+  - exit 1
   environment:
     CF_API_EMAIL:
       from_secret: CF_API_EMAIL
@@ -39,6 +40,22 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
+- failure: ignore
+  image: plugins/slack
+  name: failure notification
+  settings:
+    channel: drone-ci
+    template: |
+      Deploy failed
+      Commit: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}>
+      Branch: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commits/{{ build.branch }}|{{ build.branch }}>
+      Author: {{ build.author }}
+      <{{ build.link }}|Visit build #{{build.number}} page ➡️>
+    webhook:
+      from_secret: SLACK_WEBHOOK_URL
+  when:
+    status:
+    - failure
 trigger:
   cron:
   - daily
@@ -57,6 +74,7 @@ steps:
   - apk update && apk --no-cache add bash curl docker-compose && curl --version &&
     bash --version && docker-compose version
   - /bin/bash /drone/src/scripts/deploy.sh
+  - exit 1
   environment:
     CF_API_EMAIL:
       from_secret: CF_API_EMAIL
@@ -90,6 +108,22 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
+- failure: ignore
+  image: plugins/slack
+  name: failure notification
+  settings:
+    channel: drone-ci
+    template: |
+      Deploy failed
+      Commit: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}>
+      Branch: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commits/{{ build.branch }}|{{ build.branch }}>
+      Author: {{ build.author }}
+      <{{ build.link }}|Visit build #{{build.number}} page ➡️>
+    webhook:
+      from_secret: SLACK_WEBHOOK_URL
+  when:
+    status:
+    - failure
 trigger:
   event:
   - push
