@@ -41,8 +41,7 @@ services=(
 for service in "${services[@]}"; do
 	printf "\n=========== START: %s =========== SERVICE: %s\n" "$(date +%F_%T)" "$service"
 	cd "$scripts_dir"/../"$service"/ || break
-	docker_compose_command "-f docker-compose.yml config >docker-compose.processed.yml"
-	echo -e "version: \"3.8\"\n$(cat docker-compose.processed.yml)" >docker-compose.processed.yml
+	docker_compose_command "convert >|docker-compose.processed.yml"
 	docker_command "stack deploy -c docker-compose.processed.yml ""$service"""
 	printf "\n=========== END : %s ==========================\n" "$(date +%F_%T)"
 done
