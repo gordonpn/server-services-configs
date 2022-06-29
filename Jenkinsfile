@@ -15,12 +15,12 @@ pipeline {
       CLIENT_ID = credentials('CLIENT_ID')
       CLIENT_SECRET = credentials('CLIENT_SECRET')
       SECRET = credentials('SECRET')
+      INSIDE_DOCKER = 'true'
     }
     stages {
         stage('Deploy') {
             steps {
                 echo 'Running deployment script..'
-                sh 'export INSIDE_DOCKER=true'
                 sh '''
                   if ! [ -x "$(command -v docker)" ]; then
                     echo "docker could not be found; will install"

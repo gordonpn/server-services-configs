@@ -4,7 +4,7 @@ scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 if [ "$INSIDE_DOCKER" != "true" ]; then
 	set -o allexport
-	source "$scripts_dir"/.env || exit 0
+	source "$scripts_dir"/.env || exit 1
 	set +o allexport
 	source "$scripts_dir"/trim_logs.sh
 else
