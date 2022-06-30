@@ -57,7 +57,7 @@ steps:
     - failure
 trigger:
   cron:
-  - daily
+  - '@daily'
   event:
   - cron
 type: docker
