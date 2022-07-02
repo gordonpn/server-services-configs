@@ -9,41 +9,7 @@
 
 This repository contains configuration (docker-compose.yml files) to set up the services I run on my home server. As well as, some useful scripts in the `./scripts` directory.
 
-## Service configs
-
-I currently use the following services on my home server.
-
-| Service              | Purpose                        |
-| -------------------- | ------------------------------ |
-| Adguard              | DNS server with ad-blocking    |
-| Drone CI and runners | CI/CD                          |
-| Filebrowser          | File storage                   |
-| Syncthing            | Real-time peer to peer syncing |
-| Traefik              | Reverse proxy                  |
-
-## Scripts
-
-### `backup.sh`
-
-Make backups of important directories into tarballs.
-
-### `update_container.sh`
-
-Update redeploy (update) containers.
-
-### `force_rebalance.sh`
-
-Simply force a rebalance of the Swarm on all the services. Can be automated, will rebalance only if the numbers of tasks running on each server is skewed.
-
-Should not be run too often and only when necessary.
-
-### `ddns-start`
-
-Modified version of @alphabt's project [asuswrt-merlin-ddns-cloudflare](https://github.com/alphabt/asuswrt-merlin-ddns-cloudflare) to suit my usage.
-
-More reference: <https://gist.github.com/dd-han/09853f07efdf67f0f4af3f7531ac7abf>
-
-This runs on an ASUS router to update the dynamic IP address with a Cloudflare A record.
+![nodes](./docs/nodes.png)
 
 ## Setting up a new Raspberry Pi node
 
