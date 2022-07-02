@@ -5,7 +5,7 @@ local push_trigger = {
 local cron_trigger = {
   trigger: {
     event: ['cron'],
-    cron: ['@daily'],
+    cron: ['deploy'],
   },
 };
 
