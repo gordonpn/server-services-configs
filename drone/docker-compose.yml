@@ -18,7 +18,7 @@ services:
       - DRONE_LOGS_TEXT=true
       - DRONE_LOGS_TRACE=true
     volumes:
-      - /mnt/glusterfs/drone:/data
+      - /mnt/share/drone:/data
     restart: always
     expose:
       - 80

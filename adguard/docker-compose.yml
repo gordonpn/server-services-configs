@@ -3,8 +3,8 @@ services:
   adguard:
     image: adguard/adguardhome
     volumes:
-      - /mnt/glusterfs/adguardhome/work:/opt/adguardhome/work
-      - /mnt/glusterfs/adguardhome/conf:/opt/adguardhome/conf
+      - /mnt/share/adguardhome/work:/opt/adguardhome/work
+      - /mnt/share/adguardhome/conf:/opt/adguardhome/conf
     networks:
       - traefik-public
     ports:

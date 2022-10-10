@@ -46,8 +46,8 @@ services:
       - '8200:8200'
     restart: unless-stopped
     volumes:
-      - /mnt/glusterfs/vault/config:/vault/config
-      - /mnt/glusterfs/vault/policies:/vault/policies
-      - /mnt/glusterfs/vault/data:/vault/data
-      - /mnt/glusterfs/vault/file:/vault/file
+      - /mnt/share/vault/config:/vault/config
+      - /mnt/share/vault/policies:/vault/policies
+      - /mnt/share/vault/data:/vault/data
+      - /mnt/share/vault/file:/vault/file
 version: '3.8'

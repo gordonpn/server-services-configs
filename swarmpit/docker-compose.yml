@@ -46,7 +46,7 @@ services:
   couchdb:
     image: treehouses/couchdb:2.3.1
     volumes:
-      - /mnt/glusterfs/swarmpit/couchdb:/opt/couchdb/data
+      - /mnt/share/swarmpit/couchdb:/opt/couchdb/data
     networks:
       - swarmpit-network
     deploy:
@@ -71,7 +71,7 @@ services:
   influxdb:
     image: influxdb:1.7
     volumes:
-      - /mnt/glusterfs/swarmpit/influxdb:/var/lib/influxdb
+      - /mnt/share/swarmpit/influxdb:/var/lib/influxdb
     networks:
       - swarmpit-network
     deploy:

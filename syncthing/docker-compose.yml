@@ -8,7 +8,7 @@ services:
       - PUID=1001
       - PGID=1001
     volumes:
-      - /mnt/glusterfs/syncthing:/var/syncthing
+      - /mnt/share/syncthing:/var/syncthing
     ports:
       - 8384:8384
       - 22000:22000/tcp

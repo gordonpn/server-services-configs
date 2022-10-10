@@ -17,7 +17,7 @@ services:
       - CF_API_EMAIL
       - CF_API_KEY
     volumes:
-      - /mnt/glusterfs/traefik/letsencrypt:/letsencrypt
+      - /mnt/share/traefik/letsencrypt:/letsencrypt
       #- ./traefik.log:/traefik.log
       #- ./access.log:/access.log
       - ./traefik.yaml:/traefik.yaml

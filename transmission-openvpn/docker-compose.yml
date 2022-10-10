@@ -7,8 +7,8 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - /mnt/glusterfs/openvpn:/etc/openvpn/custom
-      - /mnt/glusterfs/syncthing/transmission:/data/completed
+      - /mnt/share/openvpn:/etc/openvpn/custom
+      - /mnt/share/syncthing/transmission:/data/completed
     environment:
       - LOCAL_NETWORK=192.168.50.0/24
       - OPENVPN_CONFIG=ca-tr

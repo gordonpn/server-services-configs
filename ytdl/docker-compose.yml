@@ -9,11 +9,11 @@ services:
       GID: 1001
     restart: unless-stopped
     volumes:
-      - /mnt/glusterfs/ytdl/appdata:/app/appdata
-      - /mnt/glusterfs/ytdl/audio:/app/audio
-      - /mnt/glusterfs/ytdl/video:/app/video
-      - /mnt/glusterfs/ytdl/subscriptions:/app/subscriptions
-      - /mnt/glusterfs/ytdl/users:/app/users
+      - /mnt/share/ytdl/appdata:/app/appdata
+      - /mnt/share/ytdl/audio:/app/audio
+      - /mnt/share/ytdl/video:/app/video
+      - /mnt/share/ytdl/subscriptions:/app/subscriptions
+      - /mnt/share/ytdl/users:/app/users
     expose:
       - "17442"
     networks:

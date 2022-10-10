@@ -317,3 +317,79 @@ If you want to allow your personal computer to connect to any of the ports
 ```sh
 sudo ufw allow from 192.168.50.214
 ```
+
+### Setup NFS on host and clients
+
+On the host, install NFS:
+
+```bash
+sudo apt-get update && sudo apt-get install -y nfs-common nfs-kernel-server
+```
+
+Create a directory to share and an NFS root directory
+
+```bash
+mkdir -p /media/drive/share
+mkdir -p /srv/nfs4/share
+```
+
+Bind mount the directories
+
+```bash
+sudo mount --bind /media/drive/share /srv/nfs4/share
+```
+
+Make the mount permanent
+
+```bash
+echo "/media/drive/share /srv/nfs4/share none bind 0 0" | sudo tee -a /etc/fstab
+```
+
+Add the directory to be exported
+
+```bash
+echo "/srv/nfs4 192.168.33.0/24(rw,sync,insecure,no_subtree_check,crossmnt,fsid=0) " | sudo tee -a /etc/exports
+echo "/srv/nfs4/share 192.168.33.0/24(rw,sync,insecure,no_subtree_check) " | sudo tee -a /etc/exports
+```
+
+Save and export the shares
+
+```bash
+sudo exportfs -ar
+```
+
+Verify
+
+```bash
+sudo exportfs -v
+```
+
+On host and all clients, open port for NFS:
+
+```bash
+sudo ufw allow from 192.168.50.0/24 to any port nfs
+```
+
+Install on all clients
+
+```bash
+sudo apt-get update && sudo apt-get install -y nfs-common
+```
+
+Create new directory for mount points
+
+```bash
+mkdir -p /mnt/share
+```
+
+Mount the remote NFS
+
+```bash
+sudo mount -t nfs -o vers=4 192.168.50.9:/share /mnt/share
+```
+
+Make mount permanent
+
+```bash
+echo "192.168.50.9:/share /mnt/share nfs defaults,timeo=900,retrans=5,_netdev 0 0" | sudo tee -a /etc/fstab
+```
