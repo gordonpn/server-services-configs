@@ -8,7 +8,7 @@ services:
       - NET_ADMIN
     volumes:
       - /mnt/share/openvpn:/etc/openvpn/custom
-      - /mnt/share/syncthing/transmission:/data/completed
+      - /mnt/share/transmission:/data/completed
     environment:
       - LOCAL_NETWORK=192.168.50.0/24
       - OPENVPN_CONFIG=ca-tr

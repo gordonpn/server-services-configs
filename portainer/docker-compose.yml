@@ -10,32 +10,56 @@ services:
       - agent_network
     deploy:
       mode: global
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
       placement:
         constraints:
           - node.platform.os == linux
 
   portainer:
-    image: portainer/portainer
+    image: portainer/portainer-ce
     command: -H tcp://tasks.agent:9001 --tlsskipverify
     ports:
+      - "9443:9443"
       - "9000:9000"
       - "8000:8000"
     volumes:
-      - portainer_data:/data
+      - /mnt/share/portainer:/data
     networks:
       - agent_network
       - traefik-public
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+      restart_policy:
+        window: 120s
       placement:
         constraints:
           - node.labels.master == true
+          - node.labels.persistence == true
       labels:
         - "traefik.constraint-label=traefik-public"
         - "traefik.docker.network=traefik-public"
         - "traefik.enable=true"
-        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+        - "traefik.http.services.portainer.loadbalancer.server.port=9443"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
+        - "traefik.http.routers.portainer.middlewares=oauth@file, secured_headers@file"
+        - "traefik.http.routers.portainer.service=portainer@docker"
+        - "traefik.http.routers.portainer.tls=true"
+        - "traefik.http.routers.portainer.tls.certresolver=leresolver"
+        - "traefik.http.routers.portainer.rule=Host(`portainer.gordon-pn.com`)"
 
 networks:
   agent_network:
@@ -45,6 +69,3 @@ networks:
     external: true
     driver: overlay
     attachable: true
-
-volumes:
-  portainer_data:

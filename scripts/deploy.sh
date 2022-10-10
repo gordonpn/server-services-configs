@@ -29,11 +29,12 @@ services=(
 	"drone"
 	"jellyfin"
 	"jenkins"
-	"swarmpit"
-	"syncthing"
+	# "swarmpit"
+	# "syncthing"
 	"traefik"
 	"transmission-openvpn"
 	# "filebrowser"
+	"portainer"
 )
 
 for service in "${services[@]}"; do
