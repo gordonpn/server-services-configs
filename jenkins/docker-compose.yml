@@ -4,7 +4,6 @@ services:
     container_name: jenkins
     image: jenkins/jenkins:lts-jdk11
     privileged: true
-    user: root
     ports:
       - 8080:8080
       # - 50000:50000 # for agents

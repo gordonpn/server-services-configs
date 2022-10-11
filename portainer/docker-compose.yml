@@ -5,7 +5,6 @@ services:
     image: portainer/agent
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - agent_network
     deploy:
