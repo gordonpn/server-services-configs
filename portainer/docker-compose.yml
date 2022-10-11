@@ -52,7 +52,7 @@ services:
         - "traefik.constraint-label=traefik-public"
         - "traefik.docker.network=traefik-public"
         - "traefik.enable=true"
-        - "traefik.http.services.portainer.loadbalancer.server.port=9443"
+        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
         - "traefik.http.routers.portainer.entrypoints=websecure"
         - "traefik.http.routers.portainer.middlewares=oauth@file, secured_headers@file"
         - "traefik.http.routers.portainer.service=portainer@docker"
