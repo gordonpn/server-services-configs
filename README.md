@@ -13,6 +13,8 @@ This repository contains configuration (docker-compose.yml files) to set up the 
 
 ## Setting up a new Raspberry Pi node
 
+### Downloading and installing image
+
 Download [Raspberry Pi OS Lite 64-bit](https://www.raspberrypi.com/software/operating-systems/).
 
 Use the Raspberry Pi Imager and configure ssh and a user.
@@ -24,6 +26,8 @@ Edit `cmdline.txt` and append `ipv6.disable=1`
 Configure locale settings: `sudo raspi-config`
 
 Run upgrades: `sudo apt update && sudo apt full-upgrade -y`
+
+### Basic set up
 
 Create a new user
 
@@ -82,6 +86,8 @@ Change the hostname in both these config files:
 
 `sudo vi /etc/hostname`
 
+### Set up firewall
+
 Install UFW
 
 `sudo apt-get update && sudo apt-get install -y ufw`
@@ -97,6 +103,8 @@ Allow SSH from local network only
 `sudo ufw allow from 192.168.50.0/24 proto tcp to any port 22`
 
 <https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands>
+
+### Remove and disable unnecessary connectivity
 
 Block wifi and bluetooth
 
@@ -117,15 +125,15 @@ sudo systemctl disable triggerhappy
 sudo systemctl stop triggerhappy
 ```
 
-Remove some unused software
+### Remove some unused software
 
 `sudo apt remove --purge -y bluez wolfram-engine triggerhappy xserver-common lightdm logrotate fake-hwclock samba-common && sudo apt autoremove -y --purge`
 
-Install unattended-upgrades
+### Install unattended-upgrades
 
 `sudo apt-get update && sudo apt-get install -y unattended-upgrades && sudo dpkg-reconfigure --priority=low unattended-upgrades`
 
-Set up external drive
+### Set up external drive
 
 ```sh
 lsblk -f
@@ -148,7 +156,7 @@ sleep 20
 sudo mount -a
 ```
 
-Install Docker
+### Install Docker
 
 `curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh`
 
@@ -205,12 +213,14 @@ Add label to the node
 
 `docker node update --label-add name=rpi0 rpi0`
 
-Install Docker Compose
+#### Install Docker Compose
 
 ```sh
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-aarch64" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
+
+### Reduce writes to Micro SD card
 
 Reduce swapiness
 
@@ -244,57 +254,9 @@ sudo systemctl mask rsyslog.service && \
 sudo systemctl mask systemd-journald.service
 ```
 
-Install GlusterFS
+### Set up cron tasks
 
-```sh
-sudo apt-get -y install glusterfs-server glusterfs-client
-sudo systemctl enable glusterd
-sudo systemctl start glusterd
-sudo systemctl status glusterd
-```
-
-Open ports for GlusterFS
-
-```sh
-sudo ufw allow from 192.168.50.0/24 proto tcp to any port 24007
-sudo ufw allow from 192.168.50.0/24 proto tcp to any port 49152
-```
-
-View peer status: `sudo gluster peer status`
-
-View volume status: `sudo gluster vol status`
-
-Probe the new node from an existing node: `sudo gluster peer probe 192.168.50.254`
-
-Add a new brick on the new node form an existing node: `sudo gluster volume add-brick gfsvol 192.168.50.254:/media/drive/glusterfs/docker`
-
-Create GlusterFS volume
-
-```sh
-sudo mkdir -p /media/drive/glusterfs/docker
-sudo chown -R gordonpn:gordonpn /media/glusterfs
-sudo gluster volume create gfsvol \
-  192.168.50.82:/media/drive/glusterfs/docker \
-  192.168.50.31:/media/drive/glusterfs/docker \
-  192.168.50.9:/media/drive/glusterfs/docker \
-  force
-sudo gluster volume start gfsvol
-sudo gluster v status
-sudo gluster volume info
-docker node update --label-add persistence=true rpi1
-```
-
-Mount the GlusterFS volume on each node
-
-```sh
-sudo umount /mnt
-echo 'localhost:/gfsvol /mnt/glusterfs glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0' | sudo tee -a /etc/fstab
-sudo mkdir /mnt/glusterfs
-sudo mount.glusterfs localhost:/gfsvol /mnt/glusterfs
-sudo chown -R gordonpn:gordonpn /mnt
-```
-
-Set cron tasks (here are some examples)
+Here are some examples
 
 ```
 @reboot /home/gordonpn/workspace/server-services-configs/scripts/get_dhcp.sh
@@ -304,6 +266,8 @@ Set cron tasks (here are some examples)
 0 */2 * * * /home/gordonpn/workspace/server-services-configs/scripts/force_rebalance.sh >> /home/gordonpn/logs/force_rebalance.log 2>&1
 0 2 * * * cd /home/gordonpn/workspace/dotfiles && /usr/bin/git pull origin master
 ```
+
+### Open ports
 
 If you are using a reverse proxy somewhere then you need to allow port 80 and 443
 
