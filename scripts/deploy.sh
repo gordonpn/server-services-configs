@@ -31,10 +31,10 @@ services=(
 	"jenkins"
 	"portainer"
 	"traefik"
-	"transmission-openvpn"
 	# "filebrowser"
 	# "swarmpit"
 	# "syncthing"
+	# "transmission-openvpn"
 )
 
 for service in "${services[@]}"; do

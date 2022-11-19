@@ -306,7 +306,7 @@ sudo mount --bind /media/drive/share /srv/nfs4/share
 Make the mount permanent
 
 ```bash
-echo "/media/drive/share /srv/nfs4/share none bind 0 0" | sudo tee -a /etc/fstab
+echo "/media/drive/share /srv/nfs4/share none defaults,bind 0 0" | sudo tee -a /etc/fstab
 ```
 
 Add the directory to be exported
