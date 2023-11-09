@@ -1,0 +1,165 @@
+repo_name: gordonpn/server-services-configs
+report_id: 9b919d74c0098e0940f1aa37f623403d
+repo_type: Public
+timestamp: '2023-11-09T13:07:11+00:00'
+requested_by: gordonpn
+provider: github
+branch: master
+detected_tools_count: 14
+tools:
+- name: Jsonnet
+  description: A data templating language for app and tool developers
+  website_url: https://jsonnet.org
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Templating Languages & Extensions
+  image_url: https://img.stackshare.io/service/10435/preview.jpeg
+  detection_source: Repo Metadata
+- name: Swift
+  description: 'An innovative new programming language for Cocoa and Cocoa Touch. '
+  website_url: https://developer.apple.com/swift/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1009/tuHsaI2U.png
+  detection_source: resilio-sync/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2020-04-16 20:25:05.000000000 Z
+- name: Concourse
+  description: Pipeline-based CI system written in Go
+  website_url: https://concourse-ci.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/4949/jnsjSQcw_400x400.jpg
+  detection_source: concourse/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-04-13 23:10:22.000000000 Z
+- name: Drone.io
+  description: Open source continuous integration platform built on Docker
+  website_url: https://drone.io/
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/668/R_wMcCqN_400x400.png
+  detection_source: ".drone.yml"
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-06-29 17:56:10.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source: Repo Metadata
+- name: GitHub Actions
+  description: Automate your workflow from idea to production
+  website_url: https://github.com/features/actions
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source: ".github/workflows/terraform.yml"
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-06-23 15:08:42.000000000 Z
+- name: Jenkins
+  description: An extendable open source continuous integration server
+  website_url: http://jenkins-ci.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/670/jenkins.png
+  detection_source: jenkins/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-10-10 18:44:22.000000000 Z
+- name: Traefik
+  description: The Cloud Native Edge Router
+  website_url: https://traefik.io/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Load Balancer / Reverse Proxy
+  image_url: https://img.stackshare.io/service/5126/default_0a34be001ec8247c641508aa468564fb386bc50c.png
+  detection_source: traefik/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-10-10 18:44:22.000000000 Z
+- name: Vault
+  description: Secure, store, and tightly control access to tokens, passwords, certificates,
+    API keys, and other secrets in modern computing
+  website_url: https://www.vaultproject.io/
+  license: MPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Secrets Management
+  image_url: https://img.stackshare.io/service/2905/vault.png
+  detection_source: vault/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-10-10 18:44:22.000000000 Z
+- name: Syncthing
+  description: 'Open Source Continuous File Synchronization '
+  website_url: https://syncthing.net
+  license: MPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Assets and Media
+  sub_category: File Storage
+  image_url: https://img.stackshare.io/service/9459/Hwe_QsE5_400x400.png
+  detection_source: syncthing/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-10-10 18:44:22.000000000 Z
+- name: AeroMegh - Drone Data Analytics
+  description: Drone Data Analytics
+  website_url: https://aeromegh.com/
+  open_source: false
+  hosted_saas: false
+  image_url: https://img.stackshare.io/service/48448/default_92b852f3e90f828bc1faf7e52f723a459651e34a.png
+  detection_source: drone/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2022-10-10 18:44:22.000000000 Z
+- name: CocoaPods
+  description: A dependency manager for Swift and Objective-C Cocoa projects
+  website_url: https://cocoapods.org/
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: CocoaPods Packages
+  image_url: https://img.stackshare.io/service/2426/e1cbdef9d4b11484049a033886578e54_400x400.png
+  detection_source: resilio-sync/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2020-04-16 20:25:05.000000000 Z
+- name: FreeAgent
+  description: Award-winning cloud accounting designed to meet the needs of small
+    businesses, freelancers and their accountants
+  website_url: https://www.freeagent.com/
+  open_source: false
+  hosted_saas: false
+  category: Back Office
+  sub_category: Accounting
+  image_url: https://img.stackshare.io/service/1862/default_c94c32a4e30e1943b83cdf4084ca1d66ee6fa801.png
+  detection_source: swarmpit/docker-compose.yml
+  last_updated_by: Gordon Pham-Nguyen
+  last_updated_on: 2020-06-05 15:03:28.000000000 Z
+- name: Shell
+  description: A shell is a text-based terminal, used for manipulating programs and
+    files. Shell scripts typically manage program execution.
+  website_url: https://en.wikipedia.org/wiki/Shell_script
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/4631/default_c2062d40130562bdc836c13dbca02d318205a962.png
+  detection_source: Repo Metadata
