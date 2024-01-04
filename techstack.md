@@ -1,7 +1,8 @@
 <!--
---- Readme.md Snippet without images Start ---
+&lt;--- Readme.md Snippet without images Start ---&gt;
 ## Tech Stack
 gordonpn/server-services-configs is built on the following main stack:
+
 - [Drone.io](https://drone.io/) – Continuous Integration
 - [Jenkins](http://jenkins-ci.org/) – Continuous Integration
 - [Swift](https://developer.apple.com/swift/) – Languages
@@ -15,11 +16,13 @@ gordonpn/server-services-configs is built on the following main stack:
 - [GitHub Actions](https://github.com/features/actions) – Continuous Integration
 
 Full tech stack [here](/techstack.md)
---- Readme.md Snippet without images End ---
 
---- Readme.md Snippet with images Start ---
+&lt;--- Readme.md Snippet without images End ---&gt;
+
+&lt;--- Readme.md Snippet with images Start ---&gt;
 ## Tech Stack
 gordonpn/server-services-configs is built on the following main stack:
+
 - <img width='25' height='25' src='https://img.stackshare.io/service/668/R_wMcCqN_400x400.png' alt='Drone.io'/> [Drone.io](https://drone.io/) – Continuous Integration
 - <img width='25' height='25' src='https://img.stackshare.io/service/670/jenkins.png' alt='Jenkins'/> [Jenkins](http://jenkins-ci.org/) – Continuous Integration
 - <img width='25' height='25' src='https://img.stackshare.io/service/1009/tuHsaI2U.png' alt='Swift'/> [Swift](https://developer.apple.com/swift/) – Languages
@@ -33,14 +36,15 @@ gordonpn/server-services-configs is built on the following main stack:
 - <img width='25' height='25' src='https://img.stackshare.io/service/11563/actions.png' alt='GitHub Actions'/> [GitHub Actions](https://github.com/features/actions) – Continuous Integration
 
 Full tech stack [here](/techstack.md)
---- Readme.md Snippet with images End ---
+
+&lt;--- Readme.md Snippet with images End ---&gt;
 -->
 <div align="center">
 
 # Tech Stack File
 ![](https://img.stackshare.io/repo.svg "repo") [gordonpn/server-services-configs](https://github.com/gordonpn/server-services-configs)![](https://img.stackshare.io/public_badge.svg "public")
 <br/><br/>
-|14<br/>Tools used|11/09/23 <br/>Report generated|
+|14<br/>Tools used|01/04/24 <br/>Report generated|
 |------|------|
 </div>
 
@@ -179,4 +183,4 @@ Full tech stack [here](/techstack.md)
 <br/>
 <div align='center'>
 
-Generated via [Stack File](https://github.com/apps/stack-file)
+Generated via [Stack File](https://github.com/marketplace/stack-file)
