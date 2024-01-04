@@ -1,7 +1,8 @@
 repo_name: gordonpn/server-services-configs
 report_id: 9b919d74c0098e0940f1aa37f623403d
+version: 0.1
 repo_type: Public
-timestamp: '2023-11-09T13:07:11+00:00'
+timestamp: '2024-01-04T14:53:59+00:00'
 requested_by: gordonpn
 provider: github
 branch: master
@@ -16,6 +17,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Templating Languages & Extensions
   image_url: https://img.stackshare.io/service/10435/preview.jpeg
+  detection_source_url: https://github.com/gordonpn/server-services-configs
   detection_source: Repo Metadata
 - name: Swift
   description: 'An innovative new programming language for Cocoa and Cocoa Touch. '
@@ -26,6 +28,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/1009/tuHsaI2U.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/resilio-sync/docker-compose.yml
   detection_source: resilio-sync/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2020-04-16 20:25:05.000000000 Z
@@ -38,6 +41,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/4949/jnsjSQcw_400x400.jpg
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/concourse/docker-compose.yml
   detection_source: concourse/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-04-13 23:10:22.000000000 Z
@@ -49,6 +53,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/668/R_wMcCqN_400x400.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/.drone.yml
   detection_source: ".drone.yml"
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-06-29 17:56:10.000000000 Z
@@ -60,6 +65,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Version Control System
   image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs
   detection_source: Repo Metadata
 - name: GitHub Actions
   description: Automate your workflow from idea to production
@@ -69,6 +75,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/.github/workflows/terraform.yml
   detection_source: ".github/workflows/terraform.yml"
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-06-23 15:08:42.000000000 Z
@@ -81,6 +88,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/670/jenkins.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/jenkins/docker-compose.yml
   detection_source: jenkins/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-10-10 18:44:22.000000000 Z
@@ -93,6 +101,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Load Balancer / Reverse Proxy
   image_url: https://img.stackshare.io/service/5126/default_0a34be001ec8247c641508aa468564fb386bc50c.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/traefik/docker-compose.yml
   detection_source: traefik/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-10-10 18:44:22.000000000 Z
@@ -106,6 +115,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Secrets Management
   image_url: https://img.stackshare.io/service/2905/vault.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/vault/docker-compose.yml
   detection_source: vault/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-10-10 18:44:22.000000000 Z
@@ -118,6 +128,7 @@ tools:
   category: Assets and Media
   sub_category: File Storage
   image_url: https://img.stackshare.io/service/9459/Hwe_QsE5_400x400.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/syncthing/docker-compose.yml
   detection_source: syncthing/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-10-10 18:44:22.000000000 Z
@@ -127,6 +138,7 @@ tools:
   open_source: false
   hosted_saas: false
   image_url: https://img.stackshare.io/service/48448/default_92b852f3e90f828bc1faf7e52f723a459651e34a.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/drone/docker-compose.yml
   detection_source: drone/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2022-10-10 18:44:22.000000000 Z
@@ -138,6 +150,7 @@ tools:
   category: Libraries
   sub_category: CocoaPods Packages
   image_url: https://img.stackshare.io/service/2426/e1cbdef9d4b11484049a033886578e54_400x400.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/resilio-sync/docker-compose.yml
   detection_source: resilio-sync/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2020-04-16 20:25:05.000000000 Z
@@ -150,7 +163,8 @@ tools:
   category: Back Office
   sub_category: Accounting
   image_url: https://img.stackshare.io/service/1862/default_c94c32a4e30e1943b83cdf4084ca1d66ee6fa801.png
-  detection_source: swarmpit/docker-compose.yml
+  detection_source_url: https://github.com/gordonpn/server-services-configs/blob/master/portainer/docker-compose.yml
+  detection_source: portainer/docker-compose.yml
   last_updated_by: Gordon Pham-Nguyen
   last_updated_on: 2020-06-05 15:03:28.000000000 Z
 - name: Shell
@@ -162,4 +176,5 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/4631/default_c2062d40130562bdc836c13dbca02d318205a962.png
+  detection_source_url: https://github.com/gordonpn/server-services-configs
   detection_source: Repo Metadata
