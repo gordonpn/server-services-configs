@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ntfy
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      labels:
+        app: ntfy
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "master"
+      containers:
+      - name: ntfy
+        image: binwiederhier/ntfy
+        ports:
+        - containerPort: 80
+        env:
+        - name: NTFY_BASE_URL
+          value: "https://ntfy.gordon-pn.com"
+        - name: NTFY_BEHIND_PROXY
+          value: "true"
+        - name: NTFY_AUTH_FILE
+          value: "/var/lib/ntfy/user.db"
+        - name: NTFY_AUTH_DEFAULT_ACCESS
+          value: "read-only"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /var/lib/ntfy
+        - name: ntfy-config
+          mountPath: /etc/ntfy
+        args: ["serve"]
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: ntfy-data
+      - name: ntfy-config
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntfy
+  namespace: default
+spec:
+  selector:
+    app: ntfy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
