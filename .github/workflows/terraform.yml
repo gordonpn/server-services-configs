@@ -9,6 +9,7 @@ defaults:
 
 jobs:
   terraform:
+    if: false  # Workflow disabled
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
