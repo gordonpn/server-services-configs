@@ -21,6 +21,8 @@ spec:
         ports:
         - containerPort: 80
         env:
+        - name: NTFY_UPSTREAM_BASE_URL
+          value: "https://ntfy.sh"
         - name: NTFY_BASE_URL
           value: "https://ntfy.gordon-pn.com"
         - name: NTFY_BEHIND_PROXY
