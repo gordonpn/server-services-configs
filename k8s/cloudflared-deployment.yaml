@@ -21,5 +21,10 @@ spec:
         - --no-autoupdate
         - run
         - --token
-        - <PASTE_YOUR_TOKEN_HERE>
-        # Ideally, use a Secret for the token: valueFrom: secretKeyRef...
+        - "$(TUNNEL_TOKEN)"
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-tunnel-token
+              key: token
