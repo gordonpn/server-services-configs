@@ -3,6 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: redis-data
 spec:
+  storageClassName: longhorn
   accessModes:
     - ReadWriteOnce
   resources:
