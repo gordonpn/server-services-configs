@@ -1,9 +1,5 @@
-**/letsencrypt
-*.env
-*.log
-*docker-compose.processed.yml
-filebrowser.db
-venv/
-cloud-init/generated/
-.terraform/
-terraform.tfstate*
+credentials.json
+*.pem
+
+.env
+k8s/monitoring/slack_url

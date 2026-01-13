@@ -1,0 +1,12 @@
+services:
+  ddclient:
+    image: lscr.io/linuxserver/ddclient:latest
+    container_name: ddclient
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+    volumes:
+      - ./config:/config
+    restart: unless-stopped
+

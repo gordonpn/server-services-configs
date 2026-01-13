@@ -1,0 +1,10 @@
+tunnel: 728e39f0-3385-4736-ac6c-c2b8cfc0e120
+credentials-file: /etc/cloudflared/credentials.json
+ingress:
+  - hostname: ssh.gordon-pn.com
+    service: tcp://127.0.0.1:22
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  - service: http_status:404
+
