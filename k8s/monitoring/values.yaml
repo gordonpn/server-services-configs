@@ -1,5 +1,55 @@
+grafana:
+  service:
+    type: NodePort
+    nodePort: 30000
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+  sidecar:
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+      isDefaultDatasource: true
+      uid: "prometheus"
+
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30090
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+
 alertmanager:
+  service:
+    type: NodePort
+    nodePort: 30093
   alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+    externalUrl: "http://master.tailb65f8c.ts.net:30093"
     secrets:
       - alertmanager-slack-creds
   config:
@@ -16,6 +66,7 @@ alertmanager:
       - name: "slack"
         slack_configs:
           - channel: "#homelab-alerts"
+            api_url_file: "/etc/alertmanager/secrets/alertmanager-slack-creds/slack_api_url"
             send_resolved: true
             title: "{{ .CommonLabels.alertname }} ({{ .Status }})"
             text: "{{ range .Alerts }}• {{ .Annotations.summary }}\n{{ end }}"
