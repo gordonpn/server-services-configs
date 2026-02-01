@@ -56,8 +56,11 @@ releases:
     needs:
       - actions-runner-system/arc-controller
     values:
-      - githubConfigUrl: "https://github.com/gordonpn"
+      - githubConfigUrl: "https://github.com/gordonpn/server-services-configs"
       - githubConfigSecret: "github-actions-runner-token"
       - minRunners: 1
       - maxRunners: 5
       - runnerScaleSetName: "home-lab-runners"
+      - controllerServiceAccount:
+          namespace: actions-runner-system
+          name: arc-controller-gha-rs-controller
