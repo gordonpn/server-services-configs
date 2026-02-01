@@ -1,6 +1,8 @@
 repositories:
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
+  - name: actions-runner-controller
+    url: https://actions-runner-controller.github.io/actions-runner-controller
   - name: longhorn
     url: https://charts.longhorn.io
   - name: sealed-secrets
@@ -13,6 +15,13 @@ releases:
     version: 81.2.2
     values:
       - values-monitor.yaml
+
+  - name: pushgateway
+    namespace: monitoring
+    chart: prometheus-community/prometheus-pushgateway
+    version: 3.6.0
+    values:
+      - values-pushgateway.yaml
 
   - name: longhorn
     namespace: longhorn-system
@@ -27,3 +36,28 @@ releases:
     version: 2.18.0
     values:
       - values-sealed-secrets.yaml
+
+  - name: arc-controller
+    namespace: actions-runner-system
+    chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+    version: 0.13.1
+    values:
+      - metrics:
+          controllerManagerAddr: ":8080"
+          listenerAddr: ":8080"
+          listenerEndpoint: "/metrics"
+      - flags:
+          logLevel: "debug"
+
+  - name: arc-runner-set
+    namespace: actions-runner-system
+    chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+    version: 0.13.1
+    needs:
+      - actions-runner-system/arc-controller
+    values:
+      - githubConfigUrl: "https://github.com/gordonpn"
+      - githubConfigSecret: "github-actions-runner-token"
+      - minRunners: 1
+      - maxRunners: 5
+      - runnerScaleSetName: "home-lab-runners"

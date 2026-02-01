@@ -1,0 +1,9 @@
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: mon
+  interval: 30s
+  scrapeTimeout: 10s
+
+service:
+  type: ClusterIP
