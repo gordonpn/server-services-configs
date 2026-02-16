@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: network-echo
+  name: {{ include "k3s-maintenance.networkHealth.echoServiceName" . }}
   namespace: kube-system
 spec:
   selector:
-    app: network-echo
+    app: {{ include "k3s-maintenance.networkHealth.echoAppLabel" . }}
   ports:
     - name: http
       port: 8080
@@ -14,18 +14,18 @@ spec:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: network-echo
+  name: {{ include "k3s-maintenance.networkHealth.echoDaemonSetName" . }}
   namespace: kube-system
   labels:
-    app: network-echo
+    app: {{ include "k3s-maintenance.networkHealth.echoAppLabel" . }}
 spec:
   selector:
     matchLabels:
-      app: network-echo
+      app: {{ include "k3s-maintenance.networkHealth.echoAppLabel" . }}
   template:
     metadata:
       labels:
-        app: network-echo
+        app: {{ include "k3s-maintenance.networkHealth.echoAppLabel" . }}
     spec:
       tolerations:
         - operator: Exists
@@ -42,7 +42,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: network-health-check
+  name: {{ include "k3s-maintenance.networkHealth.healthCheckCronJobName" . }}
   namespace: kube-system
 spec:
   schedule: "*/5 * * * *"
@@ -70,13 +70,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Release.Name }}-network-crossnode-checker
+  name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Release.Name }}-network-crossnode-checker
+  name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
   namespace: kube-system
 rules:
   - apiGroups: [""]
@@ -86,21 +86,21 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Release.Name }}-network-crossnode-checker
+  name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ .Release.Name }}-network-crossnode-checker
+  name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Release.Name }}-network-crossnode-checker
+    name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
     namespace: kube-system
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: network-crossnode-check
+  name: {{ include "k3s-maintenance.networkHealth.crossNodeCheckCronJobName" . }}
   namespace: kube-system
 spec:
   schedule: "*/10 * * * *"
@@ -111,7 +111,7 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: {{ .Release.Name }}-network-crossnode-checker
+          serviceAccountName: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
           restartPolicy: OnFailure
           tolerations:
             - operator: Exists
@@ -122,7 +122,7 @@ spec:
                 - /bin/sh
                 - -ec
                 - |
-                  TARGET_IP="$(kubectl get pods -n kube-system -l app=network-echo -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" {print $6; exit}')"
+                  TARGET_IP="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" {print $6; exit}')"
                   if [ -z "$TARGET_IP" ]; then
                     echo "NO_TARGET" > /shared/target_ip
                     exit 0

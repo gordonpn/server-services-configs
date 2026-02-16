@@ -1,0 +1,10 @@
+networkHealth:
+  echo:
+    serviceName: ""
+    daemonSetName: ""
+    appLabel: ""
+  cronJobs:
+    healthCheckName: ""
+    crossNodeCheckName: ""
+  rbac:
+    checkerName: ""
