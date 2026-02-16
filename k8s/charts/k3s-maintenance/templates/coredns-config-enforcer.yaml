@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-override
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        hosts /etc/coredns/NodeHosts {
+          ttl 60
+          reload 15s
+          fallthrough
+        }
+        prometheus :9153
+        cache 30
+        loop
+        reload
+        loadbalance
+        import /etc/coredns/custom/*.override
+        forward . 100.100.100.100 1.1.1.1 8.8.8.8
+    }
+    import /etc/coredns/custom/*.server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: coredns-patcher
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: coredns-patcher
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["coredns", "coredns-override"]
+    verbs: ["get", "patch", "update"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["coredns"]
+    verbs: ["get", "patch", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: coredns-patcher
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: coredns-patcher
+subjects:
+  - kind: ServiceAccount
+    name: coredns-patcher
+    namespace: kube-system
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: coredns-config-enforcer
+  namespace: kube-system
+spec:
+  schedule: "0 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: coredns-patcher
+          restartPolicy: OnFailure
+          containers:
+            - name: enforcer
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+
+                  CURRENT_COREFILE="$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')"
+                  if printf '%s' "$CURRENT_COREFILE" | grep -q "forward . 100.100.100.100 1.1.1.1 8.8.8.8"; then
+                    echo "CoreDNS configuration is correct"
+                    exit 0
+                  fi
+
+                  echo "CoreDNS configuration drift detected, applying fix..."
+
+                  {
+                    echo "data:"
+                    echo "  Corefile: |"
+                    sed 's/^/    /' /config/Corefile
+                  } > /tmp/patch.yaml
+
+                  kubectl patch configmap coredns -n kube-system --type merge --patch-file /tmp/patch.yaml
+
+                  echo "Configuration updated, restarting CoreDNS..."
+                  kubectl rollout restart deployment/coredns -n kube-system
+
+                  echo "Waiting for CoreDNS to be ready..."
+                  kubectl rollout status deployment/coredns -n kube-system --timeout=120s
+
+                  echo "CoreDNS configuration enforced successfully"
+              volumeMounts:
+                - name: coredns-override
+                  mountPath: /config
+                  readOnly: true
+          volumes:
+            - name: coredns-override
+              configMap:
+                name: coredns-override
+                items:
+                  - key: Corefile
+                    path: Corefile
