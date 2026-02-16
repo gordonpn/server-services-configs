@@ -70,13 +70,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: network-crossnode-checker
+  name: {{ .Release.Name }}-network-crossnode-checker
   namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: network-crossnode-checker
+  name: {{ .Release.Name }}-network-crossnode-checker
   namespace: kube-system
 rules:
   - apiGroups: [""]
@@ -86,15 +86,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: network-crossnode-checker
+  name: {{ .Release.Name }}-network-crossnode-checker
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: network-crossnode-checker
+  name: {{ .Release.Name }}-network-crossnode-checker
 subjects:
   - kind: ServiceAccount
-    name: network-crossnode-checker
+    name: {{ .Release.Name }}-network-crossnode-checker
     namespace: kube-system
 ---
 apiVersion: batch/v1
@@ -111,7 +111,7 @@ spec:
     spec:
       template:
         spec:
-          serviceAccountName: network-crossnode-checker
+          serviceAccountName: {{ .Release.Name }}-network-crossnode-checker
           restartPolicy: OnFailure
           tolerations:
             - operator: Exists
