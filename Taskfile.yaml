@@ -1,0 +1,225 @@
+version: '3'
+
+vars:
+  ROOT_DIR: '{{.TASKFILE_DIR}}'
+  CHARTS_DIR: '{{.ROOT_DIR}}/k8s/charts'
+  TERRAFORM_DIR: '{{.ROOT_DIR}}/terraform'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task: help
+
+  help:
+    desc: List all tasks
+    cmds:
+      - task --list-all
+
+  check:tools:
+    desc: Check required CLI tools are installed
+    cmds:
+      - command -v docker
+      - command -v kubectl
+      - command -v helm
+      - command -v helmfile
+      - command -v terraform
+
+  ci:
+    desc: Generate CI/CD config from jsonnet
+    cmds:
+      - drone jsonnet --format --stream
+
+  script:backup:
+    desc: Run backup script
+    cmds:
+      - bash scripts/backup.sh
+
+  script:ddns:
+    desc: Run DDNS start script
+    cmds:
+      - bash scripts/ddns-start
+
+  script:deploy:
+    desc: Run deployment script
+    cmds:
+      - bash scripts/deploy.sh
+
+  script:rebalance:
+    desc: Run force rebalance script
+    cmds:
+      - bash scripts/force_rebalance.sh
+
+  script:ping:
+    desc: Run ping healthcheck script
+    cmds:
+      - bash scripts/ping.sh
+
+  script:trim-logs:
+    desc: Trim logs
+    cmds:
+      - bash scripts/trim_logs.sh
+
+  charts:build:
+    desc: Build all Helmfile manifests
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml build
+
+  charts:diff:
+    desc: Diff Helmfile releases against cluster
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml diff
+
+  charts:apply:
+    desc: Apply all Helmfile releases
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml apply
+
+  charts:destroy:
+    desc: Destroy all Helmfile releases
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml destroy
+
+  charts:template:
+    desc: Render all Helmfile releases locally
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml template
+
+  charts:lint:maintenance:
+    desc: Lint local k3s-maintenance chart
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helm lint ./k3s-maintenance
+
+  k8s:apply:cloudflared:
+    desc: Apply cloudflared deployment
+    cmds:
+      - kubectl apply -f k8s/cloudflared-deployment.yaml
+
+  k8s:apply:coredns-scale:
+    desc: Apply CoreDNS scaling manifest
+    cmds:
+      - kubectl apply -f k8s/coredns-scale.yaml
+
+  k8s:apply:redis:
+    desc: Apply redis manifest
+    cmds:
+      - kubectl apply -f k8s/redis.yaml
+
+  k8s:apply:ntfy:
+    desc: Apply ntfy manifests
+    cmds:
+      - kubectl apply -f k8s/ntfy/ntfy-pvc.yaml
+      - kubectl apply -f k8s/ntfy/ntfy-deployment.yaml
+
+  compose:up:
+    desc: Start one docker-compose service directory (task compose:up SERVICE=jellyfin)
+    preconditions:
+      - sh: test -n '{{.SERVICE}}'
+        msg: 'Set SERVICE, e.g. task compose:up SERVICE=jellyfin'
+      - sh: test -f 'docker-compose/{{.SERVICE}}/docker-compose.yml'
+        msg: 'Service docker-compose/{{.SERVICE}}/docker-compose.yml not found'
+    cmds:
+      - cd docker-compose/{{.SERVICE}} && docker compose up -d
+
+  compose:down:
+    desc: Stop one docker-compose service directory (task compose:down SERVICE=jellyfin)
+    preconditions:
+      - sh: test -n '{{.SERVICE}}'
+        msg: 'Set SERVICE, e.g. task compose:down SERVICE=jellyfin'
+      - sh: test -f 'docker-compose/{{.SERVICE}}/docker-compose.yml'
+        msg: 'Service docker-compose/{{.SERVICE}}/docker-compose.yml not found'
+    cmds:
+      - cd docker-compose/{{.SERVICE}} && docker compose down
+
+  compose:pull:
+    desc: Pull images for one docker-compose service directory (task compose:pull SERVICE=jellyfin)
+    preconditions:
+      - sh: test -n '{{.SERVICE}}'
+        msg: 'Set SERVICE, e.g. task compose:pull SERVICE=jellyfin'
+      - sh: test -f 'docker-compose/{{.SERVICE}}/docker-compose.yml'
+        msg: 'Service docker-compose/{{.SERVICE}}/docker-compose.yml not found'
+    cmds:
+      - cd docker-compose/{{.SERVICE}} && docker compose pull
+
+  compose:logs:
+    desc: Follow logs for one docker-compose service directory (task compose:logs SERVICE=jellyfin)
+    preconditions:
+      - sh: test -n '{{.SERVICE}}'
+        msg: 'Set SERVICE, e.g. task compose:logs SERVICE=jellyfin'
+      - sh: test -f 'docker-compose/{{.SERVICE}}/docker-compose.yml'
+        msg: 'Service docker-compose/{{.SERVICE}}/docker-compose.yml not found'
+    cmds:
+      - cd docker-compose/{{.SERVICE}} && docker compose logs -f --tail=100
+
+  swarm:deploy:
+    desc: Deploy one swarm stack (task swarm:deploy STACK=traefik)
+    preconditions:
+      - sh: test -n '{{.STACK}}'
+        msg: 'Set STACK, e.g. task swarm:deploy STACK=traefik'
+      - sh: test -f 'docker-swarm/{{.STACK}}/docker-compose.yml'
+        msg: 'Stack docker-swarm/{{.STACK}}/docker-compose.yml not found'
+    cmds:
+      - docker stack deploy -c docker-swarm/{{.STACK}}/docker-compose.yml {{.STACK}}
+
+  swarm:remove:
+    desc: Remove one swarm stack (task swarm:remove STACK=traefik)
+    preconditions:
+      - sh: test -n '{{.STACK}}'
+        msg: 'Set STACK, e.g. task swarm:remove STACK=traefik'
+    cmds:
+      - docker stack rm {{.STACK}}
+
+  swarm:ls:
+    desc: List swarm stacks
+    cmds:
+      - docker stack ls
+
+  swarm:services:
+    desc: List services in one swarm stack (task swarm:services STACK=traefik)
+    preconditions:
+      - sh: test -n '{{.STACK}}'
+        msg: 'Set STACK, e.g. task swarm:services STACK=traefik'
+    cmds:
+      - docker stack services {{.STACK}}
+
+  tf:init:
+    desc: Initialize terraform
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform init
+
+  tf:fmt:
+    desc: Format terraform files
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform fmt -recursive
+
+  tf:validate:
+    desc: Validate terraform config
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform validate
+
+  tf:plan:
+    desc: Plan terraform changes
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform plan
+
+  tf:apply:
+    desc: Apply terraform changes
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform apply
+
+  tf:destroy:
+    desc: Destroy terraform-managed resources
+    dir: '{{.TERRAFORM_DIR}}'
+    cmds:
+      - terraform destroy

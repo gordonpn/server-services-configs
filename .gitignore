@@ -3,3 +3,4 @@ credentials.json
 
 .env
 k8s/monitoring/slack_url
+repomix-output.xml

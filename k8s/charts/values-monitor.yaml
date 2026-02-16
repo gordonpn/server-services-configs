@@ -17,6 +17,7 @@ alertmanager:
       resolve_timeout: 5m
       slack_api_url_file: /etc/alertmanager/secrets/alertmanager-slack-creds/slack_api_url
     receivers:
+    - name: 'null'
     - name: slack
       slack_configs:
       - api_url_file: /etc/alertmanager/secrets/alertmanager-slack-creds/slack_api_url
@@ -36,6 +37,13 @@ alertmanager:
       group_wait: 30s
       receiver: slack
       repeat_interval: 4h
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null'
+      - match_re:
+          alertname: ^(CoreDNS.*|DNSResolutionFailing|KubePodCrashLooping)
+        receiver: slack
   service:
     nodePort: 30093
     type: NodePort
@@ -77,3 +85,29 @@ prometheus:
   service:
     nodePort: 30090
     type: NodePort
+
+additionalPrometheusRulesMap:
+  coredns-rules:
+    groups:
+    - name: coredns
+      interval: 30s
+      rules:
+      - alert: CoreDNSDown
+        expr: sum(up{job="kube-dns"}) < 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CoreDNS is down"
+          description: "CoreDNS has been down for more than 2 minutes."
+      - alert: CoreDNSHighErrorRate
+        expr: |
+          sum(rate(coredns_dns_responses_total{rcode="SERVFAIL"}[5m]))
+            /
+          sum(rate(coredns_dns_responses_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CoreDNS high error rate"
+          description: "CoreDNS SERVFAIL rate is > 5%."

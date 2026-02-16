@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: k3s-monthly-restart
+  namespace: kube-system
+spec:
+  schedule: "0 3 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          hostPID: true
+          tolerations:
+          - operator: Exists
+          containers:
+          - name: restarter
+            image: busybox
+            securityContext:
+              privileged: true
+            command: ["/bin/nsenter", "--target", "1", "--mount", "--uts", "--ipc", "--net", "--pid"]
+            args: ["--", "sh", "-c", "systemctl restart k3s-agent || systemctl restart k3s"]
+          restartPolicy: OnFailure
