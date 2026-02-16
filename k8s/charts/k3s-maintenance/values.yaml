@@ -1,4 +1,9 @@
 networkHealth:
+  discoverTarget:
+    image:
+      repository: bitnami/kubectl
+      tag: latest
+      pullPolicy: IfNotPresent
   echo:
     serviceName: ""
     daemonSetName: ""

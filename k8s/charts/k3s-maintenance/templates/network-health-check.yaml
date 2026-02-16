@@ -117,7 +117,8 @@ spec:
             - operator: Exists
           containers:
             - name: discover-target
-              image: bitnami/kubectl:1.30.6
+              image: "{{ .Values.networkHealth.discoverTarget.image.repository }}:{{ .Values.networkHealth.discoverTarget.image.tag }}"
+              imagePullPolicy: {{ .Values.networkHealth.discoverTarget.image.pullPolicy }}
               command:
                 - /bin/sh
                 - -ec
