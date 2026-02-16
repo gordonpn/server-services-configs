@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: network-echo
+  namespace: kube-system
+spec:
+  selector:
+    app: network-echo
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-echo
+  namespace: kube-system
+  labels:
+    app: network-echo
+spec:
+  selector:
+    matchLabels:
+      app: network-echo
+  template:
+    metadata:
+      labels:
+        app: network-echo
+    spec:
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: echo
+          image: hashicorp/http-echo:1.0.0
+          args:
+            - -listen=:8080
+            - -text=ok
+          ports:
+            - containerPort: 8080
+              name: http
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: network-health-check
+  namespace: kube-system
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          tolerations:
+            - operator: Exists
+          containers:
+            - name: network-check
+              image: busybox:1.36
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  nslookup kubernetes.default.svc.cluster.local
+                  nslookup kube-dns.kube-system.svc.cluster.local
+                  nc -z -w5 kubernetes.default.svc 443
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: network-crossnode-checker
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: network-crossnode-checker
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: network-crossnode-checker
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: network-crossnode-checker
+subjects:
+  - kind: ServiceAccount
+    name: network-crossnode-checker
+    namespace: kube-system
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: network-crossnode-check
+  namespace: kube-system
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: network-crossnode-checker
+          restartPolicy: OnFailure
+          tolerations:
+            - operator: Exists
+          containers:
+            - name: discover-target
+              image: bitnami/kubectl:1.30.6
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  TARGET_IP="$(kubectl get pods -n kube-system -l app=network-echo -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" {print $6; exit}')"
+                  if [ -z "$TARGET_IP" ]; then
+                    echo "NO_TARGET" > /shared/target_ip
+                    exit 0
+                  fi
+                  echo "$TARGET_IP" > /shared/target_ip
+              env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+              volumeMounts:
+                - name: shared
+                  mountPath: /shared
+            - name: check-crossnode
+              image: busybox:1.36
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  for i in $(seq 1 30); do
+                    if [ -s /shared/target_ip ]; then
+                      break
+                    fi
+                    sleep 1
+                  done
+
+                  TARGET_IP="$(cat /shared/target_ip 2>/dev/null || true)"
+                  if [ -z "$TARGET_IP" ]; then
+                    echo "No target discovered by helper container"
+                    exit 1
+                  fi
+
+                  if [ "$TARGET_IP" = "NO_TARGET" ]; then
+                    echo "No non-local echo pod found; likely single-node cluster. Skipping cross-node check."
+                    exit 0
+                  fi
+
+                  RESPONSE="$(wget -q -T 5 -O- "http://${TARGET_IP}:8080")"
+                  [ "$RESPONSE" = "ok" ]
+              volumeMounts:
+                - name: shared
+                  mountPath: /shared
+          volumes:
+            - name: shared
+              emptyDir: {}

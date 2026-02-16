@@ -117,6 +117,11 @@ tasks:
       - kubectl apply -f k8s/ntfy/ntfy-pvc.yaml
       - kubectl apply -f k8s/ntfy/ntfy-deployment.yaml
 
+  k8s:apply:network-health:
+    desc: Apply network health checks from k3s-maintenance chart
+    cmds:
+      - helm template k3s-maintenance k8s/charts/k3s-maintenance --show-only templates/network-health-check.yaml | kubectl apply -f -
+
   compose:up:
     desc: Start one docker-compose service directory (task compose:up SERVICE=jellyfin)
     preconditions:
