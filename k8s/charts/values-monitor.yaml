@@ -102,12 +102,16 @@ additionalPrometheusRulesMap:
           description: "CoreDNS has been down for more than 2 minutes."
       - alert: CoreDNSHighErrorRate
         expr: |
-          sum(rate(coredns_dns_responses_total{rcode="SERVFAIL"}[5m]))
-            /
-          sum(rate(coredns_dns_responses_total[5m])) > 0.05
-        for: 5m
+          (
+            sum(increase(coredns_dns_responses_total{rcode="SERVFAIL"}[10m]))
+              /
+            clamp_min(sum(increase(coredns_dns_responses_total[10m])), 1)
+          ) > 0.05
+          and
+          sum(increase(coredns_dns_responses_total[10m])) > 100
+        for: 10m
         labels:
           severity: warning
         annotations:
           summary: "CoreDNS high error rate"
-          description: "CoreDNS SERVFAIL rate is > 5%."
+          description: "CoreDNS SERVFAIL rate is > 5% over 10m with at least 100 DNS responses."
