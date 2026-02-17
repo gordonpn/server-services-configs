@@ -25,6 +25,7 @@ alertmanager:
         send_resolved: true
         text: |-
           {{ range .Alerts }}• [{{ or .Labels.namespace "unknown-namespace" }}/{{ or .Labels.job_name .Labels.job "unknown-job" }}] {{ .Annotations.summary }}
+            Started: {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}{{ if eq .Status "resolved" }} | Ended: {{ .EndsAt.Format "2006-01-02 15:04:05 MST" }}{{ end }}
           {{ end }}
         title: '{{ .CommonLabels.alertname }} ({{ .Status }})'
     route:
