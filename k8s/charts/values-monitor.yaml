@@ -24,15 +24,14 @@ alertmanager:
         channel: '#homelab-alerts'
         send_resolved: true
         text: |-
-          {{ range .Alerts }}• {{ .Annotations.summary }}
+          {{ range .Alerts }}• [{{ or .Labels.namespace "unknown-namespace" }}/{{ or .Labels.job_name .Labels.job "unknown-job" }}] {{ .Annotations.summary }}
           {{ end }}
         title: '{{ .CommonLabels.alertname }} ({{ .Status }})'
     route:
       group_by:
       - alertname
       - namespace
-      - pod
-      - instance
+      - job_name
       group_interval: 5m
       group_wait: 30s
       receiver: slack
@@ -41,6 +40,11 @@ alertmanager:
       - match:
           alertname: Watchdog
         receiver: 'null'
+      - match:
+          alertname: KubeJobFailed
+        receiver: slack
+        group_interval: 30m
+        repeat_interval: 8h
       - match_re:
           alertname: ^(CoreDNS.*|DNSResolutionFailing|KubePodCrashLooping)
         receiver: slack
