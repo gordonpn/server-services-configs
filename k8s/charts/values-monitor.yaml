@@ -101,6 +101,8 @@ additionalPrometheusRulesMap:
         for: 2m
         labels:
           severity: critical
+          namespace: kube-system
+          job_name: kube-dns
         annotations:
           summary: "CoreDNS is down"
           description: "CoreDNS has been down for more than 2 minutes."
@@ -116,6 +118,8 @@ additionalPrometheusRulesMap:
         for: 10m
         labels:
           severity: warning
+          namespace: kube-system
+          job_name: kube-dns
         annotations:
           summary: "CoreDNS high error rate"
           description: "CoreDNS SERVFAIL rate is > 5% over 10m with at least 100 DNS responses."

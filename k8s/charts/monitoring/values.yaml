@@ -69,7 +69,7 @@ alertmanager:
           group_interval: 30m
           repeat_interval: 8h
     receivers:
-      - name: 'null' 
+      - name: 'null'
       - name: "slack"
         slack_configs:
           - channel: "#homelab-alerts"
