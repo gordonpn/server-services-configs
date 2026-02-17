@@ -110,17 +110,18 @@ additionalPrometheusRulesMap:
       - alert: CoreDNSHighErrorRate
         expr: |
           (
-            sum(increase(coredns_dns_responses_total{rcode="SERVFAIL"}[10m]))
+            sum(rate(coredns_dns_responses_total{rcode="SERVFAIL"}[15m]) OR on() vector(0))
               /
-            clamp_min(sum(increase(coredns_dns_responses_total[10m])), 1)
+            sum(rate(coredns_dns_responses_total[15m]) OR on() vector(0))
           ) > 0.05
           and
-          sum(increase(coredns_dns_responses_total[10m])) > 100
-        for: 10m
+          sum(rate(coredns_dns_responses_total[15m]) OR on() vector(0)) > 100
+        for: 5m
         labels:
           severity: warning
           namespace: kube-system
           job_name: kube-dns
+          job: kube-dns
         annotations:
           summary: "CoreDNS high error rate"
-          description: "CoreDNS SERVFAIL rate is > 5% over 10m with at least 100 DNS responses."
+          description: "CoreDNS SERVFAIL rate is >5% (current: {{ $value | humanizePercentage }})."
