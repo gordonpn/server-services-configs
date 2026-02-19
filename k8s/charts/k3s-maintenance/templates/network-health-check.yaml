@@ -109,6 +109,7 @@ spec:
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 3600
       template:
         spec:
           serviceAccountName: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
