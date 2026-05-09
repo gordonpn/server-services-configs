@@ -126,7 +126,7 @@ spec:
                 - |
                   echo "Discovering target echo pod on other nodes..."
                   # Get all running echo pods not on the current node
-                  TARGETS="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" && $6 != "<none>" {print $6}')"
+                  TARGETS="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} -o jsonpath='{range .items[?(@.status.phase=="Running")]}{.status.podIP} {.spec.nodeName}{"\n"}{end}' | awk -v node="$MY_NODE_NAME" '$2 != node {print $1}')"
                   
                   if [ -z "$TARGETS" ]; then
                     echo "No remote target found. Checking if we are in a single-node cluster..."
