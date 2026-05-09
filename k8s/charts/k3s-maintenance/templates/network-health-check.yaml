@@ -124,12 +124,23 @@ spec:
                 - /bin/sh
                 - -ec
                 - |
-                  TARGET_IP="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" {print $6; exit}')"
-                  if [ -z "$TARGET_IP" ]; then
-                    echo "NO_TARGET" > /shared/target_ip
-                    exit 0
+                  echo "Discovering target echo pod on other nodes..."
+                  # Get all running echo pods not on the current node
+                  TARGETS="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} -o wide --no-headers | awk -v node="$MY_NODE_NAME" '$7 != node && $3 == "Running" && $6 != "<none>" {print $6}')"
+                  
+                  if [ -z "$TARGETS" ]; then
+                    echo "No remote target found. Checking if we are in a single-node cluster..."
+                    TOTAL_ECHO_PODS="$(kubectl get pods -n kube-system -l app={{ include "k3s-maintenance.networkHealth.echoAppLabel" . }} --no-headers | wc -l)"
+                    if [ "$TOTAL_ECHO_PODS" -le 1 ]; then
+                      echo "NO_TARGET" > /shared/target_ip
+                      exit 0
+                    fi
+                    echo "Error: Echo pods exist but none are Running on other nodes."
+                    exit 1
                   fi
-                  echo "$TARGET_IP" > /shared/target_ip
+                  
+                  # Save all potential targets, one per line
+                  echo "$TARGETS" > /shared/target_ip
               env:
                 - name: MY_NODE_NAME
                   valueFrom:
@@ -144,26 +155,46 @@ spec:
                 - /bin/sh
                 - -ec
                 - |
-                  for i in $(seq 1 30); do
+                  echo "Waiting for target discovery..."
+                  for i in $(seq 1 60); do
                     if [ -s /shared/target_ip ]; then
                       break
                     fi
                     sleep 1
                   done
 
-                  TARGET_IP="$(cat /shared/target_ip 2>/dev/null || true)"
-                  if [ -z "$TARGET_IP" ]; then
-                    echo "No target discovered by helper container"
+                  if [ ! -s /shared/target_ip ]; then
+                    echo "Error: No target discovered by helper container after 60s"
                     exit 1
                   fi
 
-                  if [ "$TARGET_IP" = "NO_TARGET" ]; then
+                  TARGETS="$(cat /shared/target_ip)"
+                  if [ "$TARGETS" = "NO_TARGET" ]; then
                     echo "No non-local echo pod found; likely single-node cluster. Skipping cross-node check."
                     exit 0
                   fi
 
-                  RESPONSE="$(wget -q -T 5 -O- "http://${TARGET_IP}:8080")"
-                  [ "$RESPONSE" = "ok" ]
+                  # Try each target until one succeeds
+                  SUCCESS=0
+                  for ip in $TARGETS; do
+                    echo "Checking connectivity to $ip:8080..."
+                    # Try wget with 3 retries and 5s timeout
+                    for retry in 1 2 3; do
+                      RESPONSE="$(wget -q -T 5 -O- "http://${ip}:8080" 2>/dev/null || true)"
+                      if echo "$RESPONSE" | grep -q "ok"; then
+                        echo "Successfully reached $ip:8080"
+                        SUCCESS=1
+                        break 2
+                      fi
+                      echo "Retry $retry failed for $ip..."
+                      sleep 2
+                    done
+                  done
+
+                  if [ $SUCCESS -ne 1 ]; then
+                    echo "Error: Failed to reach any remote echo pod"
+                    exit 1
+                  fi
               volumeMounts:
                 - name: shared
                   mountPath: /shared
