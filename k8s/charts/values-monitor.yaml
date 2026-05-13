@@ -87,6 +87,8 @@ prometheus:
             requests:
               storage: 10Gi
           storageClassName: longhorn
+    nodeSelector:
+      kubernetes.io/hostname: master
   service:
     nodePort: 30090
     type: NodePort
