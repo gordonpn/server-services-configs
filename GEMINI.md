@@ -48,7 +48,7 @@ Key scripts in the `scripts/` directory:
 ## Development Conventions
 
 ### Kubernetes Node Strategy
-- **Master Node:** Used for heavy control-plane operations and high-resource pods (e.g., Gemini CLI, heavy databases) due to higher RAM (16GB).
+- **Master Node:** Used for heavy control-plane operations and high-resource pods (e.g., Gemini CLI, Prometheus, heavy databases) due to higher RAM (16GB). Heavy pods should be pinned here using `nodeSelector`.
 - **Worker Nodes (Raspberry Pi):** Best for lightweight or distributed services.
 - **Storage Strategy:** Longhorn volumes should be tuned for Tailscale. High-churn volumes (like Prometheus DB) should ideally be restricted to 2 replicas within the same site (e.g., Montreal) to avoid saturating CPU with Tailscale encryption overhead.
 
