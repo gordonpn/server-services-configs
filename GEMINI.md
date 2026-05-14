@@ -55,6 +55,7 @@ Key scripts in the `scripts/` directory:
 ### Monitoring & Alerts
 - **Persistence:** Failed Kubernetes Jobs must be manually cleaned up if they are older than the `successfulJobsHistoryLimit` to prevent Alertmanager from re-triggering noisy `KubeJobFailed` alerts.
 - **Node Saturation:** Raspberry Pi nodes frequently hit `NodeSystemSaturation` during Longhorn rebuilds or Tailscale encryption spikes. Moving high-IO pods to the master node is the preferred mitigation.
+- **Timestamp Jitter:** Raspberry Pi nodes may experience clock jitter in cAdvisor metrics. Prometheus should be configured with `outOfOrderTimeWindow: 30m` (or similar) to prevent sample drops and `PrometheusOutOfOrderTimestamps` alerts.
 
 ### Formatting
 - **Terraform:** Run `task tf:fmt` before committing changes.
