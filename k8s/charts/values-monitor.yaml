@@ -78,6 +78,8 @@ kubeScheduler:
   enabled: false
 prometheus:
   prometheusSpec:
+    tsdb:
+      outOfOrderTimeWindow: 30m
     storageSpec:
       volumeClaimTemplate:
         spec:
