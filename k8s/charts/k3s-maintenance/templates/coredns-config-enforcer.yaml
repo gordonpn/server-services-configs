@@ -23,10 +23,8 @@ data:
         loop
         reload
         loadbalance
-        import /etc/coredns/custom/*.override
-        forward . 100.100.100.100 1.1.1.1 8.8.8.8
+        forward . 1.1.1.1 8.8.8.8
     }
-    import /etc/coredns/custom/*.server
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -88,7 +86,7 @@ spec:
                   set -e
 
                   CURRENT_COREFILE="$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')"
-                  if printf '%s' "$CURRENT_COREFILE" | grep -q "forward . 100.100.100.100 1.1.1.1 8.8.8.8"; then
+                  if printf '%s' "$CURRENT_COREFILE" | grep -q "forward . 1.1.1.1 8.8.8.8"; then
                     echo "CoreDNS configuration is correct"
                     exit 0
                   fi
