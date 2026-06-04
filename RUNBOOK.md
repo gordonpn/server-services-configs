@@ -68,6 +68,12 @@ The discovery script previously used `kubectl get pods -o wide | awk`. When a po
 - **Fix**: Use `-o jsonpath` for robust discovery.
 - **Status**: Fixed in `k3s-maintenance` chart.
 
-#### MTU Mismatch
-If small pings work but HTTP requests (or the `wget` check) hang or timeout, it is likely an MTU issue.
-- **Fix**: Update K3s systemd service with `--flannel-conf='{"MTU": 1100}'` and restart K3s.
+#### Missing Flannel Interface (external interface not found)
+If Pod-to-Pod traffic between nodes fails even though DNS and local traffic work, the Flannel overlay might have failed to initialize.
+- **Symptom**: `ip link show flannel.1` returns nothing on the host.
+- **Log Observation**: `journalctl -u k3s-agent` shows `vxlan_network.go:167] external interface not found, retrying in 30s`.
+- **Cause**: This happens if the specified `--flannel-iface` (e.g., `tailscale0`) is not ready or has an IP change that Flannel cannot bind to during K3s startup.
+- **Fix**: Restart the `k3s-agent` (or `k3s`) service:
+  ```bash
+  sudo systemctl restart k3s-agent
+  ```
