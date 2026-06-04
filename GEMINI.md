@@ -64,7 +64,9 @@ Key scripts in the `scripts/` directory:
 ### DNS & Networking
 - **CoreDNS Forwarders:** Do not use Tailscale's MagicDNS (`100.100.100.100`) as a primary forwarder in CoreDNS. It frequently returns `SERVFAIL` when queried from the K3s pod network (10.42.x.x), likely due to source IP validation in Tailscale's internal DNS server. Prioritize public DNS servers like `1.1.1.1` and `8.8.8.8`.
 - **Search Paths & ndots:** K3s pods default to `ndots:5`. External resolution (e.g., `google.com`) will iterate through multiple internal search paths before trying the root domain. If upstream DNS is slow or unreliable, this can lead to connection timeouts in applications.
-- **CoreDNS Maintenance:** The `coredns-config-enforcer` CronJob ensures that the `coredns` ConfigMap matches the `coredns-override` template in the `k3s-maintenance` chart. Any manual changes to CoreDNS should be reflected in the Helm chart.
+- **CoreDNS Maintenance**: The `coredns-config-enforcer` CronJob ensures that the `coredns` ConfigMap matches the `coredns-override` template in the `k3s-maintenance` chart. Any manual changes to CoreDNS should be reflected in the Helm chart.
+- **Flannel Interface Dependency**: Flannel is configured to bind to `tailscale0` via `--flannel-iface`. If Tailscale restarts or has an IP change, the `flannel.1` interface may fail to initialize or bind, leading to cross-node timeouts (`external interface not found`). A restart of the `k3s-agent` is required in such cases. Refer to `RUNBOOK.md` for details.
+
 
 ## Known Issues & Future Improvements
 - **Control Plane Single Point of Failure:** The current K3s cluster uses a single master node. During site-specific outages (e.g., Boston internet outage), worker nodes lose connection to the master, and the CronJob controller fails to schedule jobs on isolated nodes. If the master node's site goes down, all cluster-wide scheduling halts.
