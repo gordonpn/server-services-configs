@@ -57,6 +57,12 @@ Key scripts in the `scripts/` directory:
 - **Node Saturation:** Raspberry Pi nodes frequently hit `NodeSystemSaturation` during Longhorn rebuilds or Tailscale encryption spikes. Moving high-IO pods to the master node is the preferred mitigation.
 - **Timestamp Jitter:** Raspberry Pi nodes may experience clock jitter in cAdvisor metrics. Prometheus should be configured with `outOfOrderTimeWindow: 30m` (or similar) to prevent sample drops and `PrometheusOutOfOrderTimestamps` alerts.
 
+### Audio Bridge (AirConnect & Music Assistant)
+- **Purpose:** Bridges Apple AirPlay to Google Cast devices and provides a unified music management interface.
+- **Location:** `docker-compose/airconnect-music-assistant/`
+- **Network Mode:** Uses `network_mode: host` for cross-brand device discovery (AirPlay/Cast).
+- **Storage Strategy:** Music Assistant persistence is mapped to `/media/storage/audio/data` to leverage the high-capacity disk.
+
 ### Formatting
 - **Terraform:** Run `task tf:fmt` before committing changes.
 - **K3s Maintenance:** The `k3s-maintenance` chart should be linted with `task charts:lint:maintenance`.
