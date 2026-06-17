@@ -6,7 +6,7 @@ repositories:
   - name: longhorn
     url: https://charts.longhorn.io
   - name: sealed-secrets
-    url: https://bitnami-labs.github.io/sealed-secrets
+    url: https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/gh-pages
 
 releases:
   - name: mon
