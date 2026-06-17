@@ -64,6 +64,9 @@ releases:
       - controllerServiceAccount:
           namespace: actions-runner-system
           name: arc-controller-gha-rs-controller
+      - template:
+          spec:
+            serviceAccountName: home-lab-runner
 
   - name: k3s-maintenance
     namespace: kube-system
