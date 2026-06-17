@@ -23,8 +23,30 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install Helm Diff Plugin
+        run: |
+          helm plugin install https://github.com/databus23/helm-diff --version v3.14.1 || true
+
       - name: Setup Helmfile
-        uses: mamezou-tech/setup-helmfile@v2.2.0
+        run: |
+          HELMFILE_VERSION="1.2.3"
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="amd64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          mkdir -p $HOME/.local/bin
+          curl -sLO "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz"
+          tar -zxf helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz -C $HOME/.local/bin helmfile
+          chmod +x $HOME/.local/bin/helmfile
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Apply Charts via Helmfile
         run: task charts:apply
