@@ -68,6 +68,11 @@ Key scripts in the `scripts/` directory:
 - **Execution Target:** Runs on self-hosted runners labeled `home-lab-runners`.
 - **Runner Pod ServiceAccount:** The runner pods are configured to use an explicit ServiceAccount named `home-lab-runner` in the `actions-runner-system` namespace. This is declared in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) under the `arc-runner-set` release values.
 - **Privilege Assignment:** The `home-lab-runner` ServiceAccount is granted `cluster-admin` privileges via [runner-rbac.yaml](file:///k8s/runner-rbac.yaml). This RBAC manifest is integrated into the local `k3s-maintenance` chart templates ([runner-rbac.yaml](file:///k8s/charts/k3s-maintenance/templates/runner-rbac.yaml)) to ensure it is deployed automatically during the GitOps sync step (`task charts:apply`).
+- **Runner Dependencies:** Since the default runner pod image (`ghcr.io/actions/actions-runner:latest`) is extremely minimal and lacks runtime tools, the workflow [gitops.yml](file:///.github/workflows/gitops.yml) must bootstrap `go-task`, `helm`, `kubectl`, and `helmfile` using setup actions (`arduino/setup-task` and `mamezou-tech/setup-helmfile`) prior to running any deployment tasks.
+
+### Sealed Secrets Helm Repo Workaround
+- **Bitnami Pages 404:** The official Helm repository endpoint for Sealed Secrets (`https://bitnami-labs.github.io/sealed-secrets`) returns a `404 Site not found` error on GitHub Pages.
+- **Workaround:** Point the repository URL in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) to `https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/gh-pages`. Because the chart index contains absolute URLs pointing directly to GitHub releases for downloading the `.tgz` packages, this raw path functions as a transparent, reliable drop-in replacement.
 
 ### Formatting
 - **Terraform:** Run `task tf:fmt` before committing changes.
@@ -88,5 +93,4 @@ Key scripts in the `scripts/` directory:
 - **Context Discovery:** Always reference other Markdown files (e.g., `README.md`) and configuration files (e.g., `Taskfile.yaml`, `helmfile.yaml`) within the repository to get a complete picture of the project's architecture and requirements.
 - **Incremental Commits:** Commit changes incrementally as sub-tasks are completed to maintain a clean and traceable history.
 - **Commit Style:** Always use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g., `fix(k8s): ...`, `feat(scripts): ...`).
-- **Living Documentation:** Continuously update `GEMINI.md` to reflect new architectural decisions, learned conventions, or significant infrastructure changes as we work on the project together.
 - **Living Documentation:** Continuously update `GEMINI.md` to reflect new architectural decisions, learned conventions, or significant infrastructure changes as we work on the project together.
