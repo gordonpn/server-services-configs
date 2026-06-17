@@ -17,5 +17,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Helmfile
+        uses: mamezou-tech/setup-helmfile@v2.2.0
+
       - name: Apply Charts via Helmfile
         run: task charts:apply
