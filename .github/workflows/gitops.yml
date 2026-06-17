@@ -1,0 +1,21 @@
+name: GitOps Loop
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'k8s/**'
+      - 'Taskfile.yaml'
+  workflow_dispatch:
+
+jobs:
+  gitops:
+    name: Sync GitOps Releases
+    runs-on: home-lab-runners
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Apply Charts via Helmfile
+        run: task charts:apply
