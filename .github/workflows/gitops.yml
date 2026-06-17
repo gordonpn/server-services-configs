@@ -25,9 +25,13 @@ jobs:
 
       - name: Setup Kubectl
         uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.34.3'
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.4'
 
       - name: Install Helm Diff Plugin
         run: |
