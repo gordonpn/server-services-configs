@@ -63,6 +63,12 @@ Key scripts in the `scripts/` directory:
 - **Network Mode:** Uses `network_mode: host` for cross-brand device discovery (AirPlay/Cast).
 - **Storage Strategy:** Music Assistant persistence is mapped to `/media/storage/audio/data` to leverage the high-capacity disk.
 
+### Push-Based GitOps Loop & Runner RBAC
+- **GitOps Workflow:** The GitOps loop is managed by the GitHub Actions workflow [gitops.yml](file:///.github/workflows/gitops.yml), which triggers on pushes to `master` when changes occur under `k8s/` or inside `Taskfile.yaml`.
+- **Execution Target:** Runs on self-hosted runners labeled `home-lab-runners`.
+- **Runner Pod ServiceAccount:** The runner pods are configured to use an explicit ServiceAccount named `home-lab-runner` in the `actions-runner-system` namespace. This is declared in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) under the `arc-runner-set` release values.
+- **Privilege Assignment:** The `home-lab-runner` ServiceAccount is granted `cluster-admin` privileges via [runner-rbac.yaml](file:///k8s/runner-rbac.yaml). This RBAC manifest is integrated into the local `k3s-maintenance` chart templates ([runner-rbac.yaml](file:///k8s/charts/k3s-maintenance/templates/runner-rbac.yaml)) to ensure it is deployed automatically during the GitOps sync step (`task charts:apply`).
+
 ### Formatting
 - **Terraform:** Run `task tf:fmt` before committing changes.
 - **K3s Maintenance:** The `k3s-maintenance` chart should be linted with `task charts:lint:maintenance`.
