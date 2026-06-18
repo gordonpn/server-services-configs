@@ -83,6 +83,8 @@ Key scripts in the `scripts/` directory:
 - **Search Paths & ndots:** K3s pods default to `ndots:5`. External resolution (e.g., `google.com`) will iterate through multiple internal search paths before trying the root domain. If upstream DNS is slow or unreliable, this can lead to connection timeouts in applications.
 - **CoreDNS Maintenance**: The `coredns-config-enforcer` CronJob ensures that the `coredns` ConfigMap matches the `coredns-override` template in the `k3s-maintenance` chart. Any manual changes to CoreDNS should be reflected in the Helm chart.
 - **Flannel Interface Dependency**: Flannel is configured to bind to `tailscale0` via `--flannel-iface`. If Tailscale restarts or has an IP change, the `flannel.1` interface may fail to initialize or bind, leading to cross-node timeouts (`external interface not found`). A restart of the `k3s-agent` is required in such cases. Refer to `RUNBOOK.md` for details.
+- **Tailscale SSH Authentication:** When connecting to nodes via SSH over the Tailscale overlay network, connection requests may trigger interactive browser verification via a Tailscale authorization URL. The operator must complete this authentication in their browser before the terminal session begins.
+
 
 
 ## Known Issues & Future Improvements
