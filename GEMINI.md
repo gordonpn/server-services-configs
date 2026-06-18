@@ -48,7 +48,7 @@ Key scripts in the `scripts/` directory:
 ## Development Conventions
 
 ### Kubernetes Node Strategy
-- **Master Node:** Used for heavy control-plane operations and high-resource pods (e.g., Gemini CLI, Prometheus, heavy databases) due to higher RAM (16GB). Heavy pods should be pinned here using `nodeSelector`.
+- **Master Node:** Used for heavy control-plane operations and high-resource pods (e.g., Gemini CLI, Prometheus, heavy databases, and self-hosted GitHub Actions runners) due to higher RAM (16GB). Critical or resource-intensive pods should be pinned here using `nodeSelector`.
 - **Worker Nodes (Raspberry Pi):** Best for lightweight or distributed services.
 - **Storage Strategy:** Longhorn volumes should be tuned for Tailscale. High-churn volumes (like Prometheus DB) should ideally be restricted to 2 replicas within the same site (e.g., Montreal) to avoid saturating CPU with Tailscale encryption overhead.
 
@@ -66,7 +66,7 @@ Key scripts in the `scripts/` directory:
 ### Push-Based GitOps Loop & Runner RBAC
 - **GitOps Workflow:** The GitOps loop is managed by the GitHub Actions workflow [gitops.yml](file:///.github/workflows/gitops.yml), which triggers on pushes to `master` when changes occur under `k8s/` or inside `Taskfile.yaml`.
 - **Execution Target:** Runs on self-hosted runners labeled `home-lab-runners`.
-- **Runner Pod ServiceAccount:** The runner pods are configured to use an explicit ServiceAccount named `home-lab-runner` in the `actions-runner-system` namespace. This is declared in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) under the `arc-runner-set` release values.
+- **Runner Pod ServiceAccount:** The runner pods are configured to use an explicit ServiceAccount named `home-lab-runner` in the `actions-runner-system` namespace. This is declared in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) under the `arc-runner-set` release values, and pinned to the stable `master` node using `nodeSelector` to avoid worker node instability.
 - **Privilege Assignment:** The `home-lab-runner` ServiceAccount is granted `cluster-admin` privileges via [runner-rbac.yaml](file:///k8s/runner-rbac.yaml). This RBAC manifest is integrated into the local `k3s-maintenance` chart templates ([runner-rbac.yaml](file:///k8s/charts/k3s-maintenance/templates/runner-rbac.yaml)) to ensure it is deployed automatically during the GitOps sync step (`task charts:apply`).
 - **Runner Dependencies:** Since the default runner pod image (`ghcr.io/actions/actions-runner:latest`) is extremely minimal and lacks runtime tools, the workflow [gitops.yml](file:///.github/workflows/gitops.yml) must bootstrap `go-task`, `helm`, `kubectl`, and `helmfile` using setup actions (`arduino/setup-task` and `mamezou-tech/setup-helmfile` prior was replaced by `azure/setup-helm`, `azure/setup-kubectl`, and architecture-aware script for `helmfile` to support ARM64 Raspberry Pi nodes) prior to running any deployment tasks.
 
