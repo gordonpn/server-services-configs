@@ -67,6 +67,8 @@ releases:
       - template:
           spec:
             serviceAccountName: home-lab-runner
+            nodeSelector:
+              kubernetes.io/hostname: master
 
   - name: arc-runner-set-scraper
     namespace: actions-runner-system
@@ -86,6 +88,8 @@ releases:
       - template:
           spec:
             serviceAccountName: home-lab-runner
+            nodeSelector:
+              kubernetes.io/hostname: master
 
   - name: k3s-maintenance
     namespace: kube-system
