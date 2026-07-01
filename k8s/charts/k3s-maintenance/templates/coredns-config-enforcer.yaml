@@ -72,6 +72,7 @@ spec:
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 3600
       template:
         spec:
           serviceAccountName: coredns-patcher

@@ -51,6 +51,7 @@ spec:
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 3600
       template:
         spec:
           restartPolicy: OnFailure
