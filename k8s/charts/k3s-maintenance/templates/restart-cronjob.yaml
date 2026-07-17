@@ -5,8 +5,10 @@ metadata:
   namespace: kube-system
 spec:
   schedule: "0 3 1 * *"
+  startingDeadlineSeconds: 3600
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 1200
       ttlSecondsAfterFinished: 86400
       template:
         spec:

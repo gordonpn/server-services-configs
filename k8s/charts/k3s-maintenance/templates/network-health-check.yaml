@@ -46,11 +46,13 @@ metadata:
   namespace: kube-system
 spec:
   schedule: "*/5 * * * *"
+  startingDeadlineSeconds: 300
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 600
       ttlSecondsAfterFinished: 3600
       template:
         spec:
@@ -105,11 +107,13 @@ metadata:
   namespace: kube-system
 spec:
   schedule: "*/10 * * * *"
+  startingDeadlineSeconds: 300
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 600
       ttlSecondsAfterFinished: 3600
       template:
         spec:

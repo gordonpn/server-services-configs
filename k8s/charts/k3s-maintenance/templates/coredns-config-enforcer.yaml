@@ -68,10 +68,12 @@ metadata:
   namespace: kube-system
 spec:
   schedule: "0 * * * *"
+  startingDeadlineSeconds: 300
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 600
       ttlSecondsAfterFinished: 3600
       template:
         spec:
