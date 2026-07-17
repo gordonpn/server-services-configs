@@ -77,3 +77,16 @@ If Pod-to-Pod traffic between nodes fails even though DNS and local traffic work
   ```bash
   sudo systemctl restart k3s-agent
   ```
+- **Prevention**: To prevent this from occurring on system boot, configure systemd on the host to ensure `k3s-agent` only starts after Tailscale has fully initialized its network interface:
+  1. Edit the service overrides:
+     ```bash
+     sudo systemctl edit k3s-agent.service
+     ```
+  2. Paste the following configuration:
+     ```ini
+     [Unit]
+     After=tailscaled.service
+     Requires=tailscaled.service
+     ```
+  3. Save and exit the editor.
+
