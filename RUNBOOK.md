@@ -110,4 +110,30 @@ If you run `systemctl` commands and see `Failed to allocate directory watch: Too
        sudo sysctl --system
        ```
 
+#### Docker Swarm / Tailscale Startup Race Condition (Node showing Down in Swarm)
+If a node shows as `Ready` in K3s but `Down` in Docker Swarm (via `docker node ls`), it is often due to a boot-time race condition. The Docker daemon tries to join/initialize the Swarm gossip cluster over the Tailscale interface before Tailscale has fully initialized, causing `dockerd` to crash with:
+`failed to start cluster component: could not find local IP address: dial udp <manager-ip>:2377: connect: network is unreachable`
+
+*   **Immediate Fix:**
+    Simply restart the Docker service on the host:
+    ```bash
+    sudo systemctl start docker
+    ```
+
+*   **Permanent Fix (Make Docker wait for Tailscale):**
+    Add a systemd drop-in file to ensure `docker.service` only starts after `tailscaled.service` is online:
+    1. Create the systemd override directory:
+       ```bash
+       sudo mkdir -p /etc/systemd/system/docker.service.d
+       ```
+    2. Write the override configuration:
+       ```bash
+       echo -e "[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service" | sudo tee /etc/systemd/system/docker.service.d/tailscale-dependency.conf
+       ```
+    3. Reload systemd:
+       ```bash
+       sudo systemctl daemon-reload
+       ```
+
+
 
