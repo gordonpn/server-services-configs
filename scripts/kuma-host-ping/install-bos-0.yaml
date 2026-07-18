@@ -1,0 +1,100 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: host-ping-installer-bos-0
+  namespace: kube-system
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: pi-bos-0
+      tolerations:
+        - operator: Exists
+      hostPID: true
+      restartPolicy: Never
+      containers:
+        - name: installer
+          image: alpine:latest
+          securityContext:
+            privileged: true
+          command:
+            - sh
+            - -c
+            - |
+              # Install curl inside container to test, but host system uses shell
+              apk add --no-cache curl
+
+              echo "Writing kuma-host-ping.sh to host..."
+              cat << 'EOF' > /host/bin/kuma-host-ping.sh
+              #!/bin/bash
+              set -e
+              KUMA_URL="${KUMA_HOST_PUSH_URL}"
+              if [ -z "$KUMA_URL" ]; then
+                  echo "Error: KUMA_HOST_PUSH_URL environment variable is not set."
+                  exit 1
+              fi
+              ping -c 3 -W 5 1.1.1.1 > /dev/null || { echo "Outgoing gateway unreachable"; exit 1; }
+              if [[ "$KUMA_URL" == *\?* ]]; then
+                  curl -fsS --retry 3 "${KUMA_URL}"
+              else
+                  curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=Host+OK"
+              fi
+              EOF
+              chmod +x /host/bin/kuma-host-ping.sh
+
+              echo "Writing kuma-host-ping.service to host..."
+              cat << 'EOF' > /host/systemd/kuma-host-ping.service
+              [Unit]
+              Description=Uptime Kuma Host OS Ping Service
+              After=network-online.target
+              Wants=network-online.target
+
+              [Service]
+              Type=oneshot
+              EnvironmentFile=/etc/default/kuma-host-ping
+              ExecStart=/usr/local/bin/kuma-host-ping.sh
+              EOF
+
+              echo "Writing kuma-host-ping.timer to host..."
+              cat << 'EOF' > /host/systemd/kuma-host-ping.timer
+              [Unit]
+              Description=Run Uptime Kuma Host OS Ping every 30 seconds
+
+              [Timer]
+              OnBootSec=1min
+              OnUnitActiveSec=30s
+              AccuracySec=1s
+
+              [Install]
+              WantedBy=timers.target
+              EOF
+
+              echo "Writing environment file with token..."
+              echo "KUMA_HOST_PUSH_URL=https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/reDDzwGxWsXmJHHp3IVaxJcAGJe5iy9A?status=up&msg=OK&ping=" > /host/default/kuma-host-ping
+
+              echo "Reloading systemd daemon and enabling timer on host..."
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl daemon-reload
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl enable --now kuma-host-ping.timer
+              
+              echo "Installation complete!"
+          volumeMounts:
+            - name: host-bin
+              mountPath: /host/bin
+            - name: host-systemd
+              mountPath: /host/systemd
+            - name: host-default
+              mountPath: /host/default
+      volumes:
+        - name: host-bin
+          hostPath:
+            path: /usr/local/bin
+            type: Directory
+        - name: host-systemd
+          hostPath:
+            path: /etc/systemd/system
+            type: Directory
+        - name: host-default
+          hostPath:
+            path: /etc/default
+            type: Directory
