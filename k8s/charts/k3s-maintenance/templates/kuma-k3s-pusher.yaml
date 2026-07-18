@@ -61,9 +61,20 @@ spec:
                 esac
 
                 if [ -n "$TOKEN" ]; then
-                  # Resolve internal API server to verify DNS and Flannel VXLAN path
-                  if nslookup kubernetes.default.svc.cluster.local > /dev/null && nc -z -w5 kubernetes.default.svc 443; then
+                  # Retry internal health check up to 3 times before skipping the ping
+                  CHECK_SUCCESS=false
+                  for i in 1 2 3; do
+                    if nslookup kubernetes.default.svc.cluster.local >/dev/null 2>&1 && nc -z -w3 kubernetes.default.svc 443 >/dev/null 2>&1; then
+                      CHECK_SUCCESS=true
+                      break
+                    fi
+                    sleep 2
+                  done
+
+                  if [ "$CHECK_SUCCESS" = "true" ]; then
                     wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
+                  else
+                    echo "Internal checks failed on node $MY_NODE_NAME (DNS or API server unreachable)"
                   fi
                 fi
                 sleep 30
