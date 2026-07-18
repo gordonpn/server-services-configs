@@ -114,6 +114,29 @@ spec:
               echo "Writing environment file with token..."
               echo "KUMA_HOST_PUSH_URL=https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=OK&ping=" > /host/default/kuma-host-ping
 
+              # Write systemd overrides for Tailscale dependency if services exist on the host
+              
+              # Docker (Swarm Node)
+              if nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl cat docker.service >/dev/null 2>&1; then
+                echo "Configuring Tailscale dependency override for docker.service on host..."
+                mkdir -p /host/systemd/docker.service.d
+                printf "[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service\n" > /host/systemd/docker.service.d/tailscale-dependency.conf
+              fi
+
+              # K3s Server
+              if nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl cat k3s.service >/dev/null 2>&1; then
+                echo "Configuring Tailscale dependency override for k3s.service on host..."
+                mkdir -p /host/systemd/k3s.service.d
+                printf "[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service\n" > /host/systemd/k3s.service.d/tailscale-dependency.conf
+              fi
+
+              # K3s Agent
+              if nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl cat k3s-agent.service >/dev/null 2>&1; then
+                echo "Configuring Tailscale dependency override for k3s-agent.service on host..."
+                mkdir -p /host/systemd/k3s-agent.service.d
+                printf "[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service\n" > /host/systemd/k3s-agent.service.d/tailscale-dependency.conf
+              fi
+
               echo "Reloading systemd daemon and enabling timer on host..."
               nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl daemon-reload
               nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl enable --now kuma-host-ping.timer
