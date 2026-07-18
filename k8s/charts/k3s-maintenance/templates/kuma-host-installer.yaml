@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kuma-host-installer
+  namespace: kube-system
+  labels:
+    app: kuma-host-installer
+spec:
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: kuma-host-installer
+  template:
+    metadata:
+      labels:
+        app: kuma-host-installer
+    spec:
+      tolerations:
+        - operator: Exists
+      hostPID: true
+      containers:
+        - name: installer
+          image: alpine:latest
+          securityContext:
+            privileged: true
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MASTER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-host-tokens
+                  key: master
+            - name: PI_BOS_0_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-host-tokens
+                  key: pi-bos-0
+            - name: PI_MTL_0_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-host-tokens
+                  key: pi-mtl-0
+            - name: PI_MTL_1_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-host-tokens
+                  key: pi-mtl-1
+          command:
+            - sh
+            - -c
+            - |
+              case "$MY_NODE_NAME" in
+                "master")   TOKEN="$MASTER_TOKEN" ;;
+                "pi-bos-0") TOKEN="$PI_BOS_0_TOKEN" ;;
+                "pi-mtl-0") TOKEN="$PI_MTL_0_TOKEN" ;;
+                "pi-mtl-1") TOKEN="$PI_MTL_1_TOKEN" ;;
+                *)          TOKEN="" ;;
+              esac
+
+              if [ -z "$TOKEN" ]; then
+                echo "No host token mapped for node $MY_NODE_NAME. Skipping installation."
+                while true; do sleep 3600; done
+              fi
+
+              echo "Writing kuma-host-ping.sh to host..."
+              cat << 'EOF' > /host/bin/kuma-host-ping.sh
+              #!/bin/bash
+              set -e
+              KUMA_URL="${KUMA_HOST_PUSH_URL}"
+              if [ -z "$KUMA_URL" ]; then
+                  echo "Error: KUMA_HOST_PUSH_URL environment variable is not set."
+                  exit 1
+              fi
+              ping -c 3 -W 5 1.1.1.1 > /dev/null || { echo "Outgoing gateway unreachable"; exit 1; }
+              if [[ "$KUMA_URL" == *\?* ]]; then
+                  curl -fsS --retry 3 "${KUMA_URL}"
+              else
+                  curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=Host+OK"
+              fi
+              EOF
+              chmod +x /host/bin/kuma-host-ping.sh
+
+              echo "Writing kuma-host-ping.service to host..."
+              cat << 'EOF' > /host/systemd/kuma-host-ping.service
+              [Unit]
+              Description=Uptime Kuma Host OS Ping Service
+              After=network-online.target
+              Wants=network-online.target
+
+              [Service]
+              Type=oneshot
+              EnvironmentFile=/etc/default/kuma-host-ping
+              ExecStart=/usr/local/bin/kuma-host-ping.sh
+              EOF
+
+              echo "Writing kuma-host-ping.timer to host..."
+              cat << 'EOF' > /host/systemd/kuma-host-ping.timer
+              [Unit]
+              Description=Run Uptime Kuma Host OS Ping every 30 seconds
+
+              [Timer]
+              OnBootSec=1min
+              OnUnitActiveSec=30s
+              AccuracySec=1s
+
+              [Install]
+              WantedBy=timers.target
+              EOF
+
+              echo "Writing environment file with token..."
+              echo "KUMA_HOST_PUSH_URL=https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=OK&ping=" > /host/default/kuma-host-ping
+
+              echo "Reloading systemd daemon and enabling timer on host..."
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl daemon-reload
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl enable --now kuma-host-ping.timer
+              
+              echo "Host installation complete! Entering sleeping loop."
+              while true; do sleep 3600; done
+          volumeMounts:
+            - name: host-bin
+              mountPath: /host/bin
+            - name: host-systemd
+              mountPath: /host/systemd
+            - name: host-default
+              mountPath: /host/default
+      volumes:
+        - name: host-bin
+          hostPath:
+            path: /usr/local/bin
+            type: Directory
+        - name: host-systemd
+          hostPath:
+            path: /etc/systemd/system
+            type: Directory
+        - name: host-default
+          hostPath:
+            path: /etc/default
+            type: Directory
