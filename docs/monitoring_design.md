@@ -61,7 +61,11 @@ fi
 ping -c 3 -W 5 1.1.1.1 > /dev/null || { echo "Outgoing gateway unreachable"; exit 1; }
 
 # Send success ping to Uptime Kuma
-curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=Host+OK"
+if [[ "$KUMA_URL" == *\?* ]]; then
+    curl -fsS --retry 3 "${KUMA_URL}"
+else
+    curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=Host+OK"
+fi
 ```
 
 #### 2. Systemd Service: `/etc/systemd/system/kuma-host-ping.service`
