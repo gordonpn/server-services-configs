@@ -80,11 +80,11 @@ ExecStart=/usr/local/bin/kuma-host-ping.sh
 #### 3. Systemd Timer: `/etc/systemd/system/kuma-host-ping.timer`
 ```ini
 [Unit]
-Description=Run Uptime Kuma Host OS Ping every minute
+Description=Run Uptime Kuma Host OS Ping every 30 seconds
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=1min
+OnUnitActiveSec=30s
 AccuracySec=1s
 
 [Install]
@@ -160,10 +160,10 @@ spec:
                 if [ -n "$TOKEN" ]; then
                   # Resolve internal API server to verify DNS and Flannel VXLAN path
                   if nslookup kubernetes.default.svc.cluster.local > /dev/null && nc -z -w5 kubernetes.default.svc 443; then
-                    curl -fsS --retry 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
+                    wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
                   fi
                 fi
-                sleep 60
+                sleep 30
               done
 ```
 
@@ -192,25 +192,26 @@ services:
       - PI_MTL_1_TOKEN=${PI_MTL_1_TOKEN}
     volumes:
       - /etc/hostname:/etc/host_hostname:ro
-    command: >
-      sh -c "
-      apk add --no-cache curl &&
-      NODE_NAME=\$$(cat /etc/host_hostname) &&
-      while true; do
-        case \"\$$NODE_NAME\" in
-          \"master\")   TOKEN=\"\$$MASTER_TOKEN\" ;;
-          \"pi-bos-0\") TOKEN=\"\$$PI_BOS_0_TOKEN\" ;;
-          \"pi-mtl-0\") TOKEN=\"\$$PI_MTL_0_TOKEN\" ;;
-          \"pi-mtl-1\") TOKEN=\"\$$PI_MTL_1_TOKEN\" ;;
-          *)            TOKEN=\"\" ;;
-        esac
+    command:
+      - sh
+      - -c
+      - |
+        apk add --no-cache curl
+        NODE_NAME=$$(cat /etc/host_hostname)
+        while true; do
+          case "$$NODE_NAME" in
+            "master")   TOKEN="$$MASTER_TOKEN" ;;
+            "pi-bos-0") TOKEN="$$PI_BOS_0_TOKEN" ;;
+            "pi-mtl-0") TOKEN="$$PI_MTL_0_TOKEN" ;;
+            "pi-mtl-1") TOKEN="$$PI_MTL_1_TOKEN" ;;
+            *)          TOKEN="" ;;
+          esac
 
-        if [ -n \"\$$TOKEN\" ]; then
-          curl -fsS --retry 3 \"https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/\$${TOKEN}?status=up&msg=Swarm+Active\" || true
-        fi
-        sleep 60
-      done
-      "
+          if [ -n "$$TOKEN" ]; then
+            curl -fsS --retry 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active" || true
+          fi
+          sleep 30
+        done
 ```
 
 ---

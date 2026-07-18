@@ -1,9 +1,9 @@
 [Unit]
-Description=Run Uptime Kuma Host OS Ping every minute
+Description=Run Uptime Kuma Host OS Ping every 30 seconds
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=1min
+OnUnitActiveSec=30s
 AccuracySec=1s
 
 [Install]
