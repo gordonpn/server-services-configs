@@ -90,3 +90,24 @@ If Pod-to-Pod traffic between nodes fails even though DNS and local traffic work
      ```
   3. Save and exit the editor.
 
+#### Inotify Watches Exhaustion (Failed to allocate directory watch)
+If you run `systemctl` commands and see `Failed to allocate directory watch: Too many open files`, your host has exhausted its kernel `inotify` watches or instances. This is common when running K3s (Kubernetes) and Docker side-by-side.
+
+*   **Temporary Fix (Apply immediately):**
+    ```bash
+    sudo sysctl -w fs.inotify.max_user_watches=524288
+    sudo sysctl -w fs.inotify.max_user_instances=512
+    ```
+
+*   **Permanent Fix (Survives reboots):**
+    1. Append the limits to the sysctl configuration:
+       ```bash
+       echo "fs.inotify.max_user_watches=524288" | sudo tee -a /etc/sysctl.d/90-kubernetes.conf
+       echo "fs.inotify.max_user_instances=512" | sudo tee -a /etc/sysctl.d/90-kubernetes.conf
+       ```
+    2. Apply the configuration:
+       ```bash
+       sudo sysctl --system
+       ```
+
+
