@@ -6,6 +6,8 @@ metadata:
   labels:
     app: kuma-k3s-pusher
 spec:
+  updateStrategy:
+    type: OnDelete
   selector:
     matchLabels:
       app: kuma-k3s-pusher
