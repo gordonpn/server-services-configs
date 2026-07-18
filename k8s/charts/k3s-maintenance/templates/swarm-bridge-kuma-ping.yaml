@@ -65,7 +65,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: deployer
-              image: docker:24.0.7-cli
+              image: docker:latest
               volumeMounts:
                 - name: docker-socket
                   mountPath: /var/run/docker.sock
