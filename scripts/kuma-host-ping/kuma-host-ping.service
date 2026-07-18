@@ -1,0 +1,9 @@
+[Unit]
+Description=Uptime Kuma Host OS Ping Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/kuma-host-ping
+ExecStart=/usr/local/bin/kuma-host-ping.sh
