@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kuma-k3s-pusher
+  namespace: kube-system
+  labels:
+    app: kuma-k3s-pusher
+spec:
+  selector:
+    matchLabels:
+      app: kuma-k3s-pusher
+  template:
+    metadata:
+      labels:
+        app: kuma-k3s-pusher
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: pusher
+          image: busybox:1.36
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MASTER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-k3s-tokens
+                  key: master
+            - name: PI_BOS_0_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-k3s-tokens
+                  key: pi-bos-0
+            - name: PI_MTL_0_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-k3s-tokens
+                  key: pi-mtl-0
+            - name: PI_MTL_1_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-k3s-tokens
+                  key: pi-mtl-1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                case "$MY_NODE_NAME" in
+                  "master")   TOKEN="$MASTER_TOKEN" ;;
+                  "pi-bos-0") TOKEN="$PI_BOS_0_TOKEN" ;;
+                  "pi-mtl-0") TOKEN="$PI_MTL_0_TOKEN" ;;
+                  "pi-mtl-1") TOKEN="$PI_MTL_1_TOKEN" ;;
+                  *)          TOKEN="" ;;
+                esac
+
+                if [ -n "$TOKEN" ]; then
+                  # Resolve internal API server to verify DNS and Flannel VXLAN path
+                  if nslookup kubernetes.default.svc.cluster.local > /dev/null && nc -z -w5 kubernetes.default.svc 443; then
+                    curl -fsS --retry 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
+                  fi
+                fi
+                sleep 60
+              done
