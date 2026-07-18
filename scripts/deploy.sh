@@ -31,6 +31,7 @@ services=(
 	"jenkins"
 	"portainer"
 	"traefik"
+	"kuma-ping"
 	# "filebrowser"
 	# "swarmpit"
 	# "syncthing"
