@@ -231,3 +231,35 @@ To prepare for implementation, we need the following:
     *   We will encrypt the K3s tokens into a **Sealed Secret** and add the Swarm tokens to our local Environment files.
 4.  **Tailscale Key Expiry Maintenance:**
     *   Log in to the Tailscale Admin Console and **Disable Key Expiry** for the nodes to prevent overlay dropouts.
+
+---
+
+## 4. Step-by-Step Deployment Guide for Tier 1 (Host OS)
+
+To deploy the Host OS push monitoring service and timer on any bare-metal node:
+
+1.  **Copy the scripts and unit files** to the host OS directories:
+    ```bash
+    sudo cp scripts/kuma-host-ping/kuma-host-ping.sh /usr/local/bin/
+    sudo chmod +x /usr/local/bin/kuma-host-ping.sh
+    sudo cp scripts/kuma-host-ping/kuma-host-ping.service scripts/kuma-host-ping/kuma-host-ping.timer /etc/systemd/system/
+    ```
+
+2.  **Define the node-specific token** in `/etc/default/kuma-host-ping` (replace `<NODE_HOST_TOKEN>` with the unique token for that specific host):
+    ```bash
+    echo "KUMA_HOST_PUSH_URL=https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/<NODE_HOST_TOKEN>" | sudo tee /etc/default/kuma-host-ping
+    ```
+
+3.  **Enable and start the systemd timer:**
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now kuma-host-ping.timer
+    ```
+
+4.  **Verify the setup** (you can run the service manually once to trigger a test ping):
+    ```bash
+    sudo systemctl status kuma-host-ping.timer
+    sudo systemctl start kuma-host-ping.service
+    sudo journalctl -u kuma-host-ping.service
+    ```
+
