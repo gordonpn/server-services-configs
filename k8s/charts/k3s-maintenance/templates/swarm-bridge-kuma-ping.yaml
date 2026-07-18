@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuma-ping-swarm-compose
+  namespace: kube-system
+data:
+  docker-compose.yml: |
+    version: '3.8'
+    services:
+      kuma-swarm-pusher:
+        image: alpine:latest
+        deploy:
+          mode: global
+          restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+        environment:
+          - MASTER_TOKEN=${KUMA_SWARM_TOKEN_MASTER}
+          - PI_BOS_0_TOKEN=${KUMA_SWARM_TOKEN_PI_BOS_0}
+          - PI_MTL_0_TOKEN=${KUMA_SWARM_TOKEN_PI_MTL_0}
+          - PI_MTL_1_TOKEN=${KUMA_SWARM_TOKEN_PI_MTL_1}
+        volumes:
+          - /etc/hostname:/etc/host_hostname:ro
+        command: >
+          sh -c "
+          apk add --no-cache curl &&
+          NODE_NAME=\$(cat /etc/host_hostname) &&
+          while true; do
+            case \"\$NODE_NAME\" in
+              \"master\")   TOKEN=\"\$MASTER_TOKEN\" ;;
+              \"pi-bos-0\") TOKEN=\"\$PI_BOS_0_TOKEN\" ;;
+              \"pi-mtl-0\") TOKEN=\"\$PI_MTL_0_TOKEN\" ;;
+              \"pi-mtl-1\") TOKEN=\"\$PI_MTL_1_TOKEN\" ;;
+              *)            TOKEN=\"\" ;;
+            esac
+
+            if [ -n \"\$TOKEN\" ]; then
+              curl -fsS --retry 3 \"https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/\${TOKEN}?status=up&msg=Swarm+Active\" || true
+            fi
+            sleep 60
+          done
+          "
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: swarm-deployer-kuma-ping
+  namespace: kube-system
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          nodeName: master
+          tolerations:
+            - operator: Exists
+          restartPolicy: OnFailure
+          containers:
+            - name: deployer
+              image: docker:24.0.7-cli
+              volumeMounts:
+                - name: docker-socket
+                  mountPath: /var/run/docker.sock
+                - name: compose-volume
+                  mountPath: /compose
+              env:
+                - name: KUMA_SWARM_TOKEN_MASTER
+                  valueFrom:
+                    secretKeyRef:
+                      name: kuma-swarm-tokens
+                      key: master
+                - name: KUMA_SWARM_TOKEN_PI_BOS_0
+                  valueFrom:
+                    secretKeyRef:
+                      name: kuma-swarm-tokens
+                      key: pi-bos-0
+                - name: KUMA_SWARM_TOKEN_PI_MTL_0
+                  valueFrom:
+                    secretKeyRef:
+                      name: kuma-swarm-tokens
+                      key: pi-mtl-0
+                - name: KUMA_SWARM_TOKEN_PI_MTL_1
+                  valueFrom:
+                    secretKeyRef:
+                      name: kuma-swarm-tokens
+                      key: pi-mtl-1
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Deploying kuma-ping Swarm stack from ConfigMap..."
+                  docker stack deploy -c /compose/docker-compose.yml kuma-ping
+                  echo "Deployment completed."
+          volumes:
+            - name: docker-socket
+              hostPath:
+                path: /var/run/docker.sock
+                type: Socket
+            - name: compose-volume
+              configMap:
+                name: kuma-ping-swarm-compose
