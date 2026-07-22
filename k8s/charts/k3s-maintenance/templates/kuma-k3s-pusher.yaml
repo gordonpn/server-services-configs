@@ -47,17 +47,23 @@ spec:
                 secretKeyRef:
                   name: kuma-k3s-tokens
                   key: pi-mtl-1
+            - name: RACKNERD_EDC1BC8_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kuma-k3s-tokens
+                  key: racknerd-edc1bc8
           command:
             - /bin/sh
             - -c
             - |
               while true; do
                 case "$MY_NODE_NAME" in
-                  "master")   TOKEN="$MASTER_TOKEN" ;;
-                  "pi-bos-0") TOKEN="$PI_BOS_0_TOKEN" ;;
-                  "pi-mtl-0") TOKEN="$PI_MTL_0_TOKEN" ;;
-                  "pi-mtl-1") TOKEN="$PI_MTL_1_TOKEN" ;;
-                  *)          TOKEN="" ;;
+                  "master")           TOKEN="$MASTER_TOKEN" ;;
+                  "pi-bos-0")         TOKEN="$PI_BOS_0_TOKEN" ;;
+                  "pi-mtl-0")         TOKEN="$PI_MTL_0_TOKEN" ;;
+                  "pi-mtl-1")         TOKEN="$PI_MTL_1_TOKEN" ;;
+                  "racknerd-edc1bc8") TOKEN="$RACKNERD_EDC1BC8_TOKEN" ;;
+                  *)                  TOKEN="" ;;
                 esac
 
                 if [ -n "$TOKEN" ]; then

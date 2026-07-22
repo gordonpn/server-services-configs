@@ -20,6 +20,7 @@ data:
           - PI_BOS_0_TOKEN=${KUMA_SWARM_TOKEN_PI_BOS_0}
           - PI_MTL_0_TOKEN=${KUMA_SWARM_TOKEN_PI_MTL_0}
           - PI_MTL_1_TOKEN=${KUMA_SWARM_TOKEN_PI_MTL_1}
+          - RACKNERD_EDC1BC8_TOKEN=${KUMA_SWARM_TOKEN_RACKNERD_EDC1BC8}
         volumes:
           - /etc/hostname:/etc/host_hostname:ro
         command:
@@ -29,11 +30,12 @@ data:
             NODE_NAME=$$(cat /etc/host_hostname)
             while true; do
               case "$$NODE_NAME" in
-                "master")   TOKEN="$$MASTER_TOKEN" ;;
-                "pi-bos-0") TOKEN="$$PI_BOS_0_TOKEN" ;;
-                "pi-mtl-0") TOKEN="$$PI_MTL_0_TOKEN" ;;
-                "pi-mtl-1") TOKEN="$$PI_MTL_1_TOKEN" ;;
-                *)          TOKEN="" ;;
+                "master")           TOKEN="$$MASTER_TOKEN" ;;
+                "pi-bos-0")         TOKEN="$$PI_BOS_0_TOKEN" ;;
+                "pi-mtl-0")         TOKEN="$$PI_MTL_0_TOKEN" ;;
+                "pi-mtl-1")         TOKEN="$$PI_MTL_1_TOKEN" ;;
+                "racknerd-edc1bc8") TOKEN="$$RACKNERD_EDC1BC8_TOKEN" ;;
+                *)                  TOKEN="" ;;
               esac
 
               if [ -n "$$TOKEN" ]; then
@@ -92,6 +94,11 @@ spec:
                     secretKeyRef:
                       name: kuma-swarm-tokens
                       key: pi-mtl-1
+                - name: KUMA_SWARM_TOKEN_RACKNERD_EDC1BC8
+                  valueFrom:
+                    secretKeyRef:
+                      name: kuma-swarm-tokens
+                      key: racknerd-edc1bc8
               command:
                 - /bin/sh
                 - -c
