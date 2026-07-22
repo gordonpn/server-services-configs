@@ -20,7 +20,6 @@ services:
       - sh
       - -c
       - |
-        apk add --no-cache curl
         NODE_NAME=$$(cat /etc/host_hostname)
         while true; do
           case "$$NODE_NAME" in
@@ -32,7 +31,7 @@ services:
           esac
 
           if [ -n "$$TOKEN" ]; then
-            curl -fsS --retry 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active" || true
+            wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active" || true
           fi
           sleep 30
         done
