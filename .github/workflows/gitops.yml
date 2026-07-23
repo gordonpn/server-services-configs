@@ -32,14 +32,32 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Setup Kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: 'v1.34.3'
+        run: |
+          KUBECTL_VERSION="v1.34.3"
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="amd64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          mkdir -p $HOME/.local/bin
+          curl -sSL --retry 5 --retry-delay 2 "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o $HOME/.local/bin/kubectl
+          chmod +x $HOME/.local/bin/kubectl
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: 'v3.19.4'
+        run: |
+          HELM_VERSION="v3.19.4"
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="amd64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          mkdir -p $HOME/.local/bin
+          curl -sSL --retry 5 --retry-delay 2 "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" | tar -zxf - --strip-components=1 -C $HOME/.local/bin linux-${ARCH}/helm
+          chmod +x $HOME/.local/bin/helm
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Helm Diff Plugin
         run: |
