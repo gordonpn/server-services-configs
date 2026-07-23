@@ -59,11 +59,12 @@ spec:
             - -c
             - |
               while true; do
-                VAR_NAME=$(echo "$MY_NODE_NAME" | tr '[:lower:]-' '[:upper:]_')_TOKEN
+                VAR_NAME=$(echo "$MY_NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
                 eval TOKEN=\$$VAR_NAME
 
                 if [ -n "$TOKEN" ]; then
                   wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
+                  echo ""
                 fi
                 sleep 15
               done

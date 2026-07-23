@@ -58,7 +58,7 @@ spec:
             - sh
             - -c
             - |
-              VAR_NAME=$(echo "$MY_NODE_NAME" | tr '[:lower:]-' '[:upper:]_')_TOKEN
+              VAR_NAME=$(echo "$MY_NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
               eval TOKEN=\$$VAR_NAME
 
               if [ -z "$TOKEN" ]; then

@@ -18,10 +18,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TASK_VERSION="3.52.0"
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="amd64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          mkdir -p $HOME/.local/bin
+          curl -sSL --retry 5 --retry-delay 2 "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${ARCH}.tar.gz" | tar -zxf - -C $HOME/.local/bin task
+          chmod +x $HOME/.local/bin/task
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Setup Kubectl
         uses: azure/setup-kubectl@v4
@@ -47,8 +55,7 @@ jobs:
             ARCH="arm64"
           fi
           mkdir -p $HOME/.local/bin
-          curl -sLO "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz"
-          tar -zxf helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz -C $HOME/.local/bin helmfile
+          curl -sSL --retry 5 --retry-delay 2 "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz" | tar -zxf - -C $HOME/.local/bin helmfile
           chmod +x $HOME/.local/bin/helmfile
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 

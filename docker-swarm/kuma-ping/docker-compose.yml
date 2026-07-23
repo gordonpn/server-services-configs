@@ -23,7 +23,7 @@ services:
       - |
         NODE_NAME=$$(cat /etc/host_hostname)
         while true; do
-          VAR_NAME=$$(echo "$$NODE_NAME" | tr '[:lower:]-' '[:upper:]_')_TOKEN
+          VAR_NAME=$$(echo "$$NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
           eval TOKEN=\$$VAR_NAME
 
           if [ -n "$$TOKEN" ]; then
