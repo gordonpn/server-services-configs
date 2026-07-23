@@ -23,8 +23,14 @@ services:
       - |
         NODE_NAME=$$(cat /etc/host_hostname)
         while true; do
-          VAR_NAME=$$(echo "$$NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
-          eval TOKEN=\$$VAR_NAME
+          case "$$NODE_NAME" in
+            "master")           TOKEN="$$MASTER_TOKEN" ;;
+            "pi-bos-0")         TOKEN="$$PI_BOS_0_TOKEN" ;;
+            "pi-mtl-0")         TOKEN="$$PI_MTL_0_TOKEN" ;;
+            "pi-mtl-1")         TOKEN="$$PI_MTL_1_TOKEN" ;;
+            "racknerd-edc1bc8") TOKEN="$$RACKNERD_EDC1BC8_TOKEN" ;;
+            *)                  TOKEN="" ;;
+          esac
 
           if [ -n "$$TOKEN" ]; then
             wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active" || true

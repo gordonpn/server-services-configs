@@ -7,7 +7,7 @@ metadata:
     app: kuma-host-installer
 spec:
   updateStrategy:
-    type: OnDelete
+    type: RollingUpdate
   selector:
     matchLabels:
       app: kuma-host-installer
@@ -58,8 +58,14 @@ spec:
             - sh
             - -c
             - |
-              VAR_NAME=$(echo "$MY_NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
-              eval TOKEN=\$$VAR_NAME
+              case "$MY_NODE_NAME" in
+                "master")           TOKEN="$MASTER_TOKEN" ;;
+                "pi-bos-0")         TOKEN="$PI_BOS_0_TOKEN" ;;
+                "pi-mtl-0")         TOKEN="$PI_MTL_0_TOKEN" ;;
+                "pi-mtl-1")         TOKEN="$PI_MTL_1_TOKEN" ;;
+                "racknerd-edc1bc8") TOKEN="$RACKNERD_EDC1BC8_TOKEN" ;;
+                *)                  TOKEN="" ;;
+              esac
 
               if [ -z "$TOKEN" ]; then
                 echo "No host token mapped for node $MY_NODE_NAME. Skipping installation."

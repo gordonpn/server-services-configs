@@ -7,7 +7,7 @@ metadata:
     app: kuma-k3s-pusher
 spec:
   updateStrategy:
-    type: OnDelete
+    type: RollingUpdate
   selector:
     matchLabels:
       app: kuma-k3s-pusher
@@ -59,8 +59,14 @@ spec:
             - -c
             - |
               while true; do
-                VAR_NAME=$(echo "$MY_NODE_NAME" | tr 'a-z-' 'A-Z_')_TOKEN
-                eval TOKEN=\$$VAR_NAME
+                case "$MY_NODE_NAME" in
+                  "master")           TOKEN="$MASTER_TOKEN" ;;
+                  "pi-bos-0")         TOKEN="$PI_BOS_0_TOKEN" ;;
+                  "pi-mtl-0")         TOKEN="$PI_MTL_0_TOKEN" ;;
+                  "pi-mtl-1")         TOKEN="$PI_MTL_1_TOKEN" ;;
+                  "racknerd-edc1bc8") TOKEN="$RACKNERD_EDC1BC8_TOKEN" ;;
+                  *)                  TOKEN="" ;;
+                esac
 
                 if [ -n "$TOKEN" ]; then
                   wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
