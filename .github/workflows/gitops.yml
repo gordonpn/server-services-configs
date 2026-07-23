@@ -17,6 +17,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Prefer IPv4 Networking
+        run: |
+          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 || true
+          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1 || true
+          echo "precedence ::ffff:0:0/96 100" | sudo tee -a /etc/gai.conf || true
+
       - name: Setup Task
         run: |
           TASK_VERSION="3.52.0"
@@ -78,4 +84,4 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Apply Charts via Helmfile
-        run: task charts:apply
+        run: task charts:apply || (sleep 5 && task charts:apply)
