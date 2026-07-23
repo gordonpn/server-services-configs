@@ -22,6 +22,7 @@ jobs:
       - name: Prefer IPv4 Networking
         run: |
           echo "precedence ::ffff:0:0/96 100" | sudo tee -a /etc/gai.conf || true
+          sed 's/ndots:5/ndots:1/g' /etc/resolv.conf > /tmp/resolv.conf && cat /tmp/resolv.conf | sudo tee /etc/resolv.conf || true
 
       - name: Setup Task
         run: |
