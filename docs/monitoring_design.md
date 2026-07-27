@@ -164,7 +164,8 @@ spec:
                 if [ -n "$TOKEN" ]; then
                   # Resolve internal API server to verify DNS and Flannel VXLAN path
                   if nslookup kubernetes.default.svc.cluster.local > /dev/null && nc -z -w5 kubernetes.default.svc 443; then
-                    wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready" || true
+                    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                    wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready+${TIMESTAMP}" || true
                   fi
                 fi
                 sleep 30

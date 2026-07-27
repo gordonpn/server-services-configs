@@ -13,8 +13,9 @@ fi
 ping -c 3 -W 5 1.1.1.1 > /dev/null || { echo "Outgoing gateway unreachable"; exit 1; }
 
 # Send success ping to Uptime Kuma
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 if [[ "$KUMA_URL" == *\?* ]]; then
-    curl -fsS --retry 3 "${KUMA_URL}"
+    curl -fsS --retry 3 "${KUMA_URL}${TIMESTAMP}"
 else
-    curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=Host+OK"
+    curl -fsS --retry 3 "${KUMA_URL}?status=up&msg=OK+${TIMESTAMP}"
 fi
