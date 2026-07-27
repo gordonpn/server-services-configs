@@ -48,8 +48,8 @@ spec:
   schedule: "*/5 * * * *"
   startingDeadlineSeconds: 300
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 5
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       activeDeadlineSeconds: 600
@@ -57,6 +57,13 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/remote
+                        operator: DoesNotExist
           tolerations:
             - operator: Exists
           containers:
@@ -109,8 +116,8 @@ spec:
   schedule: "*/10 * * * *"
   startingDeadlineSeconds: 300
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 5
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       activeDeadlineSeconds: 600
@@ -119,6 +126,13 @@ spec:
         spec:
           serviceAccountName: {{ include "k3s-maintenance.networkHealth.crossNodeCheckerName" . }}
           restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/remote
+                        operator: DoesNotExist
           tolerations:
             - operator: Exists
           containers:
