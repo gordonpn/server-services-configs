@@ -92,6 +92,20 @@ Key scripts in the `scripts/` directory:
 
 
 
+### Infrastructure & Swarm Operational Notes
+- **Docker Swarm Network Hot-Swapping:** When attempting to migrate a Swarm service from a standard overlay/bridge network to the `host` network, Docker Swarm does not gracefully hot-swap the network namespace during a standard `docker stack deploy` or `docker service update`. The service will remain bound to the old bridge network, and changes to the compose file (`networks: [host]`) will be silently ignored. You must fully tear down the stack (`docker stack rm`), allow the network to be removed, and redeploy it.
+- **Tailscale/K3s IPTables Drops:** If an Alpine container (`wget`) on a Docker bridge network inexplicably times out hitting external endpoints (while host `curl` works), it is likely caused by K3s/Flannel mutating the iptables `FORWARD` chain to `DROP` unassociated packets. Using `hostNetwork: true` (or `networks: [host]`) bypasses the `DOCKER-USER` drop chain.
+- **Alpine wget Quiet Flag:** In BusyBox/Alpine, using `wget -q` (quiet mode) suppresses *all* error messages, including timeout traces. When writing telemetry scripts, always omit `-q` or pipe stderr appropriately if visibility into failures is needed.
+- **Local Swarm Deployment:** The Uptime Kuma monitoring tokens are securely housed within Kubernetes Secrets (`kuma-swarm-tokens` in the `kube-system` namespace). When manually deploying the swarm stack locally (`task swarm:deploy STACK=kuma-ping`), these environment variables will evaluate to empty strings if not explicitly fetched from Kubernetes or injected by the CI environment (e.g. `scripts/deploy.sh` sourcing `scripts/.env`). Empty tokens silently fail the telemetry loop without pushing.
+- **GitOps CronJob Overwrites:** The project contains Kubernetes CronJobs (e.g. `swarm-bridge-kuma-ping`) that enforce Swarm deployments on a schedule (e.g. `*/15 * * * *`). Crucially, these CronJobs rely on a Kubernetes `ConfigMap` containing an *embedded copy* of the `docker-compose.yml`. When manually updating the primary `docker-compose.yml` in the repository, you MUST also mirror the changes to the embedded ConfigMap within the Helm chart (`k8s/charts/k3s-maintenance/templates/swarm-bridge-kuma-ping.yaml`). Otherwise, the next CronJob run will revert the live Swarm deployment to the stale embedded configuration.
+- **Flannel Interface Dependency and CoreDNS Blackholes:** If the `flannel.1` interface goes down on a node (often `master` after a tailscale reset), pods on that node will lose the ability to reach services on other nodes. Because `kube-dns` load balances UDP queries to CoreDNS pods across the cluster, DNS queries from the affected node will experience intermittent timeouts (5s each) as they hit dead endpoints. A temporary workaround is patching the CoreDNS deployment to pin it exclusively to the affected node (`nodeSelector`) so queries stay local, avoiding the Flannel overlay. The true fix requires restarting K3s (`sudo systemctl restart k3s` on master, or `k3s-agent` on workers) to recreate `flannel.1`.
+
+## Troubleshooting Checklists
+- **Swarm Nodes Showing Down:**
+  1. Check if the node's Swarm TLS certificate expired (90 days). The daemon might be running, but the node state will be `Down`. Force it to leave and rejoin the Swarm.
+  2. Verify that network telemetry containers are actually operating on the `host` network and not accidentally caught in the Swarm `default` bridge.
+  3. Verify that environment tokens were properly injected into the container (check `docker service inspect`).
+
 ## Known Issues & Future Improvements
 - **Control Plane Single Point of Failure:** The current K3s cluster uses a single master node. During site-specific outages (e.g., Boston internet outage), worker nodes lose connection to the master, and the CronJob controller fails to schedule jobs on isolated nodes. If the master node's site goes down, all cluster-wide scheduling halts.
 - **HA Control Plane Recommendation:** To improve resilience, transition to a High Availability (HA) control plane with at least 3 master nodes distributed across multiple sites (Montreal and Boston). This ensures that if one site goes offline, the surviving masters can maintain quorum and continue scheduling jobs.
@@ -100,4 +114,4 @@ Key scripts in the `scripts/` directory:
 - **Context Discovery:** Always reference other Markdown files (e.g., `README.md`) and configuration files (e.g., `Taskfile.yaml`, `helmfile.yaml`) within the repository to get a complete picture of the project's architecture and requirements.
 - **Incremental Commits:** Commit changes incrementally as sub-tasks are completed to maintain a clean and traceable history.
 - **Commit Style:** Always use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g., `fix(k8s): ...`, `feat(scripts): ...`).
-- **Living Documentation:** Continuously update `GEMINI.md` to reflect new architectural decisions, learned conventions, or significant infrastructure changes as we work on the project together.
+- **Living Documentation:** Continuously update `AGENTS.md` to reflect new architectural decisions, learned conventions, or significant infrastructure changes as we work on the project together.
