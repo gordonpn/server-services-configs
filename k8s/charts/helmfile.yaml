@@ -76,6 +76,8 @@ releases:
                 - name: single-request-reopen
             containers:
               - name: runner
+                image: "ghcr.io/actions/actions-runner:latest"
+                command: ["/home/runner/run.sh"]
                 env:
                   - name: DOTNET_SYSTEM_NET_DISABLEIPV6
                     value: "1"
@@ -111,6 +113,8 @@ releases:
                 - name: single-request-reopen
             containers:
               - name: runner
+                image: "ghcr.io/actions/actions-runner:latest"
+                command: ["/home/runner/run.sh"]
                 env:
                   - name: DOTNET_SYSTEM_NET_DISABLEIPV6
                     value: "1"
