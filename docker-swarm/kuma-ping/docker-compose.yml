@@ -9,6 +9,8 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
+    networks:
+      - host
     environment:
       - MASTER_TOKEN=${KUMA_SWARM_TOKEN_MASTER}
       - PI_BOS_0_TOKEN=${KUMA_SWARM_TOKEN_PI_BOS_0}
@@ -37,3 +39,8 @@ services:
           fi
           sleep 15
         done
+
+networks:
+  host:
+    name: host
+    external: true
