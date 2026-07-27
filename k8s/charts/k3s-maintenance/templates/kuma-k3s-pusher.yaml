@@ -70,7 +70,8 @@ spec:
 
                 if [ -n "$TOKEN" ]; then
                   TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-                  wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/${TOKEN}?status=up&msg=K3s+Ready+${TIMESTAMP}" || true
+                  wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run./api/push/${TOKEN}?status=up&msg=K3s+Ready+${TIMESTAMP}" || \
+                  (sleep 2 && wget -q -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run./api/push/${TOKEN}?status=up&msg=K3s+Ready+${TIMESTAMP}") || true
                   echo ""
                 fi
                 sleep 15
