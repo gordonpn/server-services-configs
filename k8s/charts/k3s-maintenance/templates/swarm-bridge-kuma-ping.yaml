@@ -44,8 +44,8 @@ data:
               if [ -n "$$TOKEN" ]; then
                 TIMESTAMP=$$(date -u +"%Y-%m-%dT%H:%M:%SZ")
                 echo "[$${TIMESTAMP}] Pushing heartbeat for $$NODE_NAME..."
-                wget -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run./api/push/$${TOKEN}?status=up&msg=Swarm+Active+$${TIMESTAMP}" || \
-                (sleep 2 && wget -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run./api/push/$${TOKEN}?status=up&msg=Swarm+Active+$${TIMESTAMP}") || \
+                wget -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active+$${TIMESTAMP}" || \
+                (sleep 2 && wget -O- -T 5 -t 3 "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run/api/push/$${TOKEN}?status=up&msg=Swarm+Active+$${TIMESTAMP}") || \
                 echo "[$${TIMESTAMP}] Failed to push for $$NODE_NAME"
               fi
               sleep 15
