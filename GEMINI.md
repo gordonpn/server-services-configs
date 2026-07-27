@@ -1,0 +1,13 @@
+# Gemini AI Agent Notes
+
+## Infrastructure Learnings
+- **Docker Swarm Network Hot-Swapping:** When attempting to migrate a Swarm service from a standard overlay/bridge network to the `host` network, Docker Swarm does not gracefully hot-swap the network namespace during a standard `docker stack deploy` or `docker service update`. The service will remain bound to the old bridge network, and changes to the compose file (`networks: [host]`) will be silently ignored. You must fully tear down the stack (`docker stack rm`), allow the network to be removed, and redeploy it.
+- **Tailscale/K3s IPTables Drops:** If an Alpine container (`wget`) on a Docker bridge network inexplicably times out hitting external endpoints (while host `curl` works), it is likely caused by K3s/Flannel mutating the iptables `FORWARD` chain to `DROP` unassociated packets. Using `hostNetwork: true` (or `networks: [host]`) bypasses the `DOCKER-USER` drop chain.
+- **Alpine wget Quiet Flag:** In BusyBox/Alpine, using `wget -q` (quiet mode) suppresses *all* error messages, including timeout traces. When writing telemetry scripts, always omit `-q` or pipe stderr appropriately if visibility into failures is needed.
+- **Local Swarm Deployment:** The Uptime Kuma monitoring tokens are securely housed within Kubernetes Secrets (`kuma-swarm-tokens` in the `kube-system` namespace). When manually deploying the swarm stack locally (`task swarm:deploy STACK=kuma-ping`), these environment variables will evaluate to empty strings if not explicitly fetched from Kubernetes or injected by the CI environment (e.g. `scripts/deploy.sh` sourcing `scripts/.env`). Empty tokens silently fail the telemetry loop without pushing.
+
+## Troubleshooting Checklists
+- **Swarm Nodes Showing Down:**
+  1. Check if the node's Swarm TLS certificate expired (90 days). The daemon might be running, but the node state will be `Down`. Force it to leave and rejoin the Swarm.
+  2. Verify that network telemetry containers are actually operating on the `host` network and not accidentally caught in the Swarm `default` bridge.
+  3. Verify that environment tokens were properly injected into the container (check `docker service inspect`).
