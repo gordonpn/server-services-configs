@@ -104,8 +104,8 @@ spec:
 
                   kubectl patch configmap coredns -n kube-system --type merge --patch-file /tmp/patch.yaml
 
-                  echo "Enforcing remote node toleration on CoreDNS deployment..."
-                  kubectl patch deployment coredns -n kube-system --type json -p '[{"op": "add", "path": "/spec/template/spec/tolerations/-", "value": {"key": "node-role.kubernetes.io/remote", "operator": "Exists", "effect": "NoSchedule"}}]' 2>/dev/null || true
+                  echo "Enforcing ScheduleAnyway topology spread constraint on CoreDNS deployment..."
+                  kubectl patch deployment coredns -n kube-system --type json -p '[{"op": "replace", "path": "/spec/template/spec/topologySpreadConstraints/0/whenUnsatisfiable", "value": "ScheduleAnyway"}]' 2>/dev/null || true
 
                   echo "Configuration updated, restarting CoreDNS..."
                   kubectl rollout restart deployment/coredns -n kube-system
