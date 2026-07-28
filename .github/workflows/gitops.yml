@@ -21,10 +21,12 @@ jobs:
 
       - name: Prefer IPv4 Networking
         run: |
-          echo "precedence ::ffff:0:0/96 100" | sudo tee -a /etc/gai.conf || true
+          set -eo pipefail
+          echo "precedence ::ffff:0:0/96 100" | sudo tee /etc/gai.conf || true
 
       - name: Setup Task
         run: |
+          set -eo pipefail
           TASK_VERSION="3.52.0"
           ARCH=$(uname -m)
           if [ "$ARCH" = "x86_64" ]; then
@@ -33,12 +35,15 @@ jobs:
             ARCH="arm64"
           fi
           mkdir -p $HOME/.local/bin
-          curl -sSL --retry 5 --retry-delay 2 "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${ARCH}.tar.gz" | tar -zxf - -C $HOME/.local/bin task
+          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${ARCH}.tar.gz" -o /tmp/task.tar.gz
+          tar -zxf /tmp/task.tar.gz -C $HOME/.local/bin task
+          rm -f /tmp/task.tar.gz
           chmod +x $HOME/.local/bin/task
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Setup Kubectl
         run: |
+          set -eo pipefail
           KUBECTL_VERSION="v1.34.3"
           ARCH=$(uname -m)
           if [ "$ARCH" = "x86_64" ]; then
@@ -47,12 +52,13 @@ jobs:
             ARCH="arm64"
           fi
           mkdir -p $HOME/.local/bin
-          curl -sSL --retry 5 --retry-delay 2 "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o $HOME/.local/bin/kubectl
+          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o $HOME/.local/bin/kubectl
           chmod +x $HOME/.local/bin/kubectl
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Setup Helm
         run: |
+          set -eo pipefail
           HELM_VERSION="v3.19.4"
           ARCH=$(uname -m)
           if [ "$ARCH" = "x86_64" ]; then
@@ -61,16 +67,20 @@ jobs:
             ARCH="arm64"
           fi
           mkdir -p $HOME/.local/bin
-          curl -sSL --retry 5 --retry-delay 2 "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" | tar -zxf - --strip-components=1 -C $HOME/.local/bin linux-${ARCH}/helm
+          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" -o /tmp/helm.tar.gz
+          tar -zxf /tmp/helm.tar.gz --strip-components=1 -C $HOME/.local/bin linux-${ARCH}/helm
+          rm -f /tmp/helm.tar.gz
           chmod +x $HOME/.local/bin/helm
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Helm Diff Plugin
         run: |
-          helm plugin install https://github.com/databus23/helm-diff --version v3.14.1 || true
+          set -eo pipefail
+          $HOME/.local/bin/helm plugin install https://github.com/databus23/helm-diff --version v3.14.1 || true
 
       - name: Setup Helmfile
         run: |
+          set -eo pipefail
           HELMFILE_VERSION="1.2.3"
           ARCH=$(uname -m)
           if [ "$ARCH" = "x86_64" ]; then
@@ -79,9 +89,14 @@ jobs:
             ARCH="arm64"
           fi
           mkdir -p $HOME/.local/bin
-          curl -sSL --retry 5 --retry-delay 2 "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz" | tar -zxf - -C $HOME/.local/bin helmfile
+          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${ARCH}.tar.gz" -o /tmp/helmfile.tar.gz
+          tar -zxf /tmp/helmfile.tar.gz -C $HOME/.local/bin helmfile
+          rm -f /tmp/helmfile.tar.gz
           chmod +x $HOME/.local/bin/helmfile
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Apply Charts via Helmfile
-        run: task charts:apply || (sleep 5 && task charts:apply)
+        run: |
+          set -eo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          task charts:apply || (sleep 5 && task charts:apply)
