@@ -57,7 +57,7 @@ data:
                   echo "[$${TIMESTAMP}] Failed to push heartbeat for $$NODE_NAME after 3 attempts"
                 fi
               fi
-              sleep 10
+              sleep 40
             done
     
     networks:

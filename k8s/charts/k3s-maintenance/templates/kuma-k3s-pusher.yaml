@@ -77,5 +77,5 @@ spec:
                     sleep 1
                   done
                 fi
-                sleep 10
+                sleep 40
               done

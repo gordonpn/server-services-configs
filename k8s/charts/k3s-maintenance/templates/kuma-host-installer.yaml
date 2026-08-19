@@ -107,11 +107,11 @@ spec:
               echo "Writing kuma-host-ping.timer to host..."
               cat << 'EOF' > /host/systemd/kuma-host-ping.timer
               [Unit]
-              Description=Run Uptime Kuma Host OS Ping every 30 seconds
+              Description=Run Uptime Kuma Host OS Ping every 40 seconds
 
               [Timer]
               OnBootSec=1min
-              OnUnitActiveSec=30s
+              OnUnitActiveSec=40s
               AccuracySec=1s
 
               [Install]

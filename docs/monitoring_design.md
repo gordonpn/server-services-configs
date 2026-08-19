@@ -84,11 +84,11 @@ ExecStart=/usr/local/bin/kuma-host-ping.sh
 #### 3. Systemd Timer: `/etc/systemd/system/kuma-host-ping.timer`
 ```ini
 [Unit]
-Description=Run Uptime Kuma Host OS Ping every 30 seconds
+Description=Run Uptime Kuma Host OS Ping every 40 seconds
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=30s
+OnUnitActiveSec=40s
 AccuracySec=1s
 
 [Install]
