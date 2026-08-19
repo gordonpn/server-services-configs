@@ -78,6 +78,8 @@ kubeScheduler:
   enabled: false
 prometheus:
   prometheusSpec:
+    retention: 7d
+    retentionSize: 8GiB
     tsdb:
       outOfOrderTimeWindow: 30m
     storageSpec:
