@@ -49,6 +49,18 @@ alertmanager:
       - match_re:
           alertname: ^(CoreDNS.*|DNSResolutionFailing|KubePodCrashLooping)
         receiver: slack
+    inhibit_rules:
+    - target_match_re:
+        alertname: ^(KubePodNotReady|KubePodCrashLooping|KubeContainerWaiting|TargetDown|KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck)$
+      source_match_re:
+        alertname: ^(KubeNodeNotReady|KubeNodeUnreachable|KubeletDown)$
+      equal:
+        - node
+        - instance
+    - target_match_re:
+        alertname: ^(KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck|KubeStateMetricsListErrors)$
+      source_match:
+        alertname: KubeAPIDown
   service:
     nodePort: 30093
     type: NodePort
