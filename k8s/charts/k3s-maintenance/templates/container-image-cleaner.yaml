@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: container-image-cleaner
+  namespace: kube-system
+  labels:
+    app: container-image-cleaner
+spec:
+  selector:
+    matchLabels:
+      app: container-image-cleaner
+  template:
+    metadata:
+      labels:
+        app: container-image-cleaner
+    spec:
+      hostPID: true
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: pruner
+          image: busybox:1.36
+          securityContext:
+            privileged: true
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Container Image Cleaner DaemonSet started."
+              # Initial delay to avoid startup storms
+              sleep 300
+              while true; do
+                echo "=== Weekly Container Image Prune Starting ==="
+                nsenter --target 1 --mount --uts --ipc --net --pid -- /bin/sh -c '
+                  echo "Host filesystem before pruning:"
+                  df -h /
+
+                  # 1. Prune unused K3s containerd images
+                  if command -v k3s >/dev/null 2>&1; then
+                    echo "Pruning unused k3s containerd images..."
+                    k3s crictl rmi --prune 2>/dev/null || true
+                  elif command -v crictl >/dev/null 2>&1; then
+                    echo "Pruning unused containerd images via crictl..."
+                    crictl --runtime-endpoint unix:///run/k3s/containerd/containerd.sock rmi --prune 2>/dev/null || true
+                  fi
+
+                  # 2. Prune old Docker Swarm images older than 7 days (168h)
+                  if command -v docker >/dev/null 2>&1; then
+                    echo "Pruning old Docker images older than 7d..."
+                    docker image prune -af --filter "until=168h" 2>/dev/null || true
+                  fi
+
+                  echo "Host filesystem after pruning:"
+                  df -h /
+                '
+                echo "=== Prune Completed. Sleeping for 7 days ==="
+                sleep 604800
+              done
