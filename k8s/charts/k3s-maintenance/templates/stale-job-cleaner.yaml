@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stale-job-cleaner
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: stale-job-cleaner
+rules:
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "delete"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: stale-job-cleaner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: stale-job-cleaner
+subjects:
+  - kind: ServiceAccount
+    name: stale-job-cleaner
+    namespace: kube-system
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: stale-job-cleaner
+  namespace: kube-system
+spec:
+  schedule: "0 */2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          serviceAccountName: stale-job-cleaner
+          restartPolicy: OnFailure
+          containers:
+            - name: cleaner
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  echo "=== Stale and Failed Job Cleaner Starting ==="
+
+                  # 1. Clean failed jobs across all namespaces
+                  echo "Searching for failed jobs to clean up..."
+                  FAILED_JOBS=$(kubectl get jobs -A -o jsonpath='{range .items[?(@.status.failed > 0)]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}')
+                  if [ -n "$FAILED_JOBS" ]; then
+                    echo "$FAILED_JOBS" | while read -r NS NAME; do
+                      if [ -n "$NS" ] && [ -n "$NAME" ]; then
+                        echo "Deleting failed job: $NS/$NAME"
+                        kubectl delete job "$NAME" -n "$NS" --ignore-not-found=true
+                      fi
+                    done
+                  else
+                    echo "No failed jobs found."
+                  fi
+
+                  # 2. Clean stuck jobs where pods are in Unknown state
+                  echo "Searching for pods stuck in Unknown state..."
+                  STUCK_PODS=$(kubectl get pods -A --field-selector=status.phase=Unknown -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}')
+                  if [ -n "$STUCK_PODS" ]; then
+                    echo "$STUCK_PODS" | while read -r NS NAME; do
+                      if [ -n "$NS" ] && [ -n "$NAME" ]; then
+                        echo "Force deleting stuck unknown pod: $NS/$NAME"
+                        kubectl delete pod "$NAME" -n "$NS" --grace-period=0 --force --ignore-not-found=true
+                      fi
+                    done
+                  fi
+
+                  echo "=== Cleanup Completed Successfully ==="
