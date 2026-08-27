@@ -22,6 +22,7 @@ spec:
       containers:
         - name: installer
           image: alpine:latest
+          imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
           env:
