@@ -47,9 +47,12 @@ spec:
         spec:
           serviceAccountName: stale-job-cleaner
           restartPolicy: OnFailure
+          nodeSelector:
+            kubernetes.io/hostname: master
           containers:
             - name: cleaner
               image: bitnami/kubectl:latest
+              imagePullPolicy: IfNotPresent
               command:
                 - /bin/bash
                 - -c

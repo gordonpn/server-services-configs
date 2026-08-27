@@ -79,9 +79,12 @@ spec:
         spec:
           serviceAccountName: coredns-patcher
           restartPolicy: OnFailure
+          nodeSelector:
+            kubernetes.io/hostname: master
           containers:
             - name: enforcer
               image: bitnami/kubectl:latest
+              imagePullPolicy: IfNotPresent
               command:
                 - /bin/bash
                 - -c

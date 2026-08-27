@@ -38,8 +38,8 @@ alertmanager:
       receiver: slack
       repeat_interval: 4h
       routes:
-      - match:
-          alertname: Watchdog
+      - match_re:
+          alertname: ^(Watchdog|InfoInhibitor)$
         receiver: 'null'
       - match:
           alertname: KubeJobFailed
