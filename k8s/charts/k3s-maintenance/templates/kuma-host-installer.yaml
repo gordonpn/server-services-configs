@@ -144,6 +144,15 @@ spec:
                 printf "[Unit]\nAfter=tailscaled.service\nWants=tailscaled.service\n" > /host/systemd/k3s-agent.service.d/tailscale-dependency.conf
               fi
 
+              echo "Configuring public DNS fallbacks in systemd-resolved on host..."
+              mkdir -p /host/resolved.conf.d
+              printf "[Resolve]\nDNS=1.1.1.1 8.8.8.8\nFallbackDNS=1.0.0.1 8.8.4.4\n" > /host/resolved.conf.d/dns.conf
+
+              if nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl is-active systemd-resolved >/dev/null 2>&1; then
+                echo "Restarting systemd-resolved to apply DNS fallback..."
+                nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl restart systemd-resolved
+              fi
+
               echo "Reloading systemd daemon and enabling timer on host..."
               nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl daemon-reload
               nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl enable --now kuma-host-ping.timer
@@ -157,6 +166,8 @@ spec:
               mountPath: /host/systemd
             - name: host-default
               mountPath: /host/default
+            - name: host-resolved
+              mountPath: /host/resolved.conf.d
       volumes:
         - name: host-bin
           hostPath:
@@ -170,3 +181,7 @@ spec:
           hostPath:
             path: /etc/default
             type: Directory
+        - name: host-resolved
+          hostPath:
+            path: /etc/systemd/resolved.conf.d
+            type: DirectoryOrCreate
