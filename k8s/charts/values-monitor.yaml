@@ -88,6 +88,13 @@ kubeProxy:
   enabled: false
 kubeScheduler:
   enabled: false
+prometheusOperator:
+  nodeSelector:
+    kubernetes.io/hostname: master
+  admissionWebhooks:
+    patch:
+      nodeSelector:
+        kubernetes.io/hostname: master
 prometheus:
   prometheusSpec:
     retention: 7d
