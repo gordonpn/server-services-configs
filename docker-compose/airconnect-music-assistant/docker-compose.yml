@@ -3,7 +3,7 @@ services:
     image: 1activegeek/airconnect:latest
     container_name: airconnect
     network_mode: host
-    restart: unless-stopped
+    restart: "no"
     environment:
       - AIRUPNP_VAR=kill # Stops it from creating duplicate Sonos targets since SYMFONISK has native AirPlay
 
@@ -11,7 +11,7 @@ services:
     image: ghcr.io/music-assistant/server:latest
     container_name: music-assistant-server
     network_mode: host
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - /media/storage/audio/data:/data
     cap_add:
