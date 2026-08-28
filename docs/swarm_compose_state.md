@@ -36,10 +36,10 @@ Swarm services are deployed globally or replicated across the Swarm cluster usin
     *   **Compose Location:** [docker-swarm/whoami/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/whoami/docker-compose.yml)
     *   **Description:** HTTP request echo service pinned to `master` exposing port `8080` to the Tailscale mesh.
     *   **Scheduling Mode:** `replicated` (1 replica on `master`)
-*   **caddy** (Replicated Service)
+*   **caddy** (Replicated Services)
     *   **Compose Location:** [docker-swarm/caddy/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/caddy/docker-compose.yml)
-    *   **Description:** Reverse proxy running on VPS node `racknerd-edc1bc8` that receives HTTP traffic on port `80` and proxies across Tailscale to backend services on `master`.
-    *   **Scheduling Mode:** `replicated` (1 replica on `racknerd-edc1bc8`)
+    *   **Description:** VPS ingress shield running on node `racknerd-edc1bc8`. Contains `cloudflared` (Cloudflare Tunnel) and `caddy` (reverse proxy) communicating over the private `vps_shield_net` overlay network with zero host ports exposed. Proxies traffic across Tailscale to backend services on `master`.
+    *   **Scheduling Mode:** `replicated` (`caddy` and `cloudflared` on `racknerd-edc1bc8`)
 
 ---
 

@@ -43,10 +43,10 @@ For services requiring public isolation, custom header manipulation, or protecti
        │ (Public HTTPS)
        ▼
 [ Cloudflare Edge ]
-       │ (Cloudflare Tunnel)
+       │ (Cloudflare Tunnel: Managed via Terraform)
        ▼
-[ VPS (racknerd-edc1bc8): cloudflared ]
-       │ (http://127.0.0.1:80)
+[ VPS (racknerd-edc1bc8): cloudflared container ]
+       │ (Internal Swarm Overlay: http://caddy:80 - No Host Ports Exposed)
        ▼
 [ VPS (racknerd-edc1bc8): Caddy Reverse Proxy ]
        │ (Tailscale WireGuard Mesh: http://100.72.77.63:8080)
@@ -56,15 +56,18 @@ For services requiring public isolation, custom header manipulation, or protecti
 
 ### Key Components & Responsibilities
 1. **Cloudflare Edge:** Terminates public TLS and injects visitor identity headers (such as `CF-Connecting-IP`).
-2. **VPS Cloudflare Tunnel:** Terminates the tunnel on the external VPS rather than the home server, isolating home infrastructure from direct Cloudflare tunnel ingress.
+2. **VPS Cloudflare Tunnel ([terraform/tunnels.tf](file:///terraform/tunnels.tf)):**
+   * Managed via Terraform (`cloudflare_tunnel` and `cloudflare_tunnel_config`).
+   * Routes `test.gordon-pn.com` directly to `http://caddy:80` inside the internal Swarm overlay network.
 3. **VPS Caddy Proxy ([docker-swarm/caddy](file:///docker-swarm/caddy/)):**
-   * Listens on `127.0.0.1:80` (or public port `80`) on `racknerd-edc1bc8`.
+   * Connected to `cloudflared` over the private Swarm overlay network (`vps_shield_net`).
+   * **Zero Host Ports Published:** No ports (80 or 443) are published on the VPS host OS, preventing direct origin bypass and header forging.
    * Preserves real client IPs by mapping `CF-Connecting-IP` to `X-Real-IP`.
    * Acts as a Layer 7 buffer for rate limiting, WAF rules, and routing logic before traffic touches the home network.
 4. **Tailscale Overlay Network:** Bridges the VPS to the home server over WireGuard encryption (`100.88.170.93` -> `100.72.77.63:8080`), bypassing WAN port forwarding entirely.
 5. **Master Backend Service ([docker-swarm/whoami](file:///docker-swarm/whoami/)):**
    * Runs on `master` pinned via Swarm placement constraints (`node.hostname == master`).
-   * Listens on host port `8080` bound to the local/Tailscale network namespace.
+   * Listens on port `8080` on `master` reachable over Tailscale.
 
 ---
 
