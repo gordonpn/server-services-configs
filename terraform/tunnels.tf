@@ -22,7 +22,7 @@ resource "cloudflare_tunnel_config" "vps_shield_config" {
   config {
     ingress_rule {
       hostname = "test.${var.domain}"
-      service  = "http://127.0.0.1:80"
+      service  = "http://100.88.170.93:80"
     }
     ingress_rule {
       service = "http_status:404"
