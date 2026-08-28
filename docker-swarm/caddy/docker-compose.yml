@@ -19,6 +19,19 @@ services:
       restart_policy:
         condition: any
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${VPS_TUNNEL_TOKEN:-}
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == racknerd-edc1bc8
+      restart_policy:
+        condition: any
+
 configs:
   caddy_config_v1:
     file: ./Caddyfile
