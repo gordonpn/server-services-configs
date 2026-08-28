@@ -3,13 +3,10 @@ version: "3.8"
 services:
   caddy:
     image: caddy:latest
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
+    networks:
+      - vps_shield_net
     configs:
-      - source: caddy_config_v1
+      - source: caddy_config_v2
         target: /etc/caddy/Caddyfile
     deploy:
       replicas: 1
@@ -22,6 +19,8 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate run
+    networks:
+      - vps_shield_net
     environment:
       - TUNNEL_TOKEN=${VPS_TUNNEL_TOKEN:-}
     deploy:
@@ -32,6 +31,11 @@ services:
       restart_policy:
         condition: any
 
+networks:
+  vps_shield_net:
+    driver: overlay
+    attachable: true
+
 configs:
-  caddy_config_v1:
+  caddy_config_v2:
     file: ./Caddyfile

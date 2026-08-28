@@ -3,8 +3,8 @@ services:
     image: caddy:latest
     container_name: caddy
     restart: unless-stopped
-    ports:
-      - "80:80"
+    networks:
+      - vps_shield_net
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -15,8 +15,13 @@ services:
     container_name: cloudflared
     restart: unless-stopped
     command: tunnel --no-autoupdate run
+    networks:
+      - vps_shield_net
     environment:
       - TUNNEL_TOKEN=${VPS_TUNNEL_TOKEN:-}
+
+networks:
+  vps_shield_net:
 
 volumes:
   caddy_data:
