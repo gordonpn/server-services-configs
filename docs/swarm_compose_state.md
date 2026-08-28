@@ -30,11 +30,16 @@ Swarm services are deployed globally or replicated across the Swarm cluster usin
 ### Active Stacks
 *   **kuma-ping** (Global Service)
     *   **Compose Location:** [docker-swarm/kuma-ping/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/kuma-ping/docker-compose.yml)
-    *   **Description:** Global agent task that runs on every online Swarm node, reads the host hostname, and pushes health status alerts to Northflank Uptime Kuma every 30 seconds.
+    *   **Description:** Global agent task that runs on every online Swarm node, reads the host hostname, and pushes health status alerts to Northflank Uptime Kuma every 40 seconds.
     *   **Scheduling Mode:** `global` (1 replica per active node)
-    *   **Task State:**
-        *   `kuma-ping_kuma-swarm-pusher` running on node **master** (Healthy/Active)
-        *   `kuma-ping_kuma-swarm-pusher` running on node **pi-bos-0** (Healthy/Active)
+*   **whoami** (Replicated Service)
+    *   **Compose Location:** [docker-swarm/whoami/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/whoami/docker-compose.yml)
+    *   **Description:** HTTP request echo service pinned to `master` exposing port `8080` to the Tailscale mesh.
+    *   **Scheduling Mode:** `replicated` (1 replica on `master`)
+*   **caddy** (Replicated Service)
+    *   **Compose Location:** [docker-swarm/caddy/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/caddy/docker-compose.yml)
+    *   **Description:** Reverse proxy running on VPS node `racknerd-edc1bc8` that receives HTTP traffic on port `80` and proxies across Tailscale to backend services on `master`.
+    *   **Scheduling Mode:** `replicated` (1 replica on `racknerd-edc1bc8`)
 
 ---
 
@@ -56,12 +61,9 @@ These services run as standalone Docker Compose stacks on specific hosts outside
     *   `autoscan` (Port `3030`) - Plex/Jellyfin library auto-scanner
     *   `flaresolverr` (Port `8191`) - Captcha bypass proxy for indexers
 
-#### 2. Audio Bridge Stack (AirConnect & Music Assistant)
+#### 2. Audio Bridge Stack (AirConnect & Music Assistant - Disabled)
 *   **Compose Configuration:** [docker-compose/airconnect-music-assistant/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-compose/airconnect-music-assistant/docker-compose.yml)
-*   **Description:** Bridges Apple AirPlay protocols to Google Cast devices and provides unified music management. Uses `network_mode: host` to facilitate mDNS discovery.
-*   **Active Services:**
-    *   `music-assistant-server` - Unified audio server engine
-    *   `airconnect` - Airplay UPnP/Sonos/Chromecast bridge daemon
+*   **Status:** Stopped and disabled (`restart: "no"`).
 
 ---
 
