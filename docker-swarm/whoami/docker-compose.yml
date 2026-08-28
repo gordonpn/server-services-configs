@@ -2,37 +2,16 @@ version: "3.8"
 
 services:
   whoami:
-    image: "traefik/whoami"
-    container_name: "simple-service"
-    expose:
-      - 80
-    networks:
-    - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.constraint-label=traefik-public"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-      - "traefik.http.routers.whoami.entrypoints=web"
+    image: traefik/whoami:latest
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: host
     deploy:
-      replicas: 2
-      update_config:
-        parallelism: 1
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 0
-      restart_policy:
-        window: 120s
+      replicas: 1
       placement:
         constraints:
-          - node.labels.master == true
-      labels:
-        - "traefik.enable=true"
-        - "traefik.constraint-label=traefik-public"
-        - "traefik.http.services.oauth.loadbalancer.server.port=80"
-
-networks:
-  traefik-public:
-    external: true
-    driver: overlay
-    attachable: true
+          - node.hostname == master
+      restart_policy:
+        condition: any

@@ -1,0 +1,6 @@
+http://test.gordon-pn.com {
+    reverse_proxy http://100.72.77.63:8080 {
+        # Preserve the real visitor IP address from Cloudflare
+        header_up X-Real-IP {header.CF-Connecting-IP}
+    }
+}
