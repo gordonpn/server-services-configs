@@ -120,6 +120,7 @@ Key scripts in the `scripts/` directory:
 ## Known Issues & Future Improvements
 - **Control Plane Single Point of Failure:** The current K3s cluster uses a single master node. During site-specific outages (e.g., Boston internet outage), worker nodes lose connection to the master, and the CronJob controller fails to schedule jobs on isolated nodes. If the master node's site goes down, all cluster-wide scheduling halts.
 - **HA Control Plane Recommendation:** To improve resilience, transition to a High Availability (HA) control plane with at least 3 master nodes distributed across multiple sites (Montreal and Boston). This ensures that if one site goes offline, the surviving masters can maintain quorum and continue scheduling jobs.
+- **Infrastructure as Code Modernization Roadmap:** An audit of unmanaged infrastructure (Cloudflare DNS records, raw K8s manifests, VPS firewall hardening, and autossh decommissioning) is documented in [iac_audit_and_roadmap.md](file:///docs/iac_audit_and_roadmap.md) with migration steps.
 
 ## AI Agent Guidelines
 - **Context Discovery:** Always reference other Markdown files (e.g., `README.md`) and configuration files (e.g., `Taskfile.yaml`, `helmfile.yaml`) within the repository to get a complete picture of the project's architecture and requirements.
