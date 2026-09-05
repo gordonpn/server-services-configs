@@ -110,6 +110,8 @@ prometheus:
     retentionSize: 8GiB
     tsdb:
       outOfOrderTimeWindow: 30m
+    securityContext:
+      fsGroupChangePolicy: "OnRootMismatch"
     storageSpec:
       volumeClaimTemplate:
         spec:
