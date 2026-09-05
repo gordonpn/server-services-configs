@@ -1,1 +1,5 @@
-null
+persistence:
+  defaultDataLocality: "best-effort"
+defaultSettings:
+  defaultDataLocality: "best-effort"
+
