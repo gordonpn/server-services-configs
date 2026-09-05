@@ -1,0 +1,76 @@
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  limits_config:
+    retention_period: 168h
+  compactor:
+    working_directory: /var/loki/compactor
+    retention_enabled: true
+    delete_request_store: filesystem
+  ui:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: mon
+
+singleBinary:
+  replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: master
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi
+
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+lokiCanary:
+  enabled: false
+test:
+  enabled: false
+sidecar:
+  rules:
+    enabled: false
+
+gateway:
+  enabled: true
+  replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: master
+  service:
+    type: NodePort
+    nodePort: 31100
+    port: 80
+  nginxConfig:
+    enableIPv6: false
+    serverSnippet: |
+      location = /ready {
+        proxy_pass http://loki.monitoring.svc.cluster.local:3100$request_uri;
+      }
+      location = /metrics {
+        proxy_pass http://loki.monitoring.svc.cluster.local:3100$request_uri;
+      }

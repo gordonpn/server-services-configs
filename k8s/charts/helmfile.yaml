@@ -7,6 +7,8 @@ repositories:
     url: https://charts.longhorn.io
   - name: sealed-secrets
     url: https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/gh-pages
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
 
 releases:
   - name: mon
@@ -22,6 +24,22 @@ releases:
     version: 3.6.0
     values:
       - values-pushgateway.yaml
+
+  - name: loki
+    namespace: monitoring
+    chart: grafana/loki
+    version: 7.3.0
+    values:
+      - values-loki.yaml
+
+  - name: promtail
+    namespace: monitoring
+    chart: grafana/promtail
+    version: 6.17.1
+    needs:
+      - monitoring/loki
+    values:
+      - values-promtail.yaml
 
   - name: longhorn
     namespace: longhorn-system
