@@ -6,3 +6,14 @@ serviceMonitor:
   enabled: true
   labels:
     release: mon
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: NotIn
+              values:
+                - pi-bos-0
+                - racknerd-edc1bc8
