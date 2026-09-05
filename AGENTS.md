@@ -131,4 +131,5 @@ Key scripts in the `scripts/` directory:
 - **Context Discovery:** Always reference other Markdown files (e.g., `README.md`) and configuration files (e.g., `Taskfile.yaml`, `helmfile.yaml`) within the repository to get a complete picture of the project's architecture and requirements.
 - **Incremental Commits:** Commit changes incrementally as sub-tasks are completed to maintain a clean and traceable history.
 - **Commit Style:** Always use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g., `fix(k8s): ...`, `feat(scripts): ...`).
+- **Prioritize MCP Tooling over Shell:** When available, always utilize configured MCP servers (`kubernetes`, `prometheus`, `loki`, etc.) via `call_mcp_tool` rather than falling back to shell commands (`kubectl`, `curl`). This provides structured API responses, avoids shell escaping pitfalls, and preserves runtime stability.
 - **Living Documentation:** Continuously update `AGENTS.md` to reflect new architectural decisions, learned conventions, or significant infrastructure changes as we work on the project together.
