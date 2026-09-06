@@ -120,7 +120,7 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
-          storageClassName: longhorn
+          storageClassName: longhorn-master
     nodeSelector:
       kubernetes.io/hostname: master
   service:
