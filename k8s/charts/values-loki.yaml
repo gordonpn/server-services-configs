@@ -38,7 +38,7 @@ singleBinary:
     kubernetes.io/hostname: master
   persistence:
     enabled: true
-    storageClass: longhorn
+    storageClass: longhorn-master
     size: 10Gi
 
 read:
