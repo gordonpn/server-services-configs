@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: redis-data
 spec:
-  storageClassName: longhorn
+  storageClassName: longhorn-master
   accessModes:
     - ReadWriteOnce
   resources:
@@ -24,6 +24,8 @@ spec:
       labels:
         app: redis
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
       containers:
         - name: redis
           image: redis:7-alpine
