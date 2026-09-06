@@ -3,4 +3,5 @@ persistence:
 defaultSettings:
   defaultDataLocality: "best-effort"
   engineReplicaTimeout: 30
+  concurrentReplicaRebuildPerNodeLimit: 1
 
