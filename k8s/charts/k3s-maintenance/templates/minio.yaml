@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: longhorn-backup-secret
+  namespace: longhorn-system
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: minioadmin
+  AWS_SECRET_ACCESS_KEY: minioadminsecret
+  AWS_ENDPOINTS: http://minio.longhorn-system.svc.cluster.local:9000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: longhorn-system
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
+      initContainers:
+        - name: init-bucket
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "mkdir -p /data/longhorn-backup && chmod -R 777 /data/longhorn-backup"]
+          volumeMounts:
+            - name: storage
+              mountPath: /data
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:RELEASE.2024-01-18T22-51-28Z
+          imagePullPolicy: IfNotPresent
+          command:
+            - minio
+            - server
+            - /data
+            - --console-address
+            - :9001
+          env:
+            - name: MINIO_ROOT_USER
+              value: minioadmin
+            - name: MINIO_ROOT_PASSWORD
+              value: minioadminsecret
+          ports:
+            - containerPort: 9000
+              name: s3
+            - containerPort: 9001
+              name: console
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: storage
+              mountPath: /data
+      volumes:
+        - name: storage
+          hostPath:
+            path: /media/storage/backups
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: longhorn-system
+  labels:
+    app: minio
+spec:
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+  selector:
+    app: minio
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-backup
+  namespace: longhorn-system
+spec:
+  name: daily-backup
+  task: backup
+  cron: "0 3 * * *"
+  retain: 7
+  concurrency: 1
+  groups:
+    - default

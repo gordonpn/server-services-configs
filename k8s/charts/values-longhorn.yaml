@@ -4,4 +4,6 @@ defaultSettings:
   defaultDataLocality: "best-effort"
   engineReplicaTimeout: 30
   concurrentReplicaRebuildPerNodeLimit: 1
+  backupTarget: "s3://longhorn-backup@us-east-1/"
+  backupTargetCredentialSecret: "longhorn-backup-secret"
 

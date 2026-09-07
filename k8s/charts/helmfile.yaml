@@ -45,6 +45,8 @@ releases:
     namespace: longhorn-system
     chart: longhorn/longhorn
     version: 1.10.1
+    needs:
+      - kube-system/k3s-maintenance
     values:
       - values-longhorn.yaml
 
