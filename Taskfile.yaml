@@ -117,6 +117,11 @@ tasks:
       - kubectl apply -f k8s/ntfy/ntfy-pvc.yaml
       - kubectl apply -f k8s/ntfy/ntfy-deployment.yaml
 
+  k8s:apply:lectures-notifier:
+    desc: Apply lectures-notifier CronJob manifest
+    cmds:
+      - kubectl apply -f k8s/lectures-notifier.yaml
+
   k8s:apply:network-health:
     desc: Apply network health checks from k3s-maintenance chart
     dir: '{{.CHARTS_DIR}}'
@@ -131,6 +136,7 @@ tasks:
       - task: k8s:apply:coredns-scale
       - task: k8s:apply:redis
       - task: k8s:apply:ntfy
+      - task: k8s:apply:lectures-notifier
 
   compose:up:
     desc: Start one docker-compose service directory (task compose:up SERVICE=jellyfin)
