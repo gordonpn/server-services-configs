@@ -15,7 +15,7 @@ spec:
       ttlSecondsAfterFinished: 86400
       template:
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: Never
           dnsPolicy: ClusterFirst
           dnsConfig:
             options:
