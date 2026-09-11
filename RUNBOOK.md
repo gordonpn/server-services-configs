@@ -13,7 +13,7 @@ The `k3s-maintenance` Helm chart installs several CronJobs in the `kube-system` 
 - **False Resolves**: Alerts may resolve automatically when failed pods are rotated out of the CronJob history (limit is 5), even if the underlying issue persists.
 
 ## Architecture Context
-- **Nodes**: `master`, `pi-bos-0`, `pi-mtl-0`, `pi-mtl-1`.
+- **Nodes**: `master`, `racknerd-edc1bc8`.
 - **Network**: Nodes are connected via **Tailscale** (100.x.x.x IPs).
 - **MTU**: 
     - Tailscale MTU is **1280**.

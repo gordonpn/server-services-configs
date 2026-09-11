@@ -47,11 +47,10 @@ Key scripts in the `scripts/` directory:
 
 ## Development Conventions
 
-- **Node Geography & Topology:** The cluster spans two physical sites connected via Tailscale:
-  - **Boston Site (`192.168.50.0/24`):** `master` (control plane, 16GB RAM, AMD64) and `pi-bos-0` (Raspberry Pi 4, 4GB RAM, ARM64) share the same local network (<1ms ping).
-  - **Montreal Site (`192.168.18.0/24`):** `pi-mtl-0` (Raspberry Pi 4, 4GB RAM, ARM64) and `pi-mtl-1` (Raspberry Pi 4, 2GB RAM, ARM64) share the local network in Montreal (~40ms WAN ping from Boston).
+- **Node Geography & Topology:** Following the decommissioning of the Raspberry Pi worker nodes (`pi-bos-0`, `pi-mtl-0`, `pi-mtl-1`), the cluster consists of:
+  - **Boston Site (`192.168.50.0/24`):** `master` (control plane & primary workload runner, 16GB RAM, AMD64).
   - **Cloud VPS:** `racknerd-edc1bc8` is a remote AMD64 VPS (2GB RAM) acting as edge proxy.
-- **Storage Strategy:** Longhorn volumes should be tuned for Tailscale. High-churn volumes (like Prometheus DB) running on `master` should ideally keep replicas within the local site (Boston: `master`, `pi-bos-0`) rather than cross-replicating multi-gigabyte data across WAN to Montreal, avoiding Raspberry Pi CPU saturation from continuous WireGuard encryption.
+- **Storage Strategy:** All persistent volumes (Longhorn) run exclusively on `master` with `strict-local` single replicas under StorageClass `longhorn-master`.
 
 ### Monitoring & Alerts
 - **Automated Stale Job Cleaner:** The `stale-job-cleaner` CronJob in `k3s-maintenance` automatically prunes failed jobs and stuck/unknown pods every 2 hours across all namespaces. This eliminates persistent `KubeJobFailed` alerts in Alertmanager and prevents stuck jobs from blocking future schedules.

@@ -14,12 +14,7 @@ The Docker Swarm cluster is managed from the control plane node (`master`) and u
 | Node Hostname | IP Address (Tailscale) | Swarm Status | Availability | Manager Status | Engine Version |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **master** | `100.72.77.63` | **Ready** | Active | Leader | `29.1.4` |
-| **pi-bos-0** | `100.70.156.88` | **Ready** | Active | (Worker) | `29.1.4` |
-| **pi-mtl-0** | (Tailscale offline) | *Down* | Active | (Worker) | `29.1.4` |
-| **pi-mtl-1** | (Tailscale offline) | *Down* | Active | (Worker) | `29.1.4` |
-
-> [!NOTE]
-> The Montreal nodes (`pi-mtl-0` and `pi-mtl-1`) are currently showing as *Down* because their Tailscale machine keys expired and they cannot connect to the overlay network. They will automatically rejoin gossip status once re-authenticated.
+| **racknerd-edc1bc8** | `100.88.170.93` | **Ready** | Active | Reachable | `29.6.2` |
 
 ---
 
