@@ -1,0 +1,8 @@
+# Example variable definitions for Terraform
+# Copy this file to terraform.tfvars and fill in the values:
+# cp terraform.tfvars.example terraform.tfvars
+
+kuma_endpoint          = "https://p01--uptime-kuma--m5z2j5q8x7zn.code.run"
+kuma_username          = "gordonpn"
+kuma_password          = "change-me"
+kuma_slack_webhook_url = "https://hooks.slack.com/services/..."
