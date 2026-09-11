@@ -10,6 +10,8 @@ This document captures the audit of unmanaged infrastructure components across t
 | :--- | :--- | :--- | :--- | :--- |
 | **Cloudflare DNS & Edge** | ~25% (4 / 16 records) | 12 manually created DNS records (Pages, email, tunnels) | Terraform ([terraform/domains.tf](file:///terraform/domains.tf)) | High |
 | **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
+| **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
+| **Terraform Deploy on Push** | 0% (Manual tasks) | Automated CI/CD pipeline disabled; state stored locally | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Medium |
 | **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
 | **Legacy Host Services** | Manual | `autossh` (`vps-tunnel.service`) on `master` | Decommission (Replaced by Tailscale) | Medium |
 | **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
@@ -84,3 +86,35 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
 
 ### Action Plan
 * Replace `/home/gordonpn/jellyfin/docker-compose.yml` with a symlink to the version-controlled `docker-compose/jellyfin/docker-compose.yml` to prevent configuration drift.
+
+---
+
+## 6. Domain 5: Terraform Automated GitOps Pipeline (Deploy on Push)
+
+### Current State
+* The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) is disabled with `if: false`.
+* Terraform state is stored locally in `terraform/terraform.tfstate` (gitignored).
+* Changes are planned and applied manually via `task tf:plan` and `task tf:apply`.
+
+### Action Plan (To-Do)
+1. **Remote State Backend:**
+   * Migrate Terraform state from local filesystem to a remote backend with state locking (such as MinIO S3 bucket on `master` or Cloudflare R2 / Terraform Cloud).
+2. **GitHub Actions Secrets Provisioning:**
+   * Configure repository secrets for automation:
+     * `CLOUDFLARE_API_TOKEN`
+     * `CLOUDFLARE_EMAIL`
+     * `TF_VAR_kuma_password`
+     * `TF_VAR_kuma_slack_webhook_url`
+3. **Workflow Re-enablement & Path Scoping:**
+   * Update [.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml) to trigger only on pushes to `master` when files in `terraform/**` change:
+     ```yaml
+     on:
+       push:
+         branches:
+           - master
+         paths:
+           - 'terraform/**'
+       workflow_dispatch:
+     ```
+   * Remove `if: false` and ensure the workflow runs formatting checks, initialization, validation, and automated apply on merge.
+
