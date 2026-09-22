@@ -41,7 +41,7 @@ alertmanager:
       repeat_interval: 4h
       routes:
       - match_re:
-          alertname: ^(Watchdog|InfoInhibitor)$
+          alertname: ^(Watchdog|InfoInhibitor|CPUThrottlingHigh|NodeMemoryMajorPagesFaults)$
         receiver: 'null'
       - match:
           alertname: KubeJobFailed
