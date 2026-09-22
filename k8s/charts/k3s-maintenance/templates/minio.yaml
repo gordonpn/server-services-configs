@@ -60,11 +60,11 @@ spec:
               name: console
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 2000m
+              memory: 1Gi
           volumeMounts:
             - name: storage
               mountPath: /data
