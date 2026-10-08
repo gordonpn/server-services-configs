@@ -10,7 +10,7 @@ Start with one k3s server and choose one controller, Argo CD or Flux. Keep the h
 
 ## Free-tier eligibility
 
-Provider documentation checked on 2026-10-07. Oracle currently lists 1,500 A1 OCPU-hours and 9,000 GB-hours per month, equivalent to 2 OCPUs and 12 GB for Always-Free tenancies. It also lists 200 GB combined boot/block storage and five volume backups. Compute must be in the tenancy home region; capacity shortages and idle-instance reclamation are possible. Recheck account entitlements before sizing or applying infrastructure. [Oracle Always Free Resources](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm).
+Verify provider limits against current official documentation prior to provisioning. Published baseline terms list 1,500 A1 OCPU-hours and 9,000 GB-hours per month, equivalent to 2 OCPUs and 12 GB for Always-Free tenancies. They also list 200 GB combined boot/block storage and five volume backups. Compute must be in the tenancy home region; capacity shortages and idle-instance reclamation are possible. Recheck account entitlements before sizing or applying infrastructure. [Oracle Always Free Resources](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm).
 
 The documented object-storage allowance is small and account-dependent. Measure the selected backup set against current storage, request, and transfer allowances before choosing its offsite destination. A VM's local disk must not be the only backup copy. [Oracle storage allowances](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm).
 

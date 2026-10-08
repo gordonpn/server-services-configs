@@ -10,7 +10,7 @@ The preferred candidate is redundancy for the existing RackNerd ingress path. It
 
 ## Eligibility and cost gate
 
-Provider documentation checked on 2026-10-07. Google's recurring Compute Engine allowance covers one non-preemptible `e2-micro` worth of monthly hours across `us-west1`, `us-central1`, and `us-east1`, 30 GB-months of standard persistent disk, and limited outbound transfer. Use standard persistent disk rather than assuming the console's disk default is eligible. [Google Cloud Free Tier](https://cloud.google.com/free/docs/free-cloud-features#compute).
+Verify provider limits against current official documentation prior to provisioning. Published baseline terms list Google's recurring Compute Engine allowance covering one non-preemptible `e2-micro` worth of monthly hours across `us-west1`, `us-central1`, and `us-east1`, 30 GB-months of standard persistent disk, and limited outbound transfer. Use standard persistent disk rather than assuming the console's disk default is eligible. [Google Cloud Free Tier](https://cloud.google.com/free/docs/free-cloud-features#compute).
 
 External IPv4 on a standard VM is separately priced at USD 0.005/hour, with only one free hour monthly per account. Cloud NAT is also billable. A tunnel initiates outbound connections, but that alone does not make its IP or egress path free. Validate an IPv6-only path for package downloads, Cloudflare, and the VPN, or explicitly record a paid exception before provisioning. [Google VPC network pricing](https://cloud.google.com/vpc/network-pricing#ipaddress).
 
