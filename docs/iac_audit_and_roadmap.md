@@ -8,7 +8,7 @@ This document captures the audit of unmanaged infrastructure components across t
 
 | Domain | Current Coverage | Unmanaged Assets | Target IaC Tooling | Priority |
 | :--- | :--- | :--- | :--- | :--- |
-| **Cloudflare DNS & Edge** | ~25% (4 / 16 records) | 12 manually created DNS records (Pages, email, tunnels) | Terraform ([terraform/domains.tf](file:///terraform/domains.tf)) | High |
+| **Cloudflare DNS & Edge** | 100% (Completed) | None (All 16 zone DNS records and VPS tunnel managed) | Terraform ([terraform/domains.tf](file:///terraform/domains.tf)) | Completed |
 | **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Terraform Deploy on Push** | 0% (Manual tasks) | Automated CI/CD pipeline disabled; state stored locally | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Medium |
@@ -18,28 +18,55 @@ This document captures the audit of unmanaged infrastructure components across t
 
 ---
 
-## 2. Domain 1: Cloudflare DNS & Edge Infrastructure
+## 2. Domain 1: Cloudflare DNS & Edge Infrastructure (Completed)
 
-### Current State
-Only four CNAME records (`swarmpit`, `portainer`, `jenkins`, `test`) and the VPS tunnel are managed in Terraform ([terraform/domains.tf](file:///terraform/domains.tf) and [terraform/tunnels.tf](file:///terraform/tunnels.tf)). 
+### State & Coverage
+All 16 live DNS records for `gordon-pn.com` and the VPS shield tunnel are managed declaratively in Terraform with zero drift (`task tf:plan` detailed exit code 0):
+* [terraform/domains.tf](file:///terraform/domains.tf) manages the 15 standard DNS records (Cloudflare Pages, SendGrid deliverability, ImprovMX MX/SPF, and internal tunnel ingress CNAMEs).
+* [terraform/tunnels.tf](file:///terraform/tunnels.tf) manages the VPS shield tunnel (`vps-shield-tunnel`), ingress rules, and `test` CNAME record.
 
-### Unmanaged Assets in Cloudflare Zone (`gordon-pn.com`)
+### In-Scope Records Managed
 1. **Frontend / Cloudflare Pages:**
    * `@` (`gordon-pn.com`) -> `portfolio-4tf.pages.dev` (CNAME, proxied)
    * `www` -> `portfolio-4tf.pages.dev` (CNAME, proxied)
    * `gym` -> `gym-calculator.pages.dev` (CNAME, proxied)
    * `notes` -> `notes-1op.pages.dev` (CNAME, proxied)
-2. **Internal Cloudflare Tunnels:**
+2. **Internal Ingress & Services:**
+   * `swarmpit` -> `gordon-pn.com` (CNAME, proxied)
+   * `portainer` -> `gordon-pn.com` (CNAME, proxied)
+   * `jenkins` -> `gordon-pn.com` (CNAME, proxied)
    * `ntfy` -> `35e86fee-93ab-4954-a01c-d40026bd42ca.cfargotunnel.com` (CNAME, proxied)
    * `ssh` -> `3f08a512-41c7-4448-831c-742e41a33afb.cfargotunnel.com` (CNAME, proxied)
-3. **Email Deliverability & Forwarding:**
+   * `test` -> `512869b9-b95e-4c49-a6ba-3878e71ca4c5.cfargotunnel.com` (CNAME, proxied)
+3. **Email Deliverability & Inbound Routing:**
    * SendGrid: `em7255`, `s1._domainkey`, `s2._domainkey` (CNAMEs, unproxied)
    * ImprovMX: `MX` records (`mx1.improvmx.com` priority 10, `mx2.improvmx.com` priority 20)
    * ImprovMX SPF: `TXT` record `v=spf1 include:spf.improvmx.com ~all`
 
-### Action Plan
-* Import all 12 unmanaged records into `terraform/domains.tf`.
-* Execute `terraform plan` to ensure zero drift before applying.
+### Invariants & Provider Nuances
+* **Apex Record Names:** The Cloudflare Terraform provider requires `name = var.domain` for apex records (not `"@"`). Using `"@"` results in forced destroy and recreate in OpenTofu.
+* **Content vs Value:** The provider v4 deprecates `value` in favor of `content`.
+* **State Reconciliation:** During resource import, provider v4.52.9 leaves `content` and `allow_overwrite` as null in state. A safe attribute reconciliation setting `content` to the live API answer and `allow_overwrite = false` achieves a zero-drift plan without running destructive writes.
+
+### Adoption, State Reconciliation & Rollback Runbook
+1. **Live Zone Inventory:**
+   * Query the Cloudflare DNS API (`GET /zones/<zone_id>/dns_records`) to obtain live record IDs, types, and target content.
+2. **Resource Import:**
+   * Run `tofu import cloudflare_record.<name> <zone_id>/<record_id>` for each DNS record.
+   * Run `tofu import cloudflare_tunnel.<name> <account_id>/<tunnel_id>` for Cloudflare tunnels.
+3. **State Reconciliation Safeguard:**
+   * Because Cloudflare Provider v4.52.9 leaves `content` and `allow_overwrite` as `null` in state during import, a normal plan will report in-place modifications (`content = null -> <expected>`, `allow_overwrite = null -> false`).
+   * Back up state prior to editing: `cp terraform.tfstate terraform.tfstate.pre-reconcile.backup`.
+   * Reconcile `instances[0].attributes.content` with the matching live API answer and set `allow_overwrite = false`.
+   * Verify with `tofu plan -detailed-exitcode` (must exit 0 with zero proposed changes).
+4. **Drift Detection Verification:**
+   * Introduce a temporary change in configuration and verify `tofu plan -detailed-exitcode` exits with code 2, proving drift detection remains active and unsuppressed.
+5. **Rollback Procedure:**
+   * If state corruption occurs during import, restore from the timestamped backup:
+     `cp terraform.tfstate.pre-import.backup terraform.tfstate`
+   * Because no `tofu apply` write calls are executed against Cloudflare during adoption, live DNS records remain completely intact and unaffected.
+6. **Scope Boundary Clarification:**
+   * The 100% coverage applies to all 16 active records present in the live Cloudflare DNS zone `gordon-pn.com`. Historical service references in Compose/Swarm configurations (e.g. `drone` or `traefik`) route via internal networks or local Traefik routing rules and do not correspond to public Cloudflare DNS records.
 
 ---
 
