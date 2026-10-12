@@ -13,6 +13,10 @@ resource "cloudflare_tunnel" "vps_shield" {
   account_id = var.account_id
   name       = "vps-shield-tunnel"
   secret     = random_id.vps_tunnel_secret.b64_std
+
+  lifecycle {
+    ignore_changes = [secret]
+  }
 }
 
 resource "cloudflare_tunnel_config" "vps_shield_config" {
@@ -31,12 +35,11 @@ resource "cloudflare_tunnel_config" "vps_shield_config" {
 }
 
 resource "cloudflare_record" "test" {
-  zone_id         = var.zone_id
-  name            = "test"
-  value           = "${cloudflare_tunnel.vps_shield.id}.cfargotunnel.com"
-  type            = "CNAME"
-  proxied         = true
-  allow_overwrite = true
+  zone_id = var.zone_id
+  name    = "test"
+  content = "${cloudflare_tunnel.vps_shield.id}.cfargotunnel.com"
+  type    = "CNAME"
+  proxied = true
 }
 
 output "vps_tunnel_token" {
