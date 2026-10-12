@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+version: 2
+language: "en-US"
+tone_instructions: "Direct, technical, senior engineering tone. No fluff, no bot disclaimers, no emojis, no em dashes. Focus on correctness, performance, edge cases, and architectural simplicity."
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!package-lock.json"
+    - "!pnpm-lock.yaml"
+    - "!bun.lockb"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!*.tfstate*"
+    - "!*.lock*"

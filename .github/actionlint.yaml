@@ -1,0 +1,12 @@
+self-hosted-runner:
+  labels:
+    - home-lab-runners
+
+paths:
+  .github/workflows/gitops.yml:
+    ignore:
+      - 'SC2086'
+  .github/workflows/terraform.yml:
+    ignore:
+      - 'constant expression "false" in condition'
+      - 'the runner of "actions/checkout@v2"'
