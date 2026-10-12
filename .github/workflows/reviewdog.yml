@@ -21,5 +21,5 @@ jobs:
         uses: reviewdog/action-actionlint@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
+          reporter: ${{ github.event.pull_request.head.repo.full_name == github.repository && 'github-pr-review' || 'github-pr-check' }}
           fail_level: error
