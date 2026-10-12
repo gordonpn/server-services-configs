@@ -1,4 +1,4 @@
-tunnel: 728e39f0-3385-4736-ac6c-c2b8cfc0e120
+tunnel: 3f08a512-41c7-4448-831c-742e41a33afb
 credentials-file: /etc/cloudflared/credentials.json
 ingress:
   - hostname: ssh.gordon-pn.com

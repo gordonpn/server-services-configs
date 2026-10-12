@@ -48,6 +48,25 @@ All 16 live DNS records for `gordon-pn.com` and the VPS shield tunnel are manage
 * **Content vs Value:** The provider v4 deprecates `value` in favor of `content`.
 * **State Reconciliation:** During resource import, provider v4.52.9 leaves `content` and `allow_overwrite` as null in state. A safe attribute reconciliation setting `content` to the live API answer and `allow_overwrite = false` achieves a zero-drift plan without running destructive writes.
 
+### Adoption, State Reconciliation & Rollback Runbook
+1. **Live Zone Inventory:**
+   * Query the Cloudflare DNS API (`GET /zones/<zone_id>/dns_records`) to obtain live record IDs, types, and target content.
+2. **Resource Import:**
+   * Run `tofu import cloudflare_record.<name> <zone_id>/<record_id>` for each DNS record.
+   * Run `tofu import cloudflare_tunnel.<name> <account_id>/<tunnel_id>` for Cloudflare tunnels.
+3. **State Reconciliation Safeguard:**
+   * Because Cloudflare Provider v4.52.9 leaves `content` and `allow_overwrite` as `null` in state during import, a normal plan will report in-place modifications (`content = null -> <expected>`, `allow_overwrite = null -> false`).
+   * Back up state prior to editing: `cp terraform.tfstate terraform.tfstate.pre-reconcile.backup`.
+   * Reconcile `instances[0].attributes.content` with the matching live API answer and set `allow_overwrite = false`.
+   * Verify with `tofu plan -detailed-exitcode` (must exit 0 with zero proposed changes).
+4. **Drift Detection Verification:**
+   * Introduce a temporary change in configuration and verify `tofu plan -detailed-exitcode` exits with code 2, proving drift detection remains active and unsuppressed.
+5. **Rollback Procedure:**
+   * If state corruption occurs during import, restore from the timestamped backup:
+     `cp terraform.tfstate.pre-import.backup terraform.tfstate`
+   * Because no `tofu apply` write calls are executed against Cloudflare during adoption, live DNS records remain completely intact and unaffected.
+6. **Scope Boundary Clarification:**
+   * The 100% coverage applies to all 16 active records present in the live Cloudflare DNS zone `gordon-pn.com`. Historical service references in Compose/Swarm configurations (e.g. `drone` or `traefik`) route via internal networks or local Traefik routing rules and do not correspond to public Cloudflare DNS records.
 
 ---
 
