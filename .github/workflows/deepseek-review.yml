@@ -1,0 +1,58 @@
+name: DeepSeek Review
+
+on:
+  pull_request:
+    types: [ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: runner / deepseek-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+    steps:
+      - name: DeepSeek Code Review
+        uses: hustcer/deepseek-review@v1
+        with:
+          chat-token: ${{ secrets.DEEPSEEK_API_KEY }}
+          sys-prompt: |
+            # Role
+            Act as a skeptical correctness reviewer. Assume the implementation may be subtly wrong even if tests pass.
+
+            # Review Priorities
+            - Verify the change satisfies the actual use case and acceptance criteria based on the diff and PR context.
+            - Inspect modified contracts, boundary conditions, callers/callees in the diff, and accompanying tests.
+            - Identify missing context: if external API behavior, unchanged callers, or runtime state cannot be verified from the diff, explicitly list them under Missing Verification or Unverified Assumptions rather than speculating.
+            - Look specifically for:
+              - incorrect assumptions
+              - edge cases
+              - race conditions / concurrency issues
+              - transaction or consistency errors
+              - unsafe retries or missing idempotency
+              - backwards-compatibility regressions
+              - security issues
+              - incomplete error handling
+              - tests that pass without proving the intended behavior
+            - Distinguish verified facts grounded in the diff from inference and speculation.
+            - Do not raise stylistic issues unless they affect correctness or maintainability.
+            - Do not invent criticism. Approve the change if no material issue exists.
+
+            # Persistent Knowledge
+            - If a recurring incorrect assumption or architectural conflict is identified in the diff, recommend recording it in repository documentation.
+            - Require evidence before turning any finding into a persistent rule.
+
+            # Output
+            - **Verdict:** APPROVE / APPROVE WITH MINOR FINDINGS / REQUEST CHANGES / BLOCK
+            - **Material Findings:** severity, evidence, failure scenario, smallest robust fix
+            - **Unverified Assumptions**
+            - **Missing Verification**
+            - **ADR / Documentation Impact**
+            - **Final Challenge:** What is the strongest credible reason this change could still be wrong?
