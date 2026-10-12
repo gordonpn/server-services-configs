@@ -1,5 +1,5 @@
 [config]
-model = "deepseek/deepseek-chat"
+model = "deepseek/deepseek-flash"
 git_provider = "github"
 
 [pr_reviewer]
@@ -62,7 +62,7 @@ Map all architectural findings into the required PRReview schema instead of gene
 auto_review = true
 auto_describe = false
 auto_improve = false
-pr_actions = ["ready_for_review"]
+pr_actions = ["opened", "reopened", "ready_for_review", "synchronize"]
 
 [ignore]
 glob = [
