@@ -130,7 +130,8 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
   * `TF_VAR_KUMA_SLACK_WEBHOOK_URL`
   * `TF_VAR_HEALTHCHECKSIO_API_KEY`
 * The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) is re-enabled on `home-lab-runners`:
-  * Scoped triggers on `terraform/**`, `Taskfile.yaml`, and `scripts/ci/**`.
+  * Scoped triggers on `terraform/**`, `Taskfile.yaml`, `scripts/ci/**`, `tests/**`, and the Terraform workflow itself.
+  * Runs offline backend credential regression checks before contacting infrastructure.
   * Runs formatting checks, initialization, validation, and speculative planning on pull requests.
   * Reconciles and applies changes automatically on merge to `master`.
 * Refer to [docs/terraform_iac.md](terraform_iac.md) for architecture, operational workflows, and disaster recovery procedures.

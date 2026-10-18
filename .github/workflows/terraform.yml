@@ -8,6 +8,8 @@ on:
       - 'terraform/**'
       - 'Taskfile.yaml'
       - 'scripts/ci/**'
+      - '.github/workflows/terraform.yml'
+      - 'tests/**'
   pull_request:
     branches:
       - master
@@ -15,6 +17,8 @@ on:
       - 'terraform/**'
       - 'Taskfile.yaml'
       - 'scripts/ci/**'
+      - '.github/workflows/terraform.yml'
+      - 'tests/**'
   workflow_dispatch:
 
 permissions:
@@ -52,6 +56,9 @@ jobs:
 
       - name: Setup Task
         run: ./scripts/ci/setup-task.sh
+
+      - name: Test Backend Credential Guards
+        run: task tf:test
 
       - name: Setup OpenTofu
         run: ./scripts/ci/setup-tofu.sh

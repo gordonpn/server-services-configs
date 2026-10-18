@@ -120,12 +120,12 @@ task tf:apply
 
 ## 5. Automated CI/CD GitOps Pipeline
 
-The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.yml) runs on push and pull requests affecting `terraform/**`, `Taskfile.yaml`, or `scripts/ci/**`:
+The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.yml) runs on push and pull requests affecting `terraform/**`, `Taskfile.yaml`, `scripts/ci/**`, `tests/**`, or the Terraform workflow itself:
 
 1. **Self-Hosted Execution & Security Guard:** Executes on `runs-on: home-lab-runners` pinned to `master`. Job restricts execution to internal repository branches (`if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository`) to protect cluster-admin runner credentials against untrusted public fork code execution.
 2. **Network Resilience:** Enforces GLIBC IPv4 resolution (`precedence ::ffff:0:0/96 100` and `GODEBUG="netdns=cgo"`) to prevent IPv6 timeouts on container egress.
 3. **Tool Bootstrapping:** Automatically downloads architecture-aware binaries for `task` (v3.52.0) and `opentofu` (v1.13.1) with connection retries.
-4. **Validation Gate:** Runs format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
+4. **Validation Gate:** Runs offline credential checks (`task tf:test`), format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
 5. **Speculative Plan on Pull Requests:** Runs `task tf:plan` on PRs to provide visibility into proposed infrastructure modifications without mutating state.
 6. **Automated Apply on Merge:** Runs `task tf:apply -- -auto-approve` automatically when changes merge to `master`.
 
