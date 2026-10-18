@@ -15,10 +15,18 @@ on:
       - 'Taskfile.yaml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
   terraform:
     name: Terraform Reconcile
     runs-on: home-lab-runners
+    timeout-minutes: 15
     env:
       GODEBUG: "netdns=cgo"
       TF_BACKEND_ENDPOINT: "http://minio.longhorn-system.svc.cluster.local:9000"
