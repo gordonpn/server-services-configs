@@ -7,12 +7,14 @@ on:
     paths:
       - 'terraform/**'
       - 'Taskfile.yaml'
+      - 'scripts/ci/**'
   pull_request:
     branches:
       - master
     paths:
       - 'terraform/**'
       - 'Taskfile.yaml'
+      - 'scripts/ci/**'
   workflow_dispatch:
 
 permissions:
@@ -43,72 +45,26 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Prefer IPv4 Networking
-        run: |
-          set -eo pipefail
-          echo "precedence ::ffff:0:0/96 100" | sudo tee /etc/gai.conf || true
+        run: ./scripts/ci/prefer-ipv4.sh
 
       - name: Setup Task
-        run: |
-          set -eo pipefail
-          TASK_VERSION="3.52.0"
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            ARCH="amd64"
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            ARCH="arm64"
-          fi
-          mkdir -p "$HOME/.local/bin"
-          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${ARCH}.tar.gz" -o /tmp/task.tar.gz
-          tar -zxf /tmp/task.tar.gz -C "$HOME/.local/bin" task
-          rm -f /tmp/task.tar.gz
-          chmod +x "$HOME/.local/bin/task"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        run: ./scripts/ci/setup-task.sh
 
       - name: Setup OpenTofu
-        run: |
-          set -eo pipefail
-          TOFU_VERSION="1.9.0"
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            ARCH="amd64"
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            ARCH="arm64"
-          fi
-          mkdir -p "$HOME/.local/bin"
-          curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_${ARCH}.tar.gz" -o /tmp/tofu.tar.gz
-          tar -zxf /tmp/tofu.tar.gz -C "$HOME/.local/bin" tofu
-          rm -f /tmp/tofu.tar.gz
-          chmod +x "$HOME/.local/bin/tofu"
-          ln -sf "$HOME/.local/bin/tofu" "$HOME/.local/bin/terraform"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        run: ./scripts/ci/setup-tofu.sh
 
       - name: Terraform Fmt Check
-        run: |
-          set -eo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          task tf:fmt -- -check
+        run: task tf:fmt -- -check
 
       - name: Terraform Init
-        run: |
-          set -eo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          task tf:init
+        run: task tf:init
 
       - name: Terraform Validate
-        run: |
-          set -eo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          task tf:validate
+        run: task tf:validate
 
       - name: Terraform Plan
-        run: |
-          set -eo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          task tf:plan
+        run: task tf:plan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          set -eo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          task tf:apply -- -auto-approve
+        run: task tf:apply -- -auto-approve
