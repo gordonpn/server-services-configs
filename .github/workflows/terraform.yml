@@ -57,12 +57,12 @@ jobs:
           elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
             ARCH="arm64"
           fi
-          mkdir -p $HOME/.local/bin
+          mkdir -p "$HOME/.local/bin"
           curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${ARCH}.tar.gz" -o /tmp/task.tar.gz
-          tar -zxf /tmp/task.tar.gz -C $HOME/.local/bin task
+          tar -zxf /tmp/task.tar.gz -C "$HOME/.local/bin" task
           rm -f /tmp/task.tar.gz
-          chmod +x $HOME/.local/bin/task
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          chmod +x "$HOME/.local/bin/task"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Setup OpenTofu
         run: |
@@ -74,13 +74,13 @@ jobs:
           elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
             ARCH="arm64"
           fi
-          mkdir -p $HOME/.local/bin
+          mkdir -p "$HOME/.local/bin"
           curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_${ARCH}.tar.gz" -o /tmp/tofu.tar.gz
-          tar -zxf /tmp/tofu.tar.gz -C $HOME/.local/bin tofu
+          tar -zxf /tmp/tofu.tar.gz -C "$HOME/.local/bin" tofu
           rm -f /tmp/tofu.tar.gz
-          chmod +x $HOME/.local/bin/tofu
-          ln -sf $HOME/.local/bin/tofu $HOME/.local/bin/terraform
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          chmod +x "$HOME/.local/bin/tofu"
+          ln -sf "$HOME/.local/bin/tofu" "$HOME/.local/bin/terraform"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Terraform Fmt Check
         run: |
