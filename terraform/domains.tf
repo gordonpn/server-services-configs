@@ -12,6 +12,10 @@ terraform {
       source  = "breml/uptimekuma"
       version = "~> 0.4"
     }
+    healthchecksio = {
+      source  = "kristofferahl/healthchecksio"
+      version = "~> 2.3.0"
+    }
   }
 }
 
