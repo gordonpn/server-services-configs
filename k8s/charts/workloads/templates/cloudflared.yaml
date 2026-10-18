@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: cloudflared
+spec:
+  replicas: {{ .Values.cloudflared.replicas | default 4 }}
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
+      containers:
+        - name: cloudflared
+          image: "{{ .Values.cloudflared.image.repository }}:{{ .Values.cloudflared.image.tag }}"
+          imagePullPolicy: {{ .Values.cloudflared.image.pullPolicy | default "IfNotPresent" }}
+          args:
+            - tunnel
+            - --no-autoupdate
+            - run
+            - --token
+            - "$(TUNNEL_TOKEN)"
+          env:
+            - name: TUNNEL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-tunnel-token
+                  key: token

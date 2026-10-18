@@ -2,9 +2,11 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: lectures-notifier-et-10m
-  namespace: default
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: lectures-notifier
 spec:
-  schedule: "*/5 10-18 * * *"
+  schedule: {{ .Values.lecturesNotifier.schedule | default "*/5 10-18 * * *" | quote }}
   timeZone: America/New_York
   concurrencyPolicy: Replace
   startingDeadlineSeconds: 300
@@ -24,8 +26,8 @@ spec:
               - name: single-request-reopen
           containers:
             - name: notifier
-              image: ghcr.io/gordonpn/lectures-notifier:main
-              imagePullPolicy: IfNotPresent
+              image: "{{ .Values.lecturesNotifier.image.repository }}:{{ .Values.lecturesNotifier.image.tag }}"
+              imagePullPolicy: {{ .Values.lecturesNotifier.image.pullPolicy | default "IfNotPresent" }}
               envFrom:
                 - secretRef:
                     name: lectures-notifier-secrets

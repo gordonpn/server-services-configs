@@ -27,7 +27,7 @@ In the default routing model, `cloudflared` runs directly on the home server (`m
 
 ### Key Characteristics
 * **Outbound Only:** The home server initiates and maintains outbound TLS/QUIC connections to Cloudflare Edge nodes (such as Boston `bos` and Newark `ewr`). No inbound ports are opened on the local ISP router or firewall.
-* **Redundancy:** Runs both as a 4-replica Kubernetes Deployment ([cloudflared-deployment.yaml](file:///k8s/cloudflared-deployment.yaml)) and a host-level systemd service ([cloudflared.service](file:///etc/systemd/system/cloudflared.service)) for high availability across reboots and container engine maintenance.
+* **Redundancy:** Runs both as a 4-replica Kubernetes Deployment managed via the workloads Helm chart ([cloudflared.yaml](file:///k8s/charts/workloads/templates/cloudflared.yaml)) and a host-level systemd service ([cloudflared.service](file:///etc/systemd/system/cloudflared.service)) for high availability across reboots and container engine maintenance.
 * **Scope:** Used for primary home lab application access, media services, administrative dashboards, and internal alert webhooks.
 
 ---

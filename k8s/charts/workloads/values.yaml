@@ -1,0 +1,38 @@
+cloudflared:
+  replicas: 4
+  image:
+    repository: cloudflare/cloudflared
+    tag: latest
+    pullPolicy: IfNotPresent
+
+redis:
+  replicas: 1
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  storage:
+    className: longhorn-master
+    size: 1Gi
+
+ntfy:
+  replicas: 1
+  image:
+    repository: binwiederhier/ntfy
+    tag: latest
+    pullPolicy: IfNotPresent
+  storage:
+    className: local-path
+    size: 5Gi
+  upstreamBaseUrl: "https://ntfy.sh"
+  baseUrl: "https://ntfy.gordon-pn.com"
+  behindProxy: "true"
+  authFile: "/var/lib/ntfy/user.db"
+  authDefaultAccess: "read-only"
+
+lecturesNotifier:
+  schedule: "*/5 10-18 * * *"
+  image:
+    repository: ghcr.io/gordonpn/lectures-notifier
+    tag: main
+    pullPolicy: IfNotPresent

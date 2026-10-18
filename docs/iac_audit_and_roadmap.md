@@ -9,7 +9,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | Domain | Current Coverage | Unmanaged Assets | Target IaC Tooling | Priority |
 | :--- | :--- | :--- | :--- | :--- |
 | **Cloudflare DNS & Edge** | 100% (Completed) | None (All 16 zone DNS records and VPS tunnel managed) | Terraform ([terraform/domains.tf](file:///terraform/domains.tf)) | Completed |
-| **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
+| **Kubernetes Workloads** | 100% (Completed) | None (All workloads managed via Helmfile workloads chart) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | Completed |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
 | **Terraform Deploy on Push** | Backend migrated; PR validation verified | Master apply awaits merge and post-merge verification | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | In progress |
@@ -71,21 +71,22 @@ All 16 live DNS records for `gordon-pn.com` and the VPS shield tunnel are manage
 
 ---
 
-## 3. Domain 2: Kubernetes Workloads & GitOps
+## 3. Domain 2: Kubernetes Workloads & GitOps (Completed)
 
-### Current State
-Core infrastructure (`kube-prometheus-stack`, `longhorn`, `actions-runner-controller`, `sealed-secrets`, `k3s-maintenance`) is declared in [k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml) and deployed automatically on push via `.github/workflows/gitops.yml`.
+### State & Coverage
+All user-facing Kubernetes workloads and scaling policies are managed declaratively in Helmfile with zero drift (`task charts:diff` exits with 0):
+* [k8s/charts/workloads](file:///k8s/charts/workloads) manages all standalone application workloads in the `default` namespace:
+  * `cloudflared`: 4-replica Cloudflare Tunnel deployment pinned to `master`.
+  * `redis`: Redis deployment, service, and persistent volume claim `redis-data` on `longhorn-master`.
+  * `ntfy`: Ntfy push notification deployment, service, and persistent volume claim `ntfy-data` on `local-path`.
+  * `lectures-notifier-et-10m`: Scheduled CronJob with `imagePullPolicy: IfNotPresent` and `restartPolicy: Never`.
+* [k8s/charts/k3s-maintenance](file:///k8s/charts/k3s-maintenance/templates/coredns-config-enforcer.yaml) enforces CoreDNS replica scaling (5 replicas) and topology spread constraints (`ScheduleAnyway`) continuously without ad-hoc manual scaling manifests.
+* Core infrastructure and workloads are deployed uniformly via `task charts:apply` and the automated GitOps workflow ([.github/workflows/gitops.yml](file:///.github/workflows/gitops.yml)).
 
-### Unmanaged Raw Manifests
-The following manifests are currently applied via ad-hoc `kubectl apply` tasks in [Taskfile.yaml](file:///Taskfile.yaml):
-* `k8s/cloudflared-deployment.yaml` (Multi-replica Cloudflare Tunnel on `master`)
-* `k8s/redis.yaml` (Redis deployment and service in `default` namespace)
-* `k8s/ntfy/ntfy-deployment.yaml` and `k8s/ntfy/ntfy-pvc.yaml` (Push notification server)
-* `k8s/coredns-scale.yaml` (CoreDNS horizontal replica override)
-
-### Action Plan
-* Migrate these manifests into Helmfile releases using either the `raw` chart or as sub-templates within `k3s-maintenance`.
-* Deprecate the manual `k8s:apply:*` tasks in `Taskfile.yaml` in favor of the unified `task charts:apply`.
+### Deprecations & Cleanups
+* Deleted loose, unmanaged manifests: `k8s/cloudflared-deployment.yaml`, `k8s/redis.yaml`, `k8s/ntfy/`, `k8s/lectures-notifier.yaml`, `k8s/coredns-scale.yaml`, and redundant `k8s/runner-rbac.yaml`.
+* Deprecated manual `k8s:apply:*` tasks in `Taskfile.yaml`: `task k8s:apply:all` now directly invokes `task charts:apply`.
+* Added `task charts:lint:workloads` and `task charts:lint:all`.
 
 ---
 

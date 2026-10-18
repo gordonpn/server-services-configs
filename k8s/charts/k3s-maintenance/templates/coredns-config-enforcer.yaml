@@ -43,9 +43,9 @@ rules:
     resourceNames: ["coredns", "coredns-override"]
     verbs: ["get", "patch", "update"]
   - apiGroups: ["apps"]
-    resources: ["deployments"]
+    resources: ["deployments", "deployments/scale"]
     resourceNames: ["coredns"]
-    verbs: ["get", "patch", "watch"]
+    verbs: ["get", "patch", "update", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -91,30 +91,35 @@ spec:
                 - |
                   set -e
 
+                  DRIFT=0
+
                   CURRENT_COREFILE="$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')"
-                  if printf '%s' "$CURRENT_COREFILE" | grep -q "forward . 1.1.1.1 8.8.8.8"; then
-                    echo "CoreDNS configuration is correct"
-                    exit 0
+                  if ! printf '%s' "$CURRENT_COREFILE" | grep -q "forward . 1.1.1.1 8.8.8.8"; then
+                    echo "CoreDNS configuration drift detected, applying fix..."
+                    {
+                      echo "data:"
+                      echo "  Corefile: |"
+                      sed 's/^/    /' /config/Corefile
+                    } > /tmp/patch.yaml
+                    kubectl patch configmap coredns -n kube-system --type merge --patch-file /tmp/patch.yaml
+                    DRIFT=1
                   fi
 
-                  echo "CoreDNS configuration drift detected, applying fix..."
-
-                  {
-                    echo "data:"
-                    echo "  Corefile: |"
-                    sed 's/^/    /' /config/Corefile
-                  } > /tmp/patch.yaml
-
-                  kubectl patch configmap coredns -n kube-system --type merge --patch-file /tmp/patch.yaml
+                  CURRENT_REPLICAS="$(kubectl get deployment coredns -n kube-system -o jsonpath='{.spec.replicas}')"
+                  if [ "$CURRENT_REPLICAS" != "5" ]; then
+                    echo "CoreDNS replica count drift detected ($CURRENT_REPLICAS != 5), scaling to 5..."
+                    kubectl patch deployment coredns -n kube-system -p '{"spec":{"replicas":5}}' 2>/dev/null || true
+                  fi
 
                   echo "Enforcing ScheduleAnyway topology spread constraint on CoreDNS deployment..."
                   kubectl patch deployment coredns -n kube-system --type json -p '[{"op": "replace", "path": "/spec/template/spec/topologySpreadConstraints/0/whenUnsatisfiable", "value": "ScheduleAnyway"}]' 2>/dev/null || true
 
-                  echo "Configuration updated, restarting CoreDNS..."
-                  kubectl rollout restart deployment/coredns -n kube-system
-
-                  echo "Waiting for CoreDNS to be ready..."
-                  kubectl rollout status deployment/coredns -n kube-system --timeout=120s
+                  if [ "$DRIFT" -eq 1 ]; then
+                    echo "Configuration updated, restarting CoreDNS..."
+                    kubectl rollout restart deployment/coredns -n kube-system
+                    echo "Waiting for CoreDNS to be ready..."
+                    kubectl rollout status deployment/coredns -n kube-system --timeout=120s
+                  fi
 
                   echo "CoreDNS configuration enforced successfully"
               volumeMounts:

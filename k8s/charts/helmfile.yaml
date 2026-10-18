@@ -147,3 +147,10 @@ releases:
     namespace: kube-system
     chart: ./k3s-maintenance
 
+  - name: workloads
+    namespace: default
+    chart: ./workloads
+    needs:
+      - longhorn-system/longhorn
+      - kube-system/k3s-maintenance
+
