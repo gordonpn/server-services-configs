@@ -40,7 +40,7 @@ jobs:
       TF_VAR_healthchecksio_api_key: ${{ secrets.TF_VAR_HEALTHCHECKSIO_API_KEY }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Prefer IPv4 Networking
         run: |
