@@ -34,7 +34,7 @@ spec:
         - name: init-bucket
           image: busybox:1.36
           imagePullPolicy: IfNotPresent
-          command: ["sh", "-c", "mkdir -p /data/longhorn-backup && chmod -R 777 /data/longhorn-backup"]
+          command: ["sh", "-c", "mkdir -p /data/longhorn-backup /data/terraform-state && chmod -R 777 /data/longhorn-backup /data/terraform-state"]
           volumeMounts:
             - name: storage
               mountPath: /data
@@ -82,13 +82,16 @@ metadata:
   labels:
     app: minio
 spec:
+  type: NodePort
   ports:
     - name: s3
       port: 9000
       targetPort: 9000
+      nodePort: 30900
     - name: console
       port: 9001
       targetPort: 9001
+      nodePort: 30901
   selector:
     app: minio
 ---

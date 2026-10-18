@@ -1,39 +1,80 @@
-name: Terraform
+name: Terraform GitOps
 
 on:
-  - push
+  push:
+    branches:
+      - master
+    paths:
+      - 'terraform/**'
+      - 'Taskfile.yaml'
+      - 'scripts/ci/**'
+      - '.github/workflows/terraform.yml'
+      - 'tests/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'terraform/**'
+      - 'Taskfile.yaml'
+      - 'scripts/ci/**'
+      - '.github/workflows/terraform.yml'
+      - 'tests/**'
+  workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: terraform
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   terraform:
-    if: false  # Workflow disabled
-    runs-on: ubuntu-latest
+    name: Terraform Reconcile
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: home-lab-runners
+    timeout-minutes: 15
     env:
+      GODEBUG: "netdns=cgo"
+      TF_BACKEND_ENDPOINT: "http://minio.longhorn-system.svc.cluster.local:9000"
+      AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+      TF_VAR_account_id: ${{ secrets.TF_VAR_ACCOUNT_ID }}
+      TF_VAR_kuma_password: ${{ secrets.TF_VAR_KUMA_PASSWORD }}
+      TF_VAR_kuma_slack_webhook_url: ${{ secrets.TF_VAR_KUMA_SLACK_WEBHOOK_URL }}
+      TF_VAR_healthchecksio_api_key: ${{ secrets.TF_VAR_HEALTHCHECKSIO_API_KEY }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: hashicorp/setup-terraform@v2
+      - name: Checkout Code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: Terraform fmt
-        id: fmt
-        run: terraform fmt -check -no-color
+      - name: Prefer IPv4 Networking
+        run: ./scripts/ci/prefer-ipv4.sh
+
+      - name: Setup Task
+        run: ./scripts/ci/setup-task.sh
+
+      - name: Test Backend Credential Guards
+        run: task tf:test
+
+      - name: Setup OpenTofu
+        run: ./scripts/ci/setup-tofu.sh
+
+      - name: Terraform Fmt Check
+        run: task tf:fmt -- -check
 
       - name: Terraform Init
-        id: init
-        run: terraform init -no-color
+        run: task tf:init
 
       - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
+        run: task tf:validate
 
       - name: Terraform Plan
-        id: plan
-        run: terraform plan -no-color
+        run: task tf:plan
 
       - name: Terraform Apply
-        id: apply
-        run: terraform apply -auto-approve -no-color
+        if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: task tf:apply -- -auto-approve

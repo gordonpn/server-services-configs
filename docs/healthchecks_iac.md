@@ -83,10 +83,7 @@ The read-write API key is stored securely in the macOS Keychain under service na
 
 ### State Adoption Procedure (Import)
 To adopt an existing Healthchecks.io check into Terraform:
-1. Back up current state:
-   ```bash
-   cp terraform/terraform.tfstate terraform/terraform.tfstate.backup
-   ```
+1. Capture a private backup of the configured backend using the [shared state recovery procedure](terraform_iac.md#pull-state-via-cli). Export backend and provider credentials before proceeding.
 2. Import the check using its UUID:
    ```bash
    tofu -chdir=terraform import healthchecksio_check.scraper <check-uuid>
@@ -115,9 +112,7 @@ Observed state transitions and deadline behaviors were verified using an isolate
 7. **Pause & Destruction:** Pausing the check halts alerting until resumed; removing the resource cleanly destroys it from Healthchecks.io.
 
 ### Rollback Procedure
-If state corruption occurs during an import attempt, restore state from the pre-import backup:
-```bash
-cp terraform/terraform.tfstate.backup terraform/terraform.tfstate
-```
-Because `tofu import` only updates the local state file and executes no remote mutations against Healthchecks.io, live checks remain unaffected during adoption.
+If state corruption occurs during an import attempt, stop other writers and use the [shared state recovery procedure](terraform_iac.md#restore-state). Copying a local state file does not restore the MinIO backend. Preserve locking, lineage, and serial safeguards; review any rejected restore instead of forcing it.
+
+`tofu import` updates the configured backend state and reads Healthchecks.io without changing the live check configuration.
 
