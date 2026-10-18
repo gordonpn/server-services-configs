@@ -11,7 +11,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Cloudflare DNS & Edge** | 100% (Completed) | None (All 16 zone DNS records and VPS tunnel managed) | Terraform ([terraform/domains.tf](file:///terraform/domains.tf)) | Completed |
 | **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
-| **Healthchecks.io Monitoring** | 100% (Completed) | None (Live checks and Slack integration managed) | Terraform ([terraform/healthchecks.tf](file:///terraform/healthchecks.tf)) | Completed |
+| **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
 | **Terraform Deploy on Push** | 0% (Manual tasks) | Automated CI/CD pipeline disabled; state stored locally | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Medium |
 | **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
 | **Legacy Host Services** | Manual | `autossh` (`vps-tunnel.service`) on `master` | Decommission (Replaced by Tailscale) | Medium |

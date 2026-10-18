@@ -20,8 +20,10 @@ The homelab infrastructure separates external telemetry into distinct failure do
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `scraper` | `scraper` | `*/5 10-18 * * *` | `America/New_York` | 900s (15m) | Slack (`#healthchecks`) | Monitors scheduled scrape runner jobs on K3s |
 
+* **Concrete Caller:** The `scraper` check is pinged by the scheduled web scraper workflow executing inside K3s on the self-hosted ARC runner set `arc-runner-set-scraper` (`home-lab-runners-scraper`). It issues a `start` ping upon runner job startup and a `success` ping upon clean job completion.
+
 ### Integrations and Channels
-* **Slack Integration:** ID `fd532f77-c68c-42fc-b70b-26ea154b6c16` posting alerts to channel `#healthchecks`. Discovered declaratively via data source `healthchecksio_channel.slack`.
+* **Slack Integration:** ID `fd532f77-c68c-42fc-b70b-26ea154b6c16` posting alerts to channel `#healthchecks`. The Slack webhook integration itself is configured externally in Healthchecks.io project settings. OpenTofu discovers the channel via data source `healthchecksio_channel.slack` and manages the check's channel assignment, while the external Slack app and webhook lifecycle remain managed outside Terraform.
 
 ### Historical Script Callers (Out of Scope / Legacy)
 The following scripts in `scripts/` previously referenced Healthchecks UUIDs:
@@ -36,7 +38,7 @@ These legacy scripts do not have active checks in the current Healthchecks proje
 
 ## 3. Terraform Provider Configuration
 
-The configuration uses the `kristofferahl/healthchecksio` provider pinned to `~> 2.3.0` in [terraform/domains.tf](file:///terraform/domains.tf) and declared in [terraform/healthchecks.tf](file:///terraform/healthchecks.tf).
+The configuration uses the `kristofferahl/healthchecksio` provider pinned to `~> 2.3.0` in [terraform/domains.tf](../terraform/domains.tf) and declared in [terraform/healthchecks.tf](../terraform/healthchecks.tf).
 
 ### Provider Declaration
 ```hcl
@@ -77,7 +79,7 @@ The read-write API key is stored securely in the macOS Keychain under service na
   security find-generic-password -s "healthchecks_api_key" -w
   ```
 * **Local variable file:**
-  Set `healthchecksio_api_key` in `terraform/terraform.tfvars` (gitignored). An example template is maintained at [terraform/terraform.tfvars.example](file:///terraform/terraform.tfvars.example).
+  Set `healthchecksio_api_key` in `terraform/terraform.tfvars` (gitignored). An example template is maintained at [terraform/terraform.tfvars.example](../terraform/terraform.tfvars.example).
 
 ### State Adoption Procedure (Import)
 To adopt an existing Healthchecks.io check into Terraform:
@@ -102,9 +104,20 @@ To verify that drift detection is functional:
 3. Confirm the command exits with code `2` and displays the exact attribute diff.
 4. Revert the modification and confirm the plan returns to exit code `0`.
 
+### Missed-Deadline and Lifecycle Verification
+Observed state transitions and deadline behaviors were verified using an isolated test check (`iac-deadline-test`) without notifying channels:
+1. **Creation:** Newly declared check initializes in status `new` with 0 pings.
+2. **Start Ping:** Sending `GET /start` updates `started = true` and records the start timestamp.
+3. **Success Ping:** Sending `GET /` transitions status to `up` and records execution duration.
+4. **Grace Window:** When the expected deadline passes without a ping, the check enters `grace`.
+5. **Missed Deadline:** When the grace period expires without a ping, the check transitions from `grace` to `down` and triggers alert channels.
+6. **Recovery:** Sending a subsequent ping transitions status from `down` back to `up`.
+7. **Pause & Destruction:** Pausing the check halts alerting until resumed; removing the resource cleanly destroys it from Healthchecks.io.
+
 ### Rollback Procedure
 If state corruption occurs during an import attempt, restore state from the pre-import backup:
 ```bash
 cp terraform/terraform.tfstate.backup terraform/terraform.tfstate
 ```
 Because `tofu import` only updates the local state file and executes no remote mutations against Healthchecks.io, live checks remain unaffected during adoption.
+
