@@ -30,7 +30,7 @@ The project uses `go-task` (Taskfile.yaml) as the primary interface for common o
 - **Kubernetes Operations:**
     - `task charts:apply`: Deploy all Helm charts via Helmfile.
     - `task charts:diff`: See pending changes in the Kubernetes cluster.
-    - `task k8s:apply:all`: Apply all charts and raw manifests (CoreDNS, Redis, etc.).
+    - `task k8s:apply:all`: Apply all charts and workloads via Helmfile.
 - **Docker Swarm Operations:**
     - `task swarm:deploy STACK=<name>`: Deploy a specific stack.
     - `task swarm:ls`: List active stacks.
@@ -91,7 +91,7 @@ Key scripts in the `scripts/` directory:
 - **GitOps Workflow:** The GitOps loop is managed by the GitHub Actions workflow [gitops.yml](file:///.github/workflows/gitops.yml), which triggers on pushes to `master` when changes occur under `k8s/` or inside `Taskfile.yaml`.
 - **Execution Target:** Runs on self-hosted runners labeled `home-lab-runners`.
 - **Runner Pod ServiceAccount:** The runner pods are configured to use an explicit ServiceAccount named `home-lab-runner` in the `actions-runner-system` namespace. This is declared in [helmfile.yaml](file:///k8s/charts/helmfile.yaml) under the `arc-runner-set` release values, and pinned to the stable `master` node using `nodeSelector` to avoid worker node instability.
-- **Privilege Assignment:** The `home-lab-runner` ServiceAccount is granted `cluster-admin` privileges via [runner-rbac.yaml](file:///k8s/runner-rbac.yaml). This RBAC manifest is integrated into the local `k3s-maintenance` chart templates ([runner-rbac.yaml](file:///k8s/charts/k3s-maintenance/templates/runner-rbac.yaml)) to ensure it is deployed automatically during the GitOps sync step (`task charts:apply`).
+- **Privilege Assignment:** The `home-lab-runner` ServiceAccount is granted `cluster-admin` privileges via [runner-rbac.yaml](file:///k8s/charts/k3s-maintenance/templates/runner-rbac.yaml). This RBAC manifest is integrated into the local `k3s-maintenance` chart templates to ensure it is deployed automatically during the GitOps sync step (`task charts:apply`).
 - **Runner Dependencies:** Since the default runner pod image (`ghcr.io/actions/actions-runner:latest`) is extremely minimal and lacks runtime tools, the workflow [gitops.yml](file:///.github/workflows/gitops.yml) bootstraps `go-task`, `kubectl`, `helm`, and `helmfile` using architecture-aware `curl` scripts with automatic retries (`--retry 5`) to support both AMD64 and ARM64 Raspberry Pi nodes and prevent transient download timeouts.
 
 ### Sealed Secrets Helm Repo Workaround
@@ -100,7 +100,7 @@ Key scripts in the `scripts/` directory:
 
 ### Formatting
 - **Terraform:** Run `task tf:fmt` before committing changes.
-- **K3s Maintenance:** The `k3s-maintenance` chart should be linted with `task charts:lint:maintenance`.
+- **Charts Linting:** Local charts should be linted with `task charts:lint:all` (or `task charts:lint:maintenance` and `task charts:lint:workloads`).
 
 ### DNS & Networking
 - **CoreDNS Forwarders:** Do not use Tailscale's MagicDNS (`100.100.100.100`) as a primary forwarder in CoreDNS. It frequently returns `SERVFAIL` when queried from the K3s pod network (10.42.x.x), likely due to source IP validation in Tailscale's internal DNS server. Prioritize public DNS servers like `1.1.1.1` and `8.8.8.8`.
