@@ -62,11 +62,11 @@ To support both local development over the mesh VPN and containerized CI/CD exec
 
 ### S3 Backend Credentials
 
-MinIO uses root credentials defined in `k8s/charts/k3s-maintenance/templates/minio.yaml`:
-* **AWS_ACCESS_KEY_ID:** `minioadmin`
-* **AWS_SECRET_ACCESS_KEY:** `minioadminsecret`
+Export `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` from macOS Keychain or an untracked local environment file before running backend operations. `task tf:init`, `task tf:plan`, `task tf:apply`, and `task tf:destroy` reject missing or empty credentials before invoking OpenTofu. The Taskfile has no credential defaults and passes credentials through the process environment, never backend command arguments.
 
-Default values are pre-configured in [Taskfile.yaml](../Taskfile.yaml) and the GitHub Actions workflow environment.
+GitHub Actions supplies these variables through repository secrets `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY`. Formatting and configuration validation do not require backend credentials.
+
+The existing MinIO deployment still shares root credentials with Longhorn backups. Removing the Taskfile fallbacks does not rotate those credentials or remove their historical exposure. Rotation and separate Terraform/Longhorn users require coordinated changes to MinIO, the Longhorn backup secret, CI secrets, and local credential storage.
 
 ### Provider Secrets
 
@@ -75,6 +75,7 @@ Sensitive provider tokens and credentials must never be committed to Git:
   * `CLOUDFLARE_API_TOKEN`: `security find-generic-password -s "cloudflare_api_token" -w`
   * `healthchecks_api_key`: `security find-generic-password -s "healthchecks_api_key" -w`
 * **GitHub Actions:** Stored as GitHub Actions repository secrets:
+  * `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` for the S3 backend
   * `CLOUDFLARE_API_TOKEN`
   * `CLOUDFLARE_EMAIL`
   * `TF_VAR_ACCOUNT_ID`
@@ -87,6 +88,8 @@ Sensitive provider tokens and credentials must never be committed to Git:
 ## 4. Local Development Workflows
 
 Common operations are executed via `task` recipes in the repository root:
+
+`task tf:test` checks rejection of missing and empty credentials, environment forwarding, and argument preservation for all four backend operations using a local Terraform stub. It never contacts MinIO or the managed providers. `task ci:lint` checks the Terraform workflow and its shell scripts with actionlint and shellcheck.
 
 ### Initialize Backend & Providers
 ```bash

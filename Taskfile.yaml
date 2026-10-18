@@ -5,8 +5,6 @@ vars:
   CHARTS_DIR: '{{.ROOT_DIR}}/k8s/charts'
   TERRAFORM_DIR: '{{.ROOT_DIR}}/terraform'
   TF_BACKEND_ENDPOINT: '{{.TF_BACKEND_ENDPOINT | default "http://master.tailb65f8c.ts.net:30900"}}'
-  AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID | default "minioadmin"}}'
-  AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY | default "minioadminsecret"}}'
 
 tasks:
   default:
@@ -27,6 +25,17 @@ tasks:
       - command -v helm
       - command -v helmfile
       - command -v terraform
+
+  ci:lint:
+    desc: Lint the Terraform workflow and its shell scripts
+    cmds:
+      - actionlint .github/workflows/terraform.yml
+      - shellcheck scripts/ci/*.sh tests/*.sh tests/fixtures/*.sh
+
+  tf:test:
+    desc: Test backend credential guards without contacting infrastructure
+    cmds:
+      - bash tests/terraform-backend-credentials.sh
 
   ci:
     desc: Generate CI/CD config from jsonnet
@@ -215,9 +224,14 @@ tasks:
   tf:init:
     desc: Initialize terraform
     dir: '{{.TERRAFORM_DIR}}'
-    env:
+    env: &backend_credentials
       AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
       AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
+    preconditions: &backend_credential_checks
+      - sh: test -n "$AWS_ACCESS_KEY_ID"
+        msg: Export AWS_ACCESS_KEY_ID from secure local storage or CI secrets
+      - sh: test -n "$AWS_SECRET_ACCESS_KEY"
+        msg: Export AWS_SECRET_ACCESS_KEY from secure local storage or CI secrets
     cmds:
       - terraform init -backend-config="endpoint={{.TF_BACKEND_ENDPOINT}}" {{.CLI_ARGS}}
 
@@ -236,26 +250,23 @@ tasks:
   tf:plan:
     desc: Plan terraform changes
     dir: '{{.TERRAFORM_DIR}}'
-    env:
-      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
-      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
+    env: *backend_credentials
+    preconditions: *backend_credential_checks
     cmds:
       - terraform plan {{.CLI_ARGS}}
 
   tf:apply:
     desc: Apply terraform changes
     dir: '{{.TERRAFORM_DIR}}'
-    env:
-      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
-      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
+    env: *backend_credentials
+    preconditions: *backend_credential_checks
     cmds:
       - terraform apply {{.CLI_ARGS}}
 
   tf:destroy:
     desc: Destroy terraform-managed resources
     dir: '{{.TERRAFORM_DIR}}'
-    env:
-      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
-      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
+    env: *backend_credentials
+    preconditions: *backend_credential_checks
     cmds:
       - terraform destroy {{.CLI_ARGS}}
