@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ntfy-data
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: ntfy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.ntfy.storage.size | default "5Gi" }}
+  storageClassName: {{ .Values.ntfy.storage.className | default "local-path" }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ntfy
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: ntfy
+spec:
+  replicas: {{ .Values.ntfy.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      labels:
+        app: ntfy
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
+      containers:
+        - name: ntfy
+          image: "{{ .Values.ntfy.image.repository }}:{{ .Values.ntfy.image.tag }}"
+          imagePullPolicy: {{ .Values.ntfy.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: NTFY_UPSTREAM_BASE_URL
+              value: {{ .Values.ntfy.upstreamBaseUrl | default "https://ntfy.sh" | quote }}
+            - name: NTFY_BASE_URL
+              value: {{ .Values.ntfy.baseUrl | default "https://ntfy.gordon-pn.com" | quote }}
+            - name: NTFY_BEHIND_PROXY
+              value: {{ .Values.ntfy.behindProxy | default "true" | quote }}
+            - name: NTFY_AUTH_FILE
+              value: {{ .Values.ntfy.authFile | default "/var/lib/ntfy/user.db" | quote }}
+            - name: NTFY_AUTH_DEFAULT_ACCESS
+              value: {{ .Values.ntfy.authDefaultAccess | default "read-only" | quote }}
+          volumeMounts:
+            - name: data-volume
+              mountPath: /var/lib/ntfy
+            - name: ntfy-config
+              mountPath: /etc/ntfy
+          args: ["serve"]
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: ntfy-data
+        - name: ntfy-config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntfy
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: ntfy
+spec:
+  selector:
+    app: ntfy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

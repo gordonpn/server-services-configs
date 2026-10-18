@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lectures-notifier-et-10m
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: lectures-notifier
+spec:
+  schedule: {{ .Values.lecturesNotifier.schedule | default "*/5 10-18 * * *" | quote }}
+  timeZone: America/New_York
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          dnsPolicy: ClusterFirst
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "1"
+              - name: single-request-reopen
+          containers:
+            - name: notifier
+              image: "{{ .Values.lecturesNotifier.image.repository }}:{{ .Values.lecturesNotifier.image.tag }}"
+              imagePullPolicy: {{ .Values.lecturesNotifier.image.pullPolicy | default "IfNotPresent" }}
+              envFrom:
+                - secretRef:
+                    name: lectures-notifier-secrets
