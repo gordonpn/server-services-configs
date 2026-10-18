@@ -95,10 +95,12 @@ Common operations are executed via `task` recipes in the repository root:
 ```bash
 task tf:init
 ```
-To reconfigure or migrate state:
+To change the endpoint for the same bucket/key without migrating state:
 ```bash
 task tf:init -- -reconfigure
 ```
+
+For an intentional backend migration, stop other writers, capture a verified state backup, and use `task tf:init -- -migrate-state`. Reconfiguration does not copy state between backends. Confirm resource identities and a no-change plan before resuming automation.
 
 ### Validate Configuration
 ```bash
@@ -126,7 +128,7 @@ The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.ym
 2. **Network Resilience:** Enforces GLIBC IPv4 resolution (`precedence ::ffff:0:0/96 100` and `GODEBUG="netdns=cgo"`) to prevent IPv6 timeouts on container egress.
 3. **Tool Bootstrapping:** Automatically downloads architecture-aware binaries for `task` (v3.52.0) and `opentofu` (v1.13.1) with connection retries.
 4. **Validation Gate:** Runs offline credential checks (`task tf:test`), format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
-5. **Speculative Plan on Pull Requests:** Runs `task tf:plan` on PRs to provide visibility into proposed infrastructure modifications without mutating state.
+5. **Speculative Plan on Pull Requests:** Runs `task tf:plan` on PRs without applying resource changes. Planning can acquire and release the backend's `.tflock` object.
 6. **Automated Apply on Merge:** Runs `task tf:apply -- -auto-approve` automatically when changes merge to `master`.
 
 ---
@@ -134,22 +136,40 @@ The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.ym
 ## 6. Disaster Recovery & State Inspection
 
 ### Pull State via CLI
-To dump the live remote state from MinIO to a local backup file:
+With backend credentials exported, capture a private backup in the gitignored Terraform state filename pattern:
 ```bash
-tofu -chdir=terraform state pull > state-backup.json
+umask 077
+state_backup=$(mktemp "$PWD/terraform/terraform.tfstate.backup.XXXXXXXX")
+tofu -chdir=terraform state pull > "$state_backup"
 ```
 
+Run these commands from the repository root. Continue only if `state pull` exits successfully and the captured state contains the expected resource identities, lineage, and serial. Remove a partial file after a failed pull. State contains provider secrets and tunnel credentials; do not print it in CI logs or commit it.
+
+### Restore State
+
+Stop other state writers and compare the backup with the current backend state before restoring. Use OpenTofu's backend-aware operation instead of copying a local `terraform.tfstate` file:
+
+```bash
+tofu -chdir=terraform state push "$state_backup"
+```
+
+Keep state locking, lineage checks, and serial checks enabled. A rejected push needs investigation; do not bypass these safeguards with `-force` or `-lock=false`. Restoring a state snapshot does not undo changes to live resources. Follow restoration with `task tf:plan -- -detailed-exitcode` and review every difference before applying anything.
+
 ### State Lock Release
-If a process terminates unexpectedly while holding an S3 state lock:
+If a process terminates unexpectedly while holding an S3 state lock, first verify that the owning process and workflow are no longer running. Only then release its recorded lock ID:
 ```bash
 tofu -chdir=terraform force-unlock <LOCK_ID>
 ```
 
 ### Direct S3 Inspection
-To inspect the state object directly using AWS CLI / MinIO Client over Tailscale:
+If direct S3 access is required and AWS CLI is available, retrieve the object into a private, gitignored file. Do not read MinIO's hostPath files as if they were exported S3 objects:
 ```bash
-aws --endpoint-url http://master.tailb65f8c.ts.net:30900 s3 cp s3://terraform-state/homelab/terraform.tfstate - | jq .
+umask 077
+state_backup=$(mktemp "$PWD/terraform/terraform.tfstate.backup.XXXXXXXX")
+aws --endpoint-url http://master.tailb65f8c.ts.net:30900 s3 cp s3://terraform-state/homelab/terraform.tfstate "$state_backup"
 ```
 
 ### Backups
-The MinIO data directory `/data` is mapped directly to `/media/storage/backups` on the attached 1TB SSD of `master`. Nightly backups include this directory alongside Longhorn snapshots.
+The MinIO data directory `/data` is mapped directly to `/media/storage/backups` on the attached 1TB SSD of `master`. The configured Longhorn recurring job backs up volumes into a different bucket on that same MinIO server; it does not back up Terraform state or the MinIO data directory.
+
+This repository does not configure scheduled state exports, bucket versioning, or an independent backup of this state. Keep verified encrypted exports outside the home server before relying on recovery from SSD or site loss. An automated backup/restore exercise and a two-client lock-contention exercise remain unverified.

@@ -12,7 +12,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
-| **Terraform Deploy on Push** | 100% (Completed) | Remote state in MinIO S3; automated GitHub Actions workflow enabled | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Completed |
+| **Terraform Deploy on Push** | Backend migrated; PR validation verified | Master apply awaits merge and post-merge verification | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | In progress |
 | **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
 | **Legacy Host Services** | Manual | `autossh` (`vps-tunnel.service`) on `master` | Decommission (Replaced by Tailscale) | Medium |
 | **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
@@ -57,14 +57,14 @@ All 16 live DNS records for `gordon-pn.com` and the VPS shield tunnel are manage
    * Run `tofu import cloudflare_tunnel.<name> <account_id>/<tunnel_id>` for Cloudflare tunnels.
 3. **State Reconciliation Safeguard:**
    * Because Cloudflare Provider v4.52.9 leaves `content` and `allow_overwrite` as `null` in state during import, a normal plan will report in-place modifications (`content = null -> <expected>`, `allow_overwrite = null -> false`).
-   * Back up state prior to editing: `cp terraform.tfstate terraform.tfstate.pre-reconcile.backup`.
+   * Capture a private backend snapshot using the [state recovery procedure](terraform_iac.md#pull-state-via-cli) before editing.
    * Reconcile `instances[0].attributes.content` with the matching live API answer and set `allow_overwrite = false`.
+   * Publish only reviewed state changes through the backend-aware [state restoration procedure](terraform_iac.md#restore-state), preserving locking, lineage, and serial safeguards.
    * Verify with `tofu plan -detailed-exitcode` (must exit 0 with zero proposed changes).
 4. **Drift Detection Verification:**
    * Introduce a temporary change in configuration and verify `tofu plan -detailed-exitcode` exits with code 2, proving drift detection remains active and unsuppressed.
 5. **Rollback Procedure:**
-   * If state corruption occurs during import, restore from the timestamped backup:
-     `cp terraform.tfstate.pre-import.backup terraform.tfstate`
+   * If state corruption occurs during import, stop other writers and follow the [backend-aware recovery procedure](terraform_iac.md#restore-state). Copying a local file does not restore MinIO state.
    * Because no `tofu apply` write calls are executed against Cloudflare during adoption, live DNS records remain completely intact and unaffected.
 6. **Scope Boundary Clarification:**
    * The 100% coverage applies to all 16 active records present in the live Cloudflare DNS zone `gordon-pn.com`. Historical service references in Compose/Swarm configurations (e.g. `drone` or `traefik`) route via internal networks or local Traefik routing rules and do not correspond to public Cloudflare DNS records.
@@ -119,10 +119,12 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
 
 ## 6. Domain 5: Terraform Automated GitOps Pipeline (Deploy on Push)
 
-### Current State (Completed)
+### Current State (Backend Migrated; PR Validation Verified)
 * Terraform state migrated to MinIO S3 backend (`terraform-state` bucket on `master` backed by persistent hostPath storage on 1TB SSD).
 * MinIO service exposed via NodePort `30900` over Tailscale for local workstation `task tf:plan` and `task tf:apply` execution.
 * GitHub Actions repository secrets configured for automation:
+  * `MINIO_ACCESS_KEY`
+  * `MINIO_SECRET_KEY`
   * `CLOUDFLARE_API_TOKEN`
   * `CLOUDFLARE_EMAIL`
   * `TF_VAR_ACCOUNT_ID`
@@ -133,6 +135,7 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
   * Scoped triggers on `terraform/**`, `Taskfile.yaml`, `scripts/ci/**`, `tests/**`, and the Terraform workflow itself.
   * Runs offline backend credential regression checks before contacting infrastructure.
   * Runs formatting checks, initialization, validation, and speculative planning on pull requests.
-  * Reconciles and applies changes automatically on merge to `master`.
+  * Configures automatic reconciliation on `master` pushes; activation and verification of that path await merge.
+* Lock-contention and backup-restore exercises remain unverified. The Longhorn recurring backup does not back up the Terraform state bucket.
 * Refer to [docs/terraform_iac.md](terraform_iac.md) for architecture, operational workflows, and disaster recovery procedures.
 
