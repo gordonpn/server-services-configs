@@ -1,6 +1,6 @@
 # Server service configs and tools
 
-![Healthchecks](https://healthchecks.io/badge/d5b6a7bd-1598-4684-8b91-1128b377a198/Er4g1DRe.svg)
+![Healthchecks](https://healthchecks.io/badge/63a82bd5-b473-430b-9745-22843eff864e/ckgqM2Fm.svg)
 ![License](https://badgen.net/github/license/gordonpn/server-services-configs)
 
 ## Description
@@ -14,6 +14,7 @@ This repository contains configuration (docker-compose.yml files) to set up the 
 - [Homelab and Free Cloud Decision Context](docs/cloud_decision_context.md)
 - [OCI Offsite k3s and Disaster Recovery](docs/oci_offsite_k3s_dr.md)
 - [GCP Utility Node and Ingress Redundancy](docs/gcp_utility_ingress.md)
+- [Healthchecks.io Infrastructure as Code](docs/healthchecks_iac.md)
 
 ## Setting up a new Raspberry Pi node
 
