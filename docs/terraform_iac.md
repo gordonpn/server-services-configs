@@ -117,7 +117,7 @@ task tf:apply
 
 ## 5. Automated CI/CD GitOps Pipeline
 
-The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.yml) runs on push and pull requests affecting `terraform/**` or `Taskfile.yaml`:
+The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.yml) runs on push and pull requests affecting `terraform/**`, `Taskfile.yaml`, or `scripts/ci/**`:
 
 1. **Self-Hosted Execution & Security Guard:** Executes on `runs-on: home-lab-runners` pinned to `master`. Job restricts execution to internal repository branches (`if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository`) to protect cluster-admin runner credentials against untrusted public fork code execution.
 2. **Network Resilience:** Enforces GLIBC IPv4 resolution (`precedence ::ffff:0:0/96 100` and `GODEBUG="netdns=cgo"`) to prevent IPv6 timeouts on container egress.
@@ -130,15 +130,22 @@ The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.ym
 
 ## 6. Disaster Recovery & State Inspection
 
-### Direct State Retrieval
-To inspect the current remote state without initializing OpenTofu:
-```bash
-kubectl exec -n longhorn-system deployment/minio -- ls -la /data/terraform-state/homelab/terraform.tfstate
-```
-
 ### Pull State via CLI
+To dump the live remote state from MinIO to a local backup file:
 ```bash
 tofu -chdir=terraform state pull > state-backup.json
+```
+
+### State Lock Release
+If a process terminates unexpectedly while holding an S3 state lock:
+```bash
+tofu -chdir=terraform force-unlock <LOCK_ID>
+```
+
+### Direct S3 Inspection
+To inspect the state object directly using AWS CLI / MinIO Client over Tailscale:
+```bash
+aws --endpoint-url http://master.tailb65f8c.ts.net:30900 s3 cp s3://terraform-state/homelab/terraform.tfstate - | jq .
 ```
 
 ### Backups

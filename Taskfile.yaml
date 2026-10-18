@@ -215,8 +215,11 @@ tasks:
   tf:init:
     desc: Initialize terraform
     dir: '{{.TERRAFORM_DIR}}'
+    env:
+      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
+      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
     cmds:
-      - terraform init -backend-config="endpoint={{.TF_BACKEND_ENDPOINT}}" -backend-config="access_key={{.AWS_ACCESS_KEY_ID}}" -backend-config="secret_key={{.AWS_SECRET_ACCESS_KEY}}" {{.CLI_ARGS}}
+      - terraform init -backend-config="endpoint={{.TF_BACKEND_ENDPOINT}}" {{.CLI_ARGS}}
 
   tf:fmt:
     desc: Format terraform files

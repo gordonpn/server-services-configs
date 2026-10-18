@@ -12,7 +12,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Kubernetes Workloads** | ~70% (Helmfile) | 5 standalone raw manifests (`cloudflared`, `redis`, `ntfy`, `coredns-scale`) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | High |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
-| **Terraform Deploy on Push** | 0% (Manual tasks) | Automated CI/CD pipeline disabled; state stored locally | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Medium |
+| **Terraform Deploy on Push** | 100% (Completed) | Remote state in MinIO S3; automated GitHub Actions workflow enabled | GitHub Actions ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) | Completed |
 | **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
 | **Legacy Host Services** | Manual | `autossh` (`vps-tunnel.service`) on `master` | Decommission (Replaced by Tailscale) | Medium |
 | **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
@@ -130,7 +130,7 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
   * `TF_VAR_KUMA_SLACK_WEBHOOK_URL`
   * `TF_VAR_HEALTHCHECKSIO_API_KEY`
 * The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) is re-enabled on `home-lab-runners`:
-  * Scoped triggers on `terraform/**` and `Taskfile.yaml`.
+  * Scoped triggers on `terraform/**`, `Taskfile.yaml`, and `scripts/ci/**`.
   * Runs formatting checks, initialization, validation, and speculative planning on pull requests.
   * Reconciles and applies changes automatically on merge to `master`.
 * Refer to [docs/terraform_iac.md](terraform_iac.md) for architecture, operational workflows, and disaster recovery procedures.
