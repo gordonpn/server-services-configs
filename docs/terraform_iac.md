@@ -17,6 +17,7 @@ Terraform state is stored in an S3-compatible remote backend hosted by MinIO on 
 * **Bucket:** `terraform-state`
 * **Key:** `homelab/terraform.tfstate`
 * **Region:** `us-east-1`
+* **State Locking:** Native S3 state locking enabled via `use_lockfile = true` in OpenTofu 1.13+ (creates `.tflock` objects via S3 conditional writes, eliminating need for external DynamoDB).
 * **Storage Location:** Backed by hostPath mount `/media/storage/backups` on the attached 1TB SSD of `master`.
 
 ```mermaid
@@ -118,9 +119,9 @@ task tf:apply
 
 The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.yml) runs on push and pull requests affecting `terraform/**` or `Taskfile.yaml`:
 
-1. **Self-Hosted Execution:** Executes on `runs-on: home-lab-runners` pinned to `master`.
+1. **Self-Hosted Execution & Security Guard:** Executes on `runs-on: home-lab-runners` pinned to `master`. Job restricts execution to internal repository branches (`if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository`) to protect cluster-admin runner credentials against untrusted public fork code execution.
 2. **Network Resilience:** Enforces GLIBC IPv4 resolution (`precedence ::ffff:0:0/96 100` and `GODEBUG="netdns=cgo"`) to prevent IPv6 timeouts on container egress.
-3. **Tool Bootstrapping:** Automatically downloads architecture-aware binaries for `task` (v3.52.0) and `opentofu` (v1.9.0) with connection retries.
+3. **Tool Bootstrapping:** Automatically downloads architecture-aware binaries for `task` (v3.52.0) and `opentofu` (v1.13.1) with connection retries.
 4. **Validation Gate:** Runs format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
 5. **Speculative Plan on Pull Requests:** Runs `task tf:plan` on PRs to provide visibility into proposed infrastructure modifications without mutating state.
 6. **Automated Apply on Merge:** Runs `task tf:apply -- -auto-approve` automatically when changes merge to `master`.
