@@ -4,6 +4,9 @@ vars:
   ROOT_DIR: '{{.TASKFILE_DIR}}'
   CHARTS_DIR: '{{.ROOT_DIR}}/k8s/charts'
   TERRAFORM_DIR: '{{.ROOT_DIR}}/terraform'
+  TF_BACKEND_ENDPOINT: '{{.TF_BACKEND_ENDPOINT | default "http://master.tailb65f8c.ts.net:30900"}}'
+  AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID | default "minioadmin"}}'
+  AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY | default "minioadminsecret"}}'
 
 tasks:
   default:
@@ -213,34 +216,43 @@ tasks:
     desc: Initialize terraform
     dir: '{{.TERRAFORM_DIR}}'
     cmds:
-      - terraform init
+      - terraform init -backend-config="endpoint={{.TF_BACKEND_ENDPOINT}}" -backend-config="access_key={{.AWS_ACCESS_KEY_ID}}" -backend-config="secret_key={{.AWS_SECRET_ACCESS_KEY}}" {{.CLI_ARGS}}
 
   tf:fmt:
     desc: Format terraform files
     dir: '{{.TERRAFORM_DIR}}'
     cmds:
-      - terraform fmt -recursive
+      - terraform fmt -recursive {{.CLI_ARGS}}
 
   tf:validate:
     desc: Validate terraform config
     dir: '{{.TERRAFORM_DIR}}'
     cmds:
-      - terraform validate
+      - terraform validate {{.CLI_ARGS}}
 
   tf:plan:
     desc: Plan terraform changes
     dir: '{{.TERRAFORM_DIR}}'
+    env:
+      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
+      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
     cmds:
-      - terraform plan
+      - terraform plan {{.CLI_ARGS}}
 
   tf:apply:
     desc: Apply terraform changes
     dir: '{{.TERRAFORM_DIR}}'
+    env:
+      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
+      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
     cmds:
-      - terraform apply
+      - terraform apply {{.CLI_ARGS}}
 
   tf:destroy:
     desc: Destroy terraform-managed resources
     dir: '{{.TERRAFORM_DIR}}'
+    env:
+      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
+      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
     cmds:
-      - terraform destroy
+      - terraform destroy {{.CLI_ARGS}}
