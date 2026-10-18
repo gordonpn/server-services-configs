@@ -119,30 +119,19 @@ The following manifests are currently applied via ad-hoc `kubectl apply` tasks i
 
 ## 6. Domain 5: Terraform Automated GitOps Pipeline (Deploy on Push)
 
-### Current State
-* The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml)) is disabled with `if: false`.
-* Terraform state is stored locally in `terraform/terraform.tfstate` (gitignored).
-* Changes are planned and applied manually via `task tf:plan` and `task tf:apply`.
-
-### Action Plan (To-Do)
-1. **Remote State Backend:**
-   * Migrate Terraform state from local filesystem to a remote backend with state locking (such as MinIO S3 bucket on `master` or Cloudflare R2 / Terraform Cloud).
-2. **GitHub Actions Secrets Provisioning:**
-   * Configure repository secrets for automation:
-     * `CLOUDFLARE_API_TOKEN`
-     * `CLOUDFLARE_EMAIL`
-     * `TF_VAR_kuma_password`
-     * `TF_VAR_kuma_slack_webhook_url`
-3. **Workflow Re-enablement & Path Scoping:**
-   * Update [.github/workflows/terraform.yml](file:///.github/workflows/terraform.yml) to trigger only on pushes to `master` when files in `terraform/**` change:
-     ```yaml
-     on:
-       push:
-         branches:
-           - master
-         paths:
-           - 'terraform/**'
-       workflow_dispatch:
-     ```
-   * Remove `if: false` and ensure the workflow runs formatting checks, initialization, validation, and automated apply on merge.
+### Current State (Completed)
+* Terraform state migrated to MinIO S3 backend (`terraform-state` bucket on `master` backed by persistent hostPath storage on 1TB SSD).
+* MinIO service exposed via NodePort `30900` over Tailscale for local workstation `task tf:plan` and `task tf:apply` execution.
+* GitHub Actions repository secrets configured for automation:
+  * `CLOUDFLARE_API_TOKEN`
+  * `CLOUDFLARE_EMAIL`
+  * `TF_VAR_ACCOUNT_ID`
+  * `TF_VAR_KUMA_PASSWORD`
+  * `TF_VAR_KUMA_SLACK_WEBHOOK_URL`
+  * `TF_VAR_HEALTHCHECKSIO_API_KEY`
+* The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) is re-enabled on `home-lab-runners`:
+  * Scoped triggers on `terraform/**` and `Taskfile.yaml`.
+  * Runs formatting checks, initialization, validation, and speculative planning on pull requests.
+  * Reconciles and applies changes automatically on merge to `master`.
+* Refer to [docs/terraform_iac.md](terraform_iac.md) for architecture, operational workflows, and disaster recovery procedures.
 

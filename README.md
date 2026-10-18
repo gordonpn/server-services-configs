@@ -15,6 +15,7 @@ This repository contains configuration (docker-compose.yml files) to set up the 
 - [OCI Offsite k3s and Disaster Recovery](docs/oci_offsite_k3s_dr.md)
 - [GCP Utility Node and Ingress Redundancy](docs/gcp_utility_ingress.md)
 - [Healthchecks.io Infrastructure as Code](docs/healthchecks_iac.md)
+- [Terraform Infrastructure as Code & GitOps Pipeline](docs/terraform_iac.md)
 
 ## Setting up a new Raspberry Pi node
 
