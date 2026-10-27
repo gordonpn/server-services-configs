@@ -21,7 +21,7 @@ This repository contains configuration (docker-compose.yml files) to set up the 
 
 - [Cloudflared security upgrade](docs/cloudflared_security_upgrade.md)
 
-For local Terraform backend operations, export `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` from secure local storage first. Missing or empty credentials stop the task before OpenTofu runs. Run `task tf:test` for offline credential checks and `task ci:lint` for workflow and shell validation.
+For local Terraform backend operations, export `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` from secure local storage first. Missing or empty credentials stop the task before OpenTofu runs. Run `task tf:test` for backend credential checks, `task swarm:test` for the Caddy tunnel-token guard, and `task ci:lint` for workflow and shell validation.
 
 ## Setting up a new Raspberry Pi node
 

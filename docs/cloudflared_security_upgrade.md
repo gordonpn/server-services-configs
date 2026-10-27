@@ -28,7 +28,13 @@ Confirm all four pods use `cloudflare/cloudflared:2026.10.4` and are Ready. The 
 
 The stack uses a start-first update and also starts the previous task first during rollback. Swarm continues when the updated task reaches `RUNNING`; check tunnel connection status in Cloudflare separately. The active route resolves to `http://caddy:80`, and Caddy has no published host port, so the temporary connector must join the attachable `caddy_vps_shield_net` overlay.
 
-On RackNerd, in a shell with `VPS_TUNNEL_TOKEN` set, start the temporary connector and verify that the overlay can reach Caddy:
+Set `VPS_TUNNEL_TOKEN` in the invoking shell from the sensitive Terraform output `vps_tunnel_token`; `task swarm:deploy` does not load `scripts/.env`. For example, capture the output in the environment without printing it:
+
+```sh
+export VPS_TUNNEL_TOKEN="$(terraform -chdir=terraform output -raw vps_tunnel_token)"
+```
+
+On RackNerd, start the temporary connector and verify that the overlay can reach Caddy:
 
 ```sh
 test -n "${VPS_TUNNEL_TOKEN:-}" || { echo "VPS_TUNNEL_TOKEN is unset" >&2; exit 1; }
@@ -36,7 +42,7 @@ TUNNEL_TOKEN="$VPS_TUNNEL_TOKEN" docker run --detach --name cloudflared-rollout 
 docker run --rm --network caddy_vps_shield_net busybox:1.37.0 wget -S -O /dev/null http://caddy:80/
 ```
 
-Wait until Cloudflare reports the temporary connector connected and the tunnel healthy. Keep it running while the service updates. The task checks that `VPS_TUNNEL_TOKEN` is set before it deploys the stack.
+Wait until Cloudflare reports the temporary connector connected and the tunnel healthy. Keep it running while the service updates. The task requires `VPS_TUNNEL_TOKEN` to be non-empty and contain no whitespace before it deploys the stack.
 
 ```sh
 task swarm:deploy STACK=caddy
