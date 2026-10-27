@@ -89,7 +89,7 @@ Sensitive provider tokens and credentials must never be committed to Git:
 
 Common operations are executed via `task` recipes in the repository root:
 
-`task tf:test` checks rejection of missing and empty credentials, environment forwarding, and argument preservation for all four backend operations using a local Terraform stub. It never contacts MinIO or the managed providers. `task ci:lint` checks the Terraform workflow and its shell scripts with actionlint and shellcheck.
+`task tf:test` checks rejection of missing and empty credentials, environment forwarding, and argument preservation for all four backend operations using a local Terraform stub. It never contacts MinIO or the managed providers. `task swarm:test` checks the Caddy deploy token guard with a local Docker stub and never contacts Docker. `task ci:lint` checks the Terraform and Swarm validation workflows plus their shell scripts with actionlint and shellcheck.
 
 ### Initialize Backend & Providers
 ```bash
@@ -127,9 +127,11 @@ The workflow [.github/workflows/terraform.yml](../.github/workflows/terraform.ym
 1. **Self-Hosted Execution & Security Guard:** Executes on `runs-on: home-lab-runners` pinned to `master`. Job restricts execution to internal repository branches (`if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository`) to protect cluster-admin runner credentials against untrusted public fork code execution.
 2. **Network Resilience:** Enforces GLIBC IPv4 resolution (`precedence ::ffff:0:0/96 100` and `GODEBUG="netdns=cgo"`) to prevent IPv6 timeouts on container egress.
 3. **Tool Bootstrapping:** Automatically downloads architecture-aware binaries for `task` (v3.52.0) and `opentofu` (v1.13.1) with connection retries.
-4. **Validation Gate:** Runs offline credential checks (`task tf:test`), format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
+4. **Validation Gate:** Runs offline backend credential checks (`task tf:test`), format checks (`task tf:fmt -- -check`), backend initialization (`task tf:init`), and syntax validation (`task tf:validate`).
 5. **Speculative Plan on Pull Requests:** Runs `task tf:plan` on PRs without applying resource changes. Planning can acquire and release the backend's `.tflock` object.
 6. **Automated Apply on Merge:** Runs `task tf:apply -- -auto-approve` automatically when changes merge to `master`.
+
+The separate [Swarm Validation workflow](../.github/workflows/swarm-validation.yml) runs `task swarm:test` on changes to Swarm stack files, the task definition, CI setup scripts, or test files. It uses an Ubuntu-hosted runner and does not access Terraform credentials or deploy a stack.
 
 ---
 

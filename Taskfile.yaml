@@ -27,15 +27,20 @@ tasks:
       - command -v terraform
 
   ci:lint:
-    desc: Lint the Terraform workflow and its shell scripts
+    desc: Lint Terraform and Swarm workflows and shell scripts
     cmds:
-      - actionlint .github/workflows/terraform.yml
+      - actionlint .github/workflows/terraform.yml .github/workflows/swarm-validation.yml
       - shellcheck scripts/ci/*.sh tests/*.sh tests/fixtures/*.sh
 
   tf:test:
     desc: Test backend credential guards without contacting infrastructure
     cmds:
       - bash tests/terraform-backend-credentials.sh
+
+  swarm:test:
+    desc: Test Swarm deploy token guard without contacting infrastructure
+    cmds:
+      - bash tests/swarm-deploy-token.sh
 
   ci:
     desc: Generate CI/CD config from jsonnet
@@ -126,6 +131,18 @@ tasks:
     cmds:
       - helmfile -f helmfile.yaml --selector name=k3s-maintenance apply
 
+  k8s:sync:workloads:
+    desc: Sync the workloads Helmfile release
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml --selector name=workloads sync
+
+  k8s:diff:workloads:
+    desc: Diff the workloads Helmfile release against the cluster
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml --selector name=workloads diff
+
   k8s:apply:all:
     desc: Apply all Kubernetes charts and workloads via Helmfile
     cmds:
@@ -179,6 +196,8 @@ tasks:
         msg: 'Set STACK, e.g. task swarm:deploy STACK=traefik'
       - sh: test -f 'docker-swarm/{{.STACK}}/docker-compose.yml'
         msg: 'Stack docker-swarm/{{.STACK}}/docker-compose.yml not found'
+      - sh: 'test "{{.STACK}}" != "caddy" || { raw="${VPS_TUNNEL_TOKEN:-}"; trimmed="$(printf "%s" "${raw}" | tr -d "[:space:]")"; test -n "${trimmed}" && test "${raw}" = "${trimmed}"; }'
+        msg: 'Set VPS_TUNNEL_TOKEN (non-empty, no whitespace) from the vps_tunnel_token Terraform output before deploying caddy'
     cmds:
       - docker stack deploy -c docker-swarm/{{.STACK}}/docker-compose.yml {{.STACK}}
 

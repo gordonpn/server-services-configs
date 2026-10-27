@@ -1,7 +1,7 @@
 services:
   cloudflared:
     container_name: cloudflared
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.10.4
     command: tunnel run ssh-tunnel
     restart: unless-stopped
     network_mode: host

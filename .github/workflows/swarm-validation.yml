@@ -1,0 +1,45 @@
+name: Swarm Validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docker-swarm/**'
+      - 'Taskfile.yaml'
+      - 'scripts/ci/**'
+      - 'tests/**'
+      - '.github/workflows/swarm-validation.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docker-swarm/**'
+      - 'Taskfile.yaml'
+      - 'scripts/ci/**'
+      - 'tests/**'
+      - '.github/workflows/swarm-validation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  token-guard:
+    name: Swarm Token Guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Task
+        run: ./scripts/ci/setup-task.sh
+
+      - name: Test Swarm Deploy Token Guard
+        run: task swarm:test

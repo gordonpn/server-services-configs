@@ -57,6 +57,7 @@ Key scripts in the `scripts/` directory:
 - Keep RackNerd responsible for existing VPS ingress and Northflank responsible for independent Uptime Kuma monitoring outside Swarm and k3s.
 - Prioritize a separate OCI A1 k3s environment for offsite recovery, staging, and ARM64 testing; do not continuously mirror the homelab or depend on the home control plane for recovery.
 - Treat GCP e2-micro as optional ingress redundancy or a lightweight utility node. Prefer permanent free-tier limits, verify networking costs, and do not deploy another Uptime Kuma. See [Cloud Decision Context](docs/cloud_decision_context.md) for the planned architecture and provider constraints.
+- For Cloudflare Tunnel maintenance replicas, preserve reachability to the configured origin. RackNerd's `vps-shield-tunnel` origin is `http://caddy:80` on `caddy_vps_shield_net`, so temporary connectors must join that overlay. If an origin is connector-local, such as `localhost:22`, a temporary connector must share that host network or use a common reachable origin. Keep it until the replacement connector is independently confirmed connected and its route works.
 
 ### Monitoring & Alerts
 - **Automated Stale Job Cleaner:** The `stale-job-cleaner` CronJob in `k3s-maintenance` automatically prunes failed jobs and stuck/unknown pods every 2 hours across all namespaces. This eliminates persistent `KubeJobFailed` alerts in Alertmanager and prevents stuck jobs from blocking future schedules.

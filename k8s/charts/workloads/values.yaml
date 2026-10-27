@@ -2,7 +2,7 @@ cloudflared:
   replicas: 4
   image:
     repository: cloudflare/cloudflared
-    tag: latest
+    tag: 2026.10.4
     pullPolicy: IfNotPresent
 
 redis:

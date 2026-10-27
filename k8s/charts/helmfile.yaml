@@ -150,6 +150,8 @@ releases:
   - name: workloads
     namespace: default
     chart: ./workloads
+    # Existing workloads still have fields owned by the client-side apply manager.
+    serverSide: "false"
     needs:
       - longhorn-system/longhorn
       - kube-system/k3s-maintenance

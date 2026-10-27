@@ -5,6 +5,5 @@ ingress:
     service: tcp://127.0.0.1:22
     originRequest:
       connectTimeout: 30s
-      noTLSVerify: true
   - service: http_status:404
 
