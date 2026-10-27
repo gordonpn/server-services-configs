@@ -48,7 +48,7 @@ Wait until Cloudflare reports the temporary connector connected and the tunnel h
 task swarm:deploy STACK=caddy
 ```
 
-Confirm the service task runs `cloudflare/cloudflared:2026.10.4`, Cloudflare reports the updated connector connected, and the public route through Caddy works. Then remove the temporary connector:
+Confirm the replacement task runs `cloudflare/cloudflared:2026.10.4`, remains attached to `caddy_vps_shield_net`, and Cloudflare reports it connected. Both connectors then use the same `caddy:80` origin path. A public route check alone is insufficient because Cloudflare may serve it through the temporary connector. Remove the temporary connector only after the replacement connector and route are verified:
 
 ```sh
 docker rm -f cloudflared-rollout
@@ -74,7 +74,7 @@ cloudflared --version
 systemctl is-active cloudflared
 ```
 
-Confirm the upgraded connector itself is connected and the SSH route works before removing the temporary connector. The package repository should provide 2026.10.2 or later.
+Confirm the upgraded systemd connector itself is connected and can use the same configured SSH origin before removing the temporary connector; an SSH route check alone may still hit the temporary connector. The package repository should provide 2026.10.2 or later.
 
 ## Origin certificates
 
