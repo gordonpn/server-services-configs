@@ -26,13 +26,21 @@ Confirm all four pods use `cloudflare/cloudflared:2026.10.4` and are Ready. The 
 
 ## RackNerd Docker Swarm
 
-The stack uses a start-first update with one task at a time and rollback on a failed task. In the Cloudflare dashboard, open `vps-shield-tunnel`, select **Add a replica**, and start a temporary `cloudflare/cloudflared:2026.10.4` connector with the tunnel's token. Wait until Cloudflare reports it connected and the tunnel healthy, then keep it running while the service updates.
+The stack uses a start-first update with one task at a time and automatic rollback if a task fails during the monitor period. Swarm continues when the updated task reaches `RUNNING`; check tunnel connection status in Cloudflare separately. Open `vps-shield-tunnel`, select **Add a replica**, and start a temporary `cloudflare/cloudflared:2026.10.4` connector with the tunnel's token. Wait until Cloudflare reports it connected and the tunnel healthy, then keep it running while the service updates.
 
 ```sh
 task swarm:deploy STACK=caddy
 ```
 
 Confirm the service task runs `cloudflare/cloudflared:2026.10.4`, Cloudflare reports the updated connector connected, and the route through Caddy works. Then remove the temporary connector. Do not remove or replace the original until the temporary connector is healthy.
+
+If the updated connector does not connect, leave the temporary connector running and restore the previous service spec:
+
+```sh
+docker service update --rollback caddy_cloudflared
+```
+
+Confirm the previous connector is connected and the route works before removing the temporary connector.
 
 ## Master systemd service
 
