@@ -126,6 +126,18 @@ tasks:
     cmds:
       - helmfile -f helmfile.yaml --selector name=k3s-maintenance apply
 
+  k8s:sync:workloads:
+    desc: Sync the workloads Helmfile release
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml --selector name=workloads sync
+
+  k8s:diff:workloads:
+    desc: Diff the workloads Helmfile release against the cluster
+    dir: '{{.CHARTS_DIR}}'
+    cmds:
+      - helmfile -f helmfile.yaml --selector name=workloads diff
+
   k8s:apply:all:
     desc: Apply all Kubernetes charts and workloads via Helmfile
     cmds:

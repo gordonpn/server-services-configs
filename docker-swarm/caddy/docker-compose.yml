@@ -17,7 +17,7 @@ services:
         condition: any
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.10.4
     command: tunnel --no-autoupdate run
     networks:
       - vps_shield_net
@@ -30,6 +30,11 @@ services:
           - node.hostname == racknerd-edc1bc8
       restart_policy:
         condition: any
+      update_config:
+        parallelism: 1
+        monitor: 30s
+        failure_action: rollback
+        order: start-first
 
 networks:
   vps_shield_net:

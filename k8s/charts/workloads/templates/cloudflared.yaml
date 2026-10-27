@@ -7,6 +7,11 @@ metadata:
     app: cloudflared
 spec:
   replicas: {{ .Values.cloudflared.replicas | default 4 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: cloudflared
@@ -23,10 +28,22 @@ spec:
           imagePullPolicy: {{ .Values.cloudflared.image.pullPolicy | default "IfNotPresent" }}
           args:
             - tunnel
+            - --metrics
+            - 0.0.0.0:2000
             - --no-autoupdate
             - run
             - --token
             - "$(TUNNEL_TOKEN)"
+          ports:
+            - name: metrics
+              containerPort: 2000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: metrics
+            periodSeconds: 10
+            failureThreshold: 3
           env:
             - name: TUNNEL_TOKEN
               valueFrom:
