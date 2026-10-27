@@ -35,6 +35,8 @@ services:
         monitor: 30s
         failure_action: rollback
         order: start-first
+      rollback_config:
+        order: start-first
 
 networks:
   vps_shield_net:

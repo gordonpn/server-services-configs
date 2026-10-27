@@ -191,6 +191,8 @@ tasks:
         msg: 'Set STACK, e.g. task swarm:deploy STACK=traefik'
       - sh: test -f 'docker-swarm/{{.STACK}}/docker-compose.yml'
         msg: 'Stack docker-swarm/{{.STACK}}/docker-compose.yml not found'
+      - sh: 'test "{{.STACK}}" != "caddy" || test -n "${VPS_TUNNEL_TOKEN:-}"'
+        msg: 'Set VPS_TUNNEL_TOKEN before deploying the caddy stack'
     cmds:
       - docker stack deploy -c docker-swarm/{{.STACK}}/docker-compose.yml {{.STACK}}
 
