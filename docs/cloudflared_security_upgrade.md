@@ -16,8 +16,8 @@ The four Kubernetes replicas and the RackNerd connector use container images and
 The Deployment starts one surge pod at a time and keeps all existing pods until the new pod's `/ready` probe confirms a connection to Cloudflare.
 
 ```sh
-task k8s:diff:workloads
-task k8s:sync:workloads
+HELMFILE_KUBE_CONTEXT=k3s-master task k8s:diff:workloads
+HELMFILE_KUBE_CONTEXT=k3s-master task k8s:sync:workloads
 kubectl --context k3s-master rollout status deployment/cloudflared -n default --timeout=5m
 kubectl --context k3s-master get pods -n default -l app=cloudflared -o 'custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image,READY:.status.containerStatuses[0].ready'
 ```
@@ -26,13 +26,27 @@ Confirm all four pods use `cloudflare/cloudflared:2026.10.4` and are Ready. The 
 
 ## RackNerd Docker Swarm
 
-The stack uses a start-first update with one task at a time and automatic rollback if a task fails during the monitor period. Swarm continues when the updated task reaches `RUNNING`; check tunnel connection status in Cloudflare separately. Open `vps-shield-tunnel`, select **Add a replica**, and start a temporary `cloudflare/cloudflared:2026.10.4` connector with the tunnel's token. Wait until Cloudflare reports it connected and the tunnel healthy, then keep it running while the service updates.
+The stack uses a start-first update and also starts the previous task first during rollback. Swarm continues when the updated task reaches `RUNNING`; check tunnel connection status in Cloudflare separately. The active route resolves to `http://caddy:80`, and Caddy has no published host port, so the temporary connector must join the attachable `caddy_vps_shield_net` overlay.
+
+On RackNerd, in a shell with `VPS_TUNNEL_TOKEN` set, start the temporary connector and verify that the overlay can reach Caddy:
+
+```sh
+test -n "${VPS_TUNNEL_TOKEN:-}" || { echo "VPS_TUNNEL_TOKEN is unset" >&2; exit 1; }
+TUNNEL_TOKEN="$VPS_TUNNEL_TOKEN" docker run --detach --name cloudflared-rollout --network caddy_vps_shield_net --env TUNNEL_TOKEN cloudflare/cloudflared:2026.10.4 tunnel run
+docker run --rm --network caddy_vps_shield_net busybox:1.37.0 wget -S -O /dev/null http://caddy:80/
+```
+
+Wait until Cloudflare reports the temporary connector connected and the tunnel healthy. Keep it running while the service updates. The task checks that `VPS_TUNNEL_TOKEN` is set before it deploys the stack.
 
 ```sh
 task swarm:deploy STACK=caddy
 ```
 
-Confirm the service task runs `cloudflare/cloudflared:2026.10.4`, Cloudflare reports the updated connector connected, and the route through Caddy works. Then remove the temporary connector. Do not remove or replace the original until the temporary connector is healthy.
+Confirm the service task runs `cloudflare/cloudflared:2026.10.4`, Cloudflare reports the updated connector connected, and the public route through Caddy works. Then remove the temporary connector:
+
+```sh
+docker rm -f cloudflared-rollout
+```
 
 If the updated connector does not connect, leave the temporary connector running and restore the previous service spec:
 
@@ -44,7 +58,7 @@ Confirm the previous connector is connected and the route works before removing 
 
 ## Master systemd service
 
-The `master-rescue` tunnel currently has one connector. In the Cloudflare dashboard, open `master-rescue`, select **Add a replica**, and start a temporary connector on another host. Confirm it is connected before restarting the systemd service. Then update the Debian package and verify it:
+The `master-rescue` tunnel currently has one connector. Before adding a temporary replica, check the route's configured SSH origin. A connector on another host cannot reach an origin such as `localhost:22` on `master`; for a connector-local origin, run the temporary connector on `master` with the host network, or configure an origin reachable by both connectors. Confirm the temporary connector can reach that origin and Cloudflare reports it connected before restarting the systemd service. Then update the Debian package and verify it:
 
 ```sh
 sudo apt update
@@ -54,7 +68,7 @@ cloudflared --version
 systemctl is-active cloudflared
 ```
 
-Confirm the upgraded connector is connected and the SSH route works before removing the temporary connector. The package repository should provide 2026.10.2 or later.
+Confirm the upgraded connector itself is connected and the SSH route works before removing the temporary connector. The package repository should provide 2026.10.2 or later.
 
 ## Origin certificates
 
