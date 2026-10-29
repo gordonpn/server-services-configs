@@ -95,7 +95,7 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 ### Current State
 * Node `racknerd-edc1bc8` has `ufw` inactive.
 * `sshd` listens on both public port 22 and 443.
-* Node `master` runs `vps-tunnel.service` (`autossh` on port 443 to `23.95.192.74`).
+* Node `master` legacy `vps-tunnel.service` (`autossh`) is stopped, disabled, and removed.
 
 ### Action Plan
 1. **Decommission Autossh (Completed in [#39](https://github.com/gordonpn/server-services-configs/issues/39)):**
