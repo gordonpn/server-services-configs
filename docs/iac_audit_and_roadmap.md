@@ -14,7 +14,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
 | **Terraform Deploy on Push** | Backend migrated; PR validation verified | Master apply awaits merge and post-merge verification | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | In progress |
 | **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
-| **Legacy Host Services** | Manual | `autossh` (`vps-tunnel.service`) on `master` | Decommission (Replaced by Tailscale) | Medium |
+| **Legacy Host Services** | Systemd | `autossh` (`vps-tunnel.service`) on `master` | Decommissioned ([#39](https://github.com/gordonpn/server-services-configs/issues/39)) | Completed |
 | **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
 
 ---
@@ -95,15 +95,17 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 ### Current State
 * Node `racknerd-edc1bc8` has `ufw` inactive.
 * `sshd` listens on both public port 22 and 443.
-* Node `master` runs `vps-tunnel.service` (`autossh` on port 443 to `23.95.192.74`).
+* Node `master` legacy `vps-tunnel.service` (`autossh`) is stopped, disabled, and removed.
 
 ### Action Plan
-1. **Decommission Autossh:**
-   * Stop and disable `vps-tunnel.service` on `master` since Tailscale WireGuard provides direct mesh connectivity (`100.88.170.93`).
-2. **Automate Firewall Rules:**
-   * Enable UFW on `racknerd-edc1bc8` with a default `deny` incoming policy.
-   * Allow incoming traffic on `tailscale0` only.
-   * Disable public port 443 SSH on the VPS.
+1. **Decommission Autossh (Completed in [#39](https://github.com/gordonpn/server-services-configs/issues/39)):**
+   * Stopped and disabled `vps-tunnel.service` on `master` (`sudo systemctl disable --now vps-tunnel.service`).
+   * Removed `/etc/systemd/system/vps-tunnel.service` and reloaded systemd daemon.
+   * Confirmed no orphaned `autossh` processes remain running.
+   * All administrative access and service communications route securely over the private Tailscale WireGuard mesh (`100.88.170.93` <-> `100.72.77.63`).
+2. **Automate Firewall Rules (Tracking: [#32](https://github.com/gordonpn/server-services-configs/issues/32)):**
+   * Apply a default-deny inbound policy using host firewall controls compatible with Docker Swarm and Tailscale; allow host access through `tailscale0` only.
+   * Ensure public SSH on ports 22 and 443 is unreachable while SSH over Tailscale remains available.
 
 ---
 
