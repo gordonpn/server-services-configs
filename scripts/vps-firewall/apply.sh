@@ -11,9 +11,13 @@ sudo chmod 644 /etc/nftables.conf
 echo "==> Testing and applying nftables rules"
 sudo /usr/sbin/nft -f /etc/nftables.conf
 
-echo "==> Enabling and starting nftables systemd service"
+echo "==> Enabling and applying nftables systemd service"
 sudo systemctl enable nftables.service
-sudo systemctl restart nftables.service
+if sudo systemctl is-active --quiet nftables.service; then
+    sudo systemctl reload nftables.service
+else
+    sudo systemctl start nftables.service
+fi
 
 echo "==> Hardening sshd configuration (closing port 443)"
 if [ -f /etc/ssh/sshd_config.d/custom-ports.conf ]; then
