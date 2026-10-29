@@ -13,7 +13,7 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
 | **Terraform Deploy on Push** | Backend migrated; PR validation verified | Master apply awaits merge and post-merge verification | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | In progress |
-| **Host OS & Firewall (VPS)** | Manual / Ad-hoc | UFW inactive on VPS, SSH exposed on public ports 22 and 443 | Ansible / K3s DaemonSet Hooks | Medium |
+| **Host OS & Firewall (VPS)** | 100% (Completed) | Inbound host access restricted to Tailscale; public ports 22/443 closed | nftables ([scripts/vps-firewall/nftables.conf](../scripts/vps-firewall/nftables.conf)) | Completed |
 | **Legacy Host Services** | Systemd | `autossh` (`vps-tunnel.service`) on `master` | Decommissioned ([#39](https://github.com/gordonpn/server-services-configs/issues/39)) | Completed |
 | **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
 
@@ -93,8 +93,10 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 ## 4. Domain 3: VPS Host OS & Firewall Hardening
 
 ### Current State
-* Node `racknerd-edc1bc8` has `ufw` inactive.
-* `sshd` listens on both public port 22 and 443.
+* Node `racknerd-edc1bc8` host firewall is enforced via `nftables` (`table inet host_firewall`) with a default-deny inbound policy.
+* Inbound host access on `racknerd-edc1bc8` is restricted exclusively to `tailscale0`, loopback, and internal container networks (`docker_gwbridge`, `docker0`, `flannel.1`, `cni0`).
+* Public SSH on TCP ports 22 and 443 is closed and unreachable from WAN (`eth0`).
+* Tailscale WireGuard encapsulation (`eth0:41641/udp`) and ICMP remain permitted.
 * Node `master` legacy `vps-tunnel.service` (`autossh`) is stopped, disabled, and removed.
 
 ### Action Plan
@@ -103,9 +105,10 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
    * Removed `/etc/systemd/system/vps-tunnel.service` and reloaded systemd daemon.
    * Confirmed no orphaned `autossh` processes remain running.
    * All administrative access and service communications route securely over the private Tailscale WireGuard mesh (`100.88.170.93` <-> `100.72.77.63`).
-2. **Automate Firewall Rules (Tracking: [#32](https://github.com/gordonpn/server-services-configs/issues/32)):**
-   * Apply a default-deny inbound policy using host firewall controls compatible with Docker Swarm and Tailscale; allow host access through `tailscale0` only.
-   * Ensure public SSH on ports 22 and 443 is unreachable while SSH over Tailscale remains available.
+2. **Automate Firewall Rules (Completed in [#32](https://github.com/gordonpn/server-services-configs/issues/32)):**
+   * Applied default-deny inbound host policy via native `nftables` configuration ([scripts/vps-firewall/nftables.conf](../scripts/vps-firewall/nftables.conf)).
+   * Enabled and started `nftables.service` to persist rules across host reboots without interfering with Docker Swarm overlay or K3s Flannel networking.
+   * Removed legacy `Port 443` from `/etc/ssh/sshd_config` and drop-ins; verified SSH over Tailscale remains available and public WAN SSH is unreachable.
 
 ---
 
