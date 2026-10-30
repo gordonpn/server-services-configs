@@ -275,7 +275,6 @@ Here are some examples
 0 3 * * * /home/gordonpn/workspace/server-services-configs/scripts/backup.sh >> /home/gordonpn/logs/backup.log 2>&1
 0 5 * * * /home/gordonpn/workspace/server-services-configs/scripts/update_containers.sh >> /home/gordonpn/logs/container_update.log 2>&1
 @reboot sleep 600 && /usr/bin/docker swarm ca --rotate --quiet
-0 */2 * * * /home/gordonpn/workspace/server-services-configs/scripts/force_rebalance.sh >> /home/gordonpn/logs/force_rebalance.log 2>&1
 0 2 * * * cd /home/gordonpn/workspace/dotfiles && /usr/bin/git pull origin master
 ```
 
