@@ -12,10 +12,10 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Kubernetes Workloads** | 100% (Completed) | None (All workloads managed via Helmfile workloads chart) | Helmfile ([k8s/charts/helmfile.yaml](file:///k8s/charts/helmfile.yaml)) | Completed |
 | **Uptime Kuma Monitoring** | 100% (Completed) | None (7 push monitors and Slack notification imported) | Terraform ([terraform/uptime_kuma.tf](file:///terraform/uptime_kuma.tf)) | Completed |
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
-| **Terraform Deploy on Push** | Backend migrated; PR validation verified | Master apply awaits merge and post-merge verification | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | In progress |
+| **Terraform Deploy on Push** | 100% (Completed) | Automated PR planning and master apply verified | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | Completed |
 | **Host OS & Firewall (VPS)** | 100% (Completed) | Inbound host access restricted to Tailscale; public ports 22/443 closed | nftables ([scripts/vps-firewall/nftables.conf](../scripts/vps-firewall/nftables.conf)) | Completed |
 | **Legacy Host Services** | Systemd | `autossh` (`vps-tunnel.service`) on `master` | Decommissioned ([#39](https://github.com/gordonpn/server-services-configs/issues/39)) | Completed |
-| **Local Compose Stacks** | Tracked in Git | `/home/gordonpn/jellyfin/` directory drift risk | Symlink to repo compose files | Low |
+| **Local Compose Stacks** | 100% (Completed) | None (Runtime compose file symlinked to repository) | Symlink ([#34](https://github.com/gordonpn/server-services-configs/issues/34)) | Completed |
 
 ---
 
@@ -112,20 +112,18 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 
 ---
 
-## 5. Domain 4: Standalone Docker Compose Workloads
+## 5. Domain 4: Standalone Docker Compose Workloads (Completed in [#34](https://github.com/gordonpn/server-services-configs/issues/34))
 
 ### Current State
-* The Jellyfin media stack runs from `/home/gordonpn/jellyfin/docker-compose.yml`.
-* A replica file exists in `docker-compose/jellyfin/docker-compose.yml`.
-
-### Action Plan
-* Replace `/home/gordonpn/jellyfin/docker-compose.yml` with a symlink to the version-controlled `docker-compose/jellyfin/docker-compose.yml` to prevent configuration drift.
+* The Jellyfin media automation stack (`jellyfin`, `jellyseerr`, `sonarr`, `radarr`, `prowlarr`, `rdtclient`, `autoscan`, `flaresolverr`) runs as a standalone Docker Compose stack directly on `master`.
+* The host compose file `/home/gordonpn/jellyfin/docker-compose.yml` is configured as a symbolic link pointing to the version-controlled file at `/home/gordonpn/workspace/server-services-configs/docker-compose/jellyfin/docker-compose.yml`.
+* All 8 containers run stably without configuration drift between host runtime and git.
 
 ---
 
-## 6. Domain 5: Terraform Automated GitOps Pipeline (Deploy on Push)
+## 6. Domain 5: Terraform Automated GitOps Pipeline (Deploy on Push - Completed)
 
-### Current State (Backend Migrated; PR Validation Verified)
+### Current State
 * Terraform state migrated to MinIO S3 backend (`terraform-state` bucket on `master` backed by persistent hostPath storage on 1TB SSD).
 * MinIO service exposed via NodePort `30900` over Tailscale for local workstation `task tf:plan` and `task tf:apply` execution.
 * GitHub Actions repository secrets configured for automation:
@@ -137,11 +135,11 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
   * `TF_VAR_KUMA_PASSWORD`
   * `TF_VAR_KUMA_SLACK_WEBHOOK_URL`
   * `TF_VAR_HEALTHCHECKSIO_API_KEY`
-* The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) is re-enabled on `home-lab-runners`:
+* The GitHub Actions Terraform workflow ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) runs on `home-lab-runners`:
   * Scoped triggers on `terraform/**`, `Taskfile.yaml`, `scripts/ci/**`, `tests/**`, and the Terraform workflow itself.
   * Runs offline backend credential regression checks before contacting infrastructure.
   * Runs formatting checks, initialization, validation, and speculative planning on pull requests.
-  * Configures automatic reconciliation on `master` pushes; activation and verification of that path await merge.
+  * Automatically reconciles infrastructure changes on pushes to `master` (verified in PR #40).
 * Lock-contention and backup-restore exercises remain unverified. The Longhorn recurring backup does not back up the Terraform state bucket.
 * Refer to [docs/terraform_iac.md](terraform_iac.md) for architecture, operational workflows, and disaster recovery procedures.
 
