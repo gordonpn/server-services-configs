@@ -8,35 +8,30 @@
 
 ## NOW: Recommended Next Task
 
-### [#32: Harden edge VPS host firewall (racknerd-edc1bc8)](https://github.com/gordonpn/server-services-configs/issues/32)
+### [#33: Establish automated offsite replication for MinIO Terraform state](https://github.com/gordonpn/server-services-configs/issues/33)
 * **Priority:** P1
-* **Effort:** S
-* **Readiness:** READY; independent of other open issues.
-* **Why now:** Reduces the RackNerd VPS attack surface following the decommissioning of the legacy autossh tunnel (#39). Enforces default-deny inbound host access (allowing `tailscale0` only) and closes public SSH ports 22 and 443, while preserving Cloudflare ingress via Caddy over Tailscale.
-* **First action:** Inspect current firewall rules, open listening ports, and Docker iptables chains on `racknerd-edc1bc8`.
-* **Definition of Done:** Host firewall defaults to deny inbound, public SSH on 22/443 is unreachable from WAN, SSH over Tailscale remains accessible, and Caddy ingress traffic routes normally.
-* **Unblocks:** Completes VPS host OS security hardening without disrupting public services.
+* **Effort:** M
+* **Readiness:** READY
+* **Why now:** Resolves the critical single-disk failure risk on `master`. Replicates OpenTofu state snapshots to an offsite S3-compatible cloud bucket (e.g. Cloudflare R2) so infrastructure state survives local hardware failure.
+* **First action:** Evaluate offsite storage target bucket options, credentials, and automated replication tooling.
+* **Definition of Done:** Terraform state bucket on MinIO replicates automatically to offsite bucket with verified recovery procedures.
+* **Unblocks:** Critical disaster recovery foundation for home infrastructure state.
 
 ---
 
 ## NEXT: Upcoming Work
 
-1. **[#33: Establish automated offsite replication for MinIO Terraform state](https://github.com/gordonpn/server-services-configs/issues/33)**
-   * **Priority:** P1 | **Effort:** M | **Readiness:** READY
-   * **Dependencies:** None.
-   * **Rationale:** Resolves the critical single-disk failure risk on `master`. Replicates OpenTofu state snapshots to an offsite S3-compatible cloud bucket (e.g. Cloudflare R2) so infrastructure state survives local hardware failure.
-
-2. **[#34: Symlink Jellyfin host compose configuration to repository](https://github.com/gordonpn/server-services-configs/issues/34)**
+1. **[#34: Symlink Jellyfin host compose configuration to repository](https://github.com/gordonpn/server-services-configs/issues/34)**
    * **Priority:** P2 | **Effort:** XS | **Readiness:** READY
    * **Dependencies:** None (Trivial operational fix).
    * **Rationale:** Replaces runtime compose file `/home/gordonpn/jellyfin/docker-compose.yml` on `master` with a symlink to version-controlled `docker-compose/jellyfin/docker-compose.yml`, preventing host configuration drift.
 
-3. **[#36: Purge obsolete deployment scripts, legacy CI pipelines, and dead documentation](https://github.com/gordonpn/server-services-configs/issues/36)**
+2. **[#36: Purge obsolete deployment scripts, legacy CI pipelines, and dead documentation](https://github.com/gordonpn/server-services-configs/issues/36)**
    * **Priority:** P2 | **Effort:** S | **Readiness:** READY
    * **Dependencies:** None.
    * **Rationale:** Eliminates technical debt by removing dead shell scripts (`scripts/ping.sh`, `scripts/ddns-start`, `scripts/force_rebalance.sh`, `scripts/deploy.sh`), dead CI configs (`Jenkinsfile`, `.drone.yml`), and outdated references to decommissioned Raspberry Pi nodes.
 
-4. **[#14: Provision a reproducible Always-Free OCI A1 foundation](https://github.com/gordonpn/server-services-configs/issues/14)**
+3. **[#14: Provision a reproducible Always-Free OCI A1 foundation](https://github.com/gordonpn/server-services-configs/issues/14)**
    * **Priority:** P1 | **Effort:** M | **Readiness:** READY
    * **Dependencies:** Tenancy home region eligibility and A1 capacity verification.
    * **Rationale:** Initiates the strategic offsite disaster recovery track (Epic #12) by creating a reproducible ARM64 compute instance and private Tailscale network path outside the home failure domain.
