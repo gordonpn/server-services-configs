@@ -21,15 +21,15 @@
 
 ## NEXT: Upcoming Work
 
-1. **[#34: Symlink Jellyfin host compose configuration to repository](https://github.com/gordonpn/server-services-configs/issues/34)**
-   * **Priority:** P2 | **Effort:** XS | **Readiness:** READY
-   * **Dependencies:** None (Trivial operational fix).
-   * **Rationale:** Replaces runtime compose file `/home/gordonpn/jellyfin/docker-compose.yml` on `master` with a symlink to version-controlled `docker-compose/jellyfin/docker-compose.yml`, preventing host configuration drift.
-
-2. **[#36: Purge obsolete deployment scripts, legacy CI pipelines, and dead documentation](https://github.com/gordonpn/server-services-configs/issues/36)**
+1. **[#36: Purge obsolete deployment scripts, legacy CI pipelines, and dead documentation](https://github.com/gordonpn/server-services-configs/issues/36)**
    * **Priority:** P2 | **Effort:** S | **Readiness:** READY
    * **Dependencies:** None.
    * **Rationale:** Eliminates technical debt by removing dead shell scripts (`scripts/ping.sh`, `scripts/ddns-start`, `scripts/force_rebalance.sh`, `scripts/deploy.sh`), dead CI configs (`Jenkinsfile`, `.drone.yml`), and outdated references to decommissioned Raspberry Pi nodes.
+
+2. **[#22: Export Uptime Kuma metrics to Prometheus](https://github.com/gordonpn/server-services-configs/issues/22)**
+   * **Priority:** P1 | **Effort:** S | **Readiness:** READY
+   * **Dependencies:** None.
+   * **Rationale:** Correlates external Northflank Uptime Kuma monitor observations with internal Prometheus metrics by configuring an authenticated HTTPS scrape target.
 
 3. **[#14: Provision a reproducible Always-Free OCI A1 foundation](https://github.com/gordonpn/server-services-configs/issues/14)**
    * **Priority:** P1 | **Effort:** M | **Readiness:** READY
