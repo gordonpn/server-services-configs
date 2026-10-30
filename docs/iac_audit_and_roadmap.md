@@ -90,7 +90,7 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 
 ---
 
-## 4. Domain 3: VPS Host OS & Firewall Hardening
+## 4. Domain 3: VPS Host OS & Firewall Hardening (Completed in [#32](https://github.com/gordonpn/server-services-configs/issues/32))
 
 ### Current State
 * Node `racknerd-edc1bc8` host firewall is enforced via `nftables` (`table inet host_firewall`) with a default-deny inbound policy.

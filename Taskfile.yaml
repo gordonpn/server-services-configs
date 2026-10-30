@@ -42,35 +42,10 @@ tasks:
     cmds:
       - bash tests/swarm-deploy-token.sh
 
-  ci:
-    desc: Generate CI/CD config from jsonnet
-    cmds:
-      - drone jsonnet --format --stream
-
   script:backup:
     desc: Run backup script
     cmds:
       - bash scripts/backup.sh
-
-  script:ddns:
-    desc: Run DDNS start script
-    cmds:
-      - bash scripts/ddns-start
-
-  script:deploy:
-    desc: Run deployment script
-    cmds:
-      - bash scripts/deploy.sh
-
-  script:rebalance:
-    desc: Run force rebalance script
-    cmds:
-      - bash scripts/force_rebalance.sh
-
-  script:ping:
-    desc: Run ping healthcheck script
-    cmds:
-      - bash scripts/ping.sh
 
   script:trim-logs:
     desc: Trim logs
