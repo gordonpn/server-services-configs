@@ -62,7 +62,7 @@ These services run as standalone Docker Compose stacks on specific hosts outside
 
 ---
 
-### B. Boston Node (`pi-bos-0`)
+### B. Remote VPS Node (`racknerd-edc1bc8`)
 
 *   **Active Services:**
-    *   *No standalone Docker Compose stacks are currently running on this host.* The only active container is the `kuma-ping` Swarm worker task.
+    *   *No standalone Docker Compose stacks run on this host.* All container workloads on `racknerd-edc1bc8` are orchestrated via Docker Swarm (`caddy`, `kuma-ping`).
