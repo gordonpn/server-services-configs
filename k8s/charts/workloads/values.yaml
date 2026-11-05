@@ -4,6 +4,8 @@ cloudflared:
     repository: cloudflare/cloudflared
     tag: 2026.10.4
     pullPolicy: IfNotPresent
+  protocol: http2
+  edgeIpVersion: "4"
 
 redis:
   replicas: 1

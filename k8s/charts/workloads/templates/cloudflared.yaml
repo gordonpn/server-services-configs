@@ -1,3 +1,13 @@
+{{- $validProtocols := list "auto" "http2" "quic" -}}
+{{- $protocol := .Values.cloudflared.protocol | default "http2" -}}
+{{- if not (has $protocol $validProtocols) -}}
+{{- fail (printf "cloudflared.protocol must be one of [%s], got %q" ($validProtocols | join ", ") $protocol) -}}
+{{- end -}}
+{{- $validEdgeIpVersions := list "4" "6" "auto" -}}
+{{- $edgeIpVersion := .Values.cloudflared.edgeIpVersion | default "4" | toString -}}
+{{- if not (has $edgeIpVersion $validEdgeIpVersions) -}}
+{{- fail (printf "cloudflared.edgeIpVersion must be one of [%s], got %q" ($validEdgeIpVersions | join ", ") $edgeIpVersion) -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,6 +41,10 @@ spec:
             - --metrics
             - 0.0.0.0:2000
             - --no-autoupdate
+            - --edge-ip-version
+            - {{ $edgeIpVersion | quote }}
+            - --protocol
+            - {{ $protocol | quote }}
             - run
             - --token
             - "$(TUNNEL_TOKEN)"
