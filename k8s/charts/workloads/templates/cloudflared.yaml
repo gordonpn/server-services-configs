@@ -31,6 +31,10 @@ spec:
             - --metrics
             - 0.0.0.0:2000
             - --no-autoupdate
+            - --edge-ip-version
+            - {{ .Values.cloudflared.edgeIpVersion | default "4" | quote }}
+            - --protocol
+            - {{ .Values.cloudflared.protocol | default "http2" | quote }}
             - run
             - --token
             - "$(TUNNEL_TOKEN)"
