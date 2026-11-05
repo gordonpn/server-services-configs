@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Workloads Chart Values",
+  "type": "object",
+  "properties": {
+    "cloudflared": {
+      "type": "object",
+      "properties": {
+        "replicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["auto", "http2", "quic"],
+          "description": "Transport protocol used to establish connections to the Cloudflare global network"
+        },
+        "edgeIpVersion": {
+          "type": ["string", "integer"],
+          "enum": ["4", "6", "auto", 4, 6],
+          "description": "Cloudflare Edge IP address version to connect with"
+        }
+      }
+    }
+  }
+}
