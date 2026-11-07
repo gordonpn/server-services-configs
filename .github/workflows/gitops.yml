@@ -81,7 +81,7 @@ jobs:
       - name: Setup Helmfile
         run: |
           set -eo pipefail
-          HELMFILE_VERSION="1.2.3"
+          HELMFILE_VERSION="1.8.2"
           ARCH=$(uname -m)
           if [ "$ARCH" = "x86_64" ]; then
             ARCH="amd64"
