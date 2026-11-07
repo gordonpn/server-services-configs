@@ -77,7 +77,9 @@ jobs:
       - name: Install Helm Diff Plugin
         run: |
           set -eo pipefail
-          $HOME/.local/bin/helm plugin install https://github.com/databus23/helm-diff --version v3.15.12 || true
+          if ! $HOME/.local/bin/helm plugin list | grep -q 'diff'; then
+            $HOME/.local/bin/helm plugin install https://github.com/databus23/helm-diff --version v3.15.12 --verify=false
+          fi
 
       - name: Setup Helmfile
         run: |
