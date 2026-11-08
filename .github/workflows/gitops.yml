@@ -7,6 +7,7 @@ on:
     paths:
       - 'k8s/**'
       - 'Taskfile.yaml'
+      - 'scripts/ci/setup-helm-diff.sh'
       - '.github/workflows/gitops.yml'
   workflow_dispatch:
 
@@ -75,9 +76,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Helm Diff Plugin
-        run: |
-          set -eo pipefail
-          $HOME/.local/bin/helm plugin install https://github.com/databus23/helm-diff --version v3.15.12 || true
+        run: ./scripts/ci/setup-helm-diff.sh
 
       - name: Setup Helmfile
         run: |
