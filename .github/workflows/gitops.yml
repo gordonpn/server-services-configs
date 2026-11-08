@@ -7,6 +7,7 @@ on:
     paths:
       - 'k8s/**'
       - 'Taskfile.yaml'
+      - 'scripts/ci/setup-helm-diff.sh'
       - '.github/workflows/gitops.yml'
   workflow_dispatch:
 
@@ -75,29 +76,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Helm Diff Plugin
-        run: |
-          set -eo pipefail
-          DIFF_VERSION="3.15.12"
-          if ! $HOME/.local/bin/helm plugin list | awk -v ver="$DIFF_VERSION" 'NR > 1 && $1 == "diff" && $2 == ver { found = 1 } END { exit !found }'; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" = "x86_64" ]; then
-              ARCH="amd64"
-              DIFF_SHA256="977f92cd82269585a3ee7744d646462142333bb0be573fd8be0c983973175fc7"
-            elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-              ARCH="arm64"
-              DIFF_SHA256="c3d240d4b284b57b6ab76bbfe47ac84edbf0de239f15c4ff759152fa2b7777f8"
-            else
-              echo "Unsupported architecture: $ARCH" >&2
-              exit 1
-            fi
-            curl -sSL --retry 5 --retry-delay 3 --retry-connrefused --fail "https://github.com/databus23/helm-diff/releases/download/v${DIFF_VERSION}/helm-diff-linux-${ARCH}.tgz" -o /tmp/helm-diff.tgz
-            echo "${DIFF_SHA256}  /tmp/helm-diff.tgz" | sha256sum -c -
-            PLUGIN_DIR="$($HOME/.local/bin/helm env HELM_PLUGINS)"
-            mkdir -p "$PLUGIN_DIR"
-            rm -rf "$PLUGIN_DIR/diff" "$PLUGIN_DIR/helm-diff"
-            tar -zxf /tmp/helm-diff.tgz -C "$PLUGIN_DIR"
-            rm -f /tmp/helm-diff.tgz
-          fi
+        run: ./scripts/ci/setup-helm-diff.sh
 
       - name: Setup Helmfile
         run: |
