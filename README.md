@@ -1,7 +1,7 @@
 # Server service configs and tools
 
 ![Healthchecks](https://healthchecks.io/badge/63a82bd5-b473-430b-9745-22843eff864e/ckgqM2Fm.svg)
-![License](https://badgen.net/github/license/gordonpn/server-services-configs)
+![License](https://badgen.net/github/license/gordonpn/homelab)
 
 ## Description
 
@@ -271,9 +271,9 @@ sudo systemctl mask systemd-journald.service
 Here are some examples
 
 ```
-@reboot /home/gordonpn/workspace/server-services-configs/scripts/get_dhcp.sh
-0 3 * * * /home/gordonpn/workspace/server-services-configs/scripts/backup.sh >> /home/gordonpn/logs/backup.log 2>&1
-0 5 * * * /home/gordonpn/workspace/server-services-configs/scripts/update_containers.sh >> /home/gordonpn/logs/container_update.log 2>&1
+@reboot /home/gordonpn/workspace/homelab/scripts/get_dhcp.sh
+0 3 * * * /home/gordonpn/workspace/homelab/scripts/backup.sh >> /home/gordonpn/logs/backup.log 2>&1
+0 5 * * * /home/gordonpn/workspace/homelab/scripts/update_containers.sh >> /home/gordonpn/logs/container_update.log 2>&1
 @reboot sleep 600 && /usr/bin/docker swarm ca --rotate --quiet
 0 2 * * * cd /home/gordonpn/workspace/dotfiles && /usr/bin/git pull origin master
 ```
