@@ -24,15 +24,15 @@ Swarm services are deployed globally or replicated across the Swarm cluster usin
 
 ### Active Stacks
 *   **kuma-ping** (Global Service)
-    *   **Compose Location:** [docker-swarm/kuma-ping/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/kuma-ping/docker-compose.yml)
+    *   **Compose Location:** [docker-swarm/kuma-ping/docker-compose.yml](file:///home/gordonpn/workspace/homelab/docker-swarm/kuma-ping/docker-compose.yml)
     *   **Description:** Global agent task that runs on every online Swarm node, reads the host hostname, and pushes health status alerts to Northflank Uptime Kuma every 40 seconds.
     *   **Scheduling Mode:** `global` (1 replica per active node)
 *   **whoami** (Replicated Service)
-    *   **Compose Location:** [docker-swarm/whoami/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/whoami/docker-compose.yml)
+    *   **Compose Location:** [docker-swarm/whoami/docker-compose.yml](file:///home/gordonpn/workspace/homelab/docker-swarm/whoami/docker-compose.yml)
     *   **Description:** HTTP request echo service pinned to `master` exposing port `8080` to the Tailscale mesh.
     *   **Scheduling Mode:** `replicated` (1 replica on `master`)
 *   **caddy** (Replicated Services)
-    *   **Compose Location:** [docker-swarm/caddy/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-swarm/caddy/docker-compose.yml)
+    *   **Compose Location:** [docker-swarm/caddy/docker-compose.yml](file:///home/gordonpn/workspace/homelab/docker-swarm/caddy/docker-compose.yml)
     *   **Description:** VPS ingress shield running on node `racknerd-edc1bc8`. Contains `cloudflared` (Cloudflare Tunnel) and `caddy` (reverse proxy) communicating over the private `vps_shield_net` overlay network with zero host ports exposed. Proxies traffic across Tailscale to backend services on `master`.
     *   **Scheduling Mode:** `replicated` (`caddy` and `cloudflared` on `racknerd-edc1bc8`)
 
@@ -45,7 +45,7 @@ These services run as standalone Docker Compose stacks on specific hosts outside
 ### A. Master Node (`master`)
 
 #### 1. Media & Automation Stack (Jellyfin Stack)
-*   **Compose Configuration:** [docker-compose/jellyfin/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-compose/jellyfin/docker-compose.yml)
+*   **Compose Configuration:** [docker-compose/jellyfin/docker-compose.yml](file:///home/gordonpn/workspace/homelab/docker-compose/jellyfin/docker-compose.yml)
 *   **Active Services:**
     *   `jellyfin` (Port `8096`, `1900/udp`, `7359/udp`, `8920`) - Primary media client
     *   `jellyseerr` (Port `5055`) - Media discovery/requests
@@ -57,7 +57,7 @@ These services run as standalone Docker Compose stacks on specific hosts outside
     *   `flaresolverr` (Port `8191`) - Captcha bypass proxy for indexers
 
 #### 2. Audio Bridge Stack (AirConnect & Music Assistant - Disabled)
-*   **Compose Configuration:** [docker-compose/airconnect-music-assistant/docker-compose.yml](file:///home/gordonpn/workspace/server-services-configs/docker-compose/airconnect-music-assistant/docker-compose.yml)
+*   **Compose Configuration:** [docker-compose/airconnect-music-assistant/docker-compose.yml](file:///home/gordonpn/workspace/homelab/docker-compose/airconnect-music-assistant/docker-compose.yml)
 *   **Status:** Stopped and disabled (`restart: "no"`).
 
 ---

@@ -76,7 +76,7 @@ releases:
     needs:
       - actions-runner-system/arc-controller
     values:
-      - githubConfigUrl: "https://github.com/gordonpn/server-services-configs"
+      - githubConfigUrl: "https://github.com/gordonpn/homelab"
       - githubConfigSecret: "github-actions-runner-token"
       - minRunners: 1
       - maxRunners: 5

@@ -14,8 +14,8 @@ This document captures the audit of unmanaged infrastructure components across t
 | **Healthchecks.io Monitoring** | Checks Managed | Slack integration configured externally in Healthchecks.io (channel attached via data source) | Terraform ([terraform/healthchecks.tf](../terraform/healthchecks.tf)) | Completed |
 | **Terraform Deploy on Push** | 100% (Completed) | Automated PR planning and master apply verified | GitHub Actions ([.github/workflows/terraform.yml](../.github/workflows/terraform.yml)) | Completed |
 | **Host OS & Firewall (VPS)** | 100% (Completed) | Inbound host access restricted to Tailscale; public ports 22/443 closed | nftables ([scripts/vps-firewall/nftables.conf](../scripts/vps-firewall/nftables.conf)) | Completed |
-| **Legacy Host Services** | Systemd | `autossh` (`vps-tunnel.service`) on `master` | Decommissioned ([#39](https://github.com/gordonpn/server-services-configs/issues/39)) | Completed |
-| **Local Compose Stacks** | 100% (Completed) | None (Runtime compose file symlinked to repository) | Symlink ([#34](https://github.com/gordonpn/server-services-configs/issues/34)) | Completed |
+| **Legacy Host Services** | Systemd | `autossh` (`vps-tunnel.service`) on `master` | Decommissioned ([#39](https://github.com/gordonpn/homelab/issues/39)) | Completed |
+| **Local Compose Stacks** | 100% (Completed) | None (Runtime compose file symlinked to repository) | Symlink ([#34](https://github.com/gordonpn/homelab/issues/34)) | Completed |
 
 ---
 
@@ -90,7 +90,7 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 
 ---
 
-## 4. Domain 3: VPS Host OS & Firewall Hardening (Completed in [#32](https://github.com/gordonpn/server-services-configs/issues/32))
+## 4. Domain 3: VPS Host OS & Firewall Hardening (Completed in [#32](https://github.com/gordonpn/homelab/issues/32))
 
 ### Current State
 * Node `racknerd-edc1bc8` host firewall is enforced via `nftables` (`table inet host_firewall`) with a default-deny inbound policy.
@@ -100,23 +100,23 @@ All user-facing Kubernetes workloads and scaling policies are managed declarativ
 * Node `master` legacy `vps-tunnel.service` (`autossh`) is stopped, disabled, and removed.
 
 ### Action Plan
-1. **Decommission Autossh (Completed in [#39](https://github.com/gordonpn/server-services-configs/issues/39)):**
+1. **Decommission Autossh (Completed in [#39](https://github.com/gordonpn/homelab/issues/39)):**
    * Stopped and disabled `vps-tunnel.service` on `master` (`sudo systemctl disable --now vps-tunnel.service`).
    * Removed `/etc/systemd/system/vps-tunnel.service` and reloaded systemd daemon.
    * Confirmed no orphaned `autossh` processes remain running.
    * All administrative access and service communications route securely over the private Tailscale WireGuard mesh (`100.88.170.93` <-> `100.72.77.63`).
-2. **Automate Firewall Rules (Completed in [#32](https://github.com/gordonpn/server-services-configs/issues/32)):**
+2. **Automate Firewall Rules (Completed in [#32](https://github.com/gordonpn/homelab/issues/32)):**
    * Applied default-deny inbound host policy via native `nftables` configuration ([scripts/vps-firewall/nftables.conf](../scripts/vps-firewall/nftables.conf)).
    * Enabled and started `nftables.service` to persist rules across host reboots without interfering with Docker Swarm overlay or K3s Flannel networking.
    * Removed legacy `Port 443` from `/etc/ssh/sshd_config` and drop-ins; verified SSH over Tailscale remains available and public WAN SSH is unreachable.
 
 ---
 
-## 5. Domain 4: Standalone Docker Compose Workloads (Completed in [#34](https://github.com/gordonpn/server-services-configs/issues/34))
+## 5. Domain 4: Standalone Docker Compose Workloads (Completed in [#34](https://github.com/gordonpn/homelab/issues/34))
 
 ### Current State
 * The Jellyfin media automation stack (`jellyfin`, `jellyseerr`, `sonarr`, `radarr`, `prowlarr`, `rdtclient`, `autoscan`, `flaresolverr`) runs as a standalone Docker Compose stack directly on `master`.
-* The host compose file `/home/gordonpn/jellyfin/docker-compose.yml` is configured as a symbolic link pointing to the version-controlled file at `/home/gordonpn/workspace/server-services-configs/docker-compose/jellyfin/docker-compose.yml`.
+* The host compose file `/home/gordonpn/jellyfin/docker-compose.yml` is configured as a symbolic link pointing to the version-controlled file at `/home/gordonpn/workspace/homelab/docker-compose/jellyfin/docker-compose.yml`.
 * All 8 containers run stably without configuration drift between host runtime and git.
 
 ---
